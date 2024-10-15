@@ -1,6 +1,7 @@
 import {EachMessagePayload, Kafka, KafkaConfig, PartitionAssigners} from "kafkajs";
 import {Session} from "../models/session.model";
-import {setClient} from "../mappers/clients.map";
+import {clientsMap} from "../mappers/clients.map";
+import * as console from "console";
 
 
 const kafkaConfig: KafkaConfig = {
@@ -19,10 +20,16 @@ export async function startKafka() {
     await consumer.subscribe({topic: 'request-ws-startws-topic', fromBeginning: true});
     await consumer.run({
         eachMessage: async ({topic, partition, message}: EachMessagePayload) => {
+            console.log('message kafka',message.value)
             if (message.value instanceof Buffer) {
+                console.log('kafka after if', message.value.toString())
                 const sessionToken: string = message.value.toString();
-                const sessiontTokensObj: Session = JSON.parse(sessionToken);
-                setClient(sessiontTokensObj.wsSessionToken, sessiontTokensObj.usersTokens);
+                console.log('$$$$$$$$$$$$$$$$$$$$',sessionToken)
+                const sessiontTokensObj: Session = JSON.parse(JSON.parse(sessionToken));
+                console.log('sessiontTokensObj',sessiontTokensObj, typeof  sessionToken)
+                console.log('sessiont token extracted ######################',sessiontTokensObj.wsSessionToken)
+                clientsMap.setClient(sessiontTokensObj.wsSessionToken, sessiontTokensObj.usersTokens);
+                console.log(clientsMap.getClient(sessiontTokensObj.wsSessionToken));
             }
 
         }

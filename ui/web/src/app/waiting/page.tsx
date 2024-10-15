@@ -5,15 +5,17 @@ import useWebSocket from "../../../../shared/hooks/useWebSocket";
 import  {SessionApiState} from "../../../../shared/slices/createSession.slice";
 const ChatWaiting: React.FC = () => {
     const sessionApiState: SessionApiState = useAppSelector(state => state.sessionApiState);
-    const {  sendToken } = useWebSocket();
+    const {  sendToken, isConnected } = useWebSocket();
     useEffect(() => {
-            if (sessionApiState.sessionToken) {
+        console.log('isConnected',isConnected)
+            console.log("(sessionApiState.sessionToken",sessionApiState.sessionToken)
+            if (sessionApiState.sessionToken && isConnected) {
                 sendToken(sessionApiState.sessionToken)
             }
 
         return () => {
         }
-    }, [sessionApiState]);
+    }, [sessionApiState, isConnected]);
     return (
         <section>
             <div>

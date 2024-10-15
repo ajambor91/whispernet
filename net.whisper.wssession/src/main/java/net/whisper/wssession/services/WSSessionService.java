@@ -35,7 +35,10 @@ public class WSSessionService {
             String wsToken = UUID.randomUUID().toString();
             wsSessionRepository.saveToken(userToken, wsToken);
             TokenWithSessionTemplate tokenTemplate = createWSessionTokenTemplate(userToken, wsToken);
+            TokenCreatedWSession tokenCreatedWSession = createCreatedSessionTokenObject(wsToken, userToken);
             String jsonSession = objectMapper.writeValueAsString(tokenTemplate);
+            String jsonCreatedSession = objectMapper.writeValueAsString(tokenCreatedWSession);
+            sendKafkaMsg(jsonCreatedSession, "request-ws-startws-topic");
             sendKafkaMsg(jsonSession, "request-ws-token-topic");
         } catch (java.lang.Exception e) {
             throw new RuntimeException(e);
@@ -56,6 +59,8 @@ public class WSSessionService {
             wsSessionRepository.saveToken(newWsTokenValue, wsToken);
             TokenCreatedWSession tokenCreatedWSession = createCreatedSessionTokenObject(wsToken, newWsTokenValue);
             String jsonSession = objectMapper.writeValueAsString(tokenCreatedWSession);
+            System.out.println("SENDINS");
+            System.out.println(jsonSession);
             sendKafkaMsg(jsonSession, "request-ws-startws-topic");
         } catch (java.lang.Exception e) {
             throw new RuntimeException(e);

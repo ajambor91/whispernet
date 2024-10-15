@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import wSReducer from "../slices/wsession";
+import sessionApiState from "../slices/createSession.slice";
 import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 export const store = configureStore({
     reducer: {
-        wSession: wSReducer
+        sessionApiState: sessionApiState
     }
 })
 

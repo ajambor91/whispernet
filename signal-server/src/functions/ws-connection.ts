@@ -11,12 +11,15 @@ export const wsConnection = () => {
         console.log('cookie',cookie)
         ws.on('message', (message: string) => {
             console.log('message',message);
-            const clients = getClient(message);
-            const isClientTokenCorrect: boolean = !!clients.some(client => client === cookie);
-            console.log('isClientTokenCorrect', isClientTokenCorrect);
-            if (isClientTokenCorrect) {
-                setSession(message, ws);
+            const clients: string[] | undefined = getClient(message);
+            if (!!clients && Array.isArray(clients)) {
+                const isClientTokenCorrect: boolean = clients.some(client => client === cookie);
+                console.log('isClientTokenCorrect', isClientTokenCorrect);
+                if (isClientTokenCorrect) {
+                    setSession(message, ws);
+                }
             }
+
         })
     })
 }

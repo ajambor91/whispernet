@@ -12,11 +12,14 @@ const nextConfig = {
     },
      webpack: (config) => {
         const __dirname = path.dirname(fileURLToPath(import.meta.url));
-        config.resolve.alias['@shared'] = path.resolve(__dirname, '../shared');
+        config.resolve.alias['@shared'] = path.resolve(__dirname,'..','shared');
         return config;
     },
     sassOptions: {
         additionalData: `$var: red;`,
+    },
+    experimental: {
+        externalDir: true,
     },
 };
 

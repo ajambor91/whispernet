@@ -1,17 +1,24 @@
 'use client'
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useAppSelector} from "../../../../shared/store/store";
 import useWebSocket from "../../../../shared/hooks/useWebSocket";
+import  {SessionApiState} from "../../../../shared/slices/createSession.slice";
 const ChatWaiting: React.FC = () => {
-    const wSession = useAppSelector(state => state.wSession);
-    console.log(wSession)
-    const { isConnected, messages, sendToken } = useWebSocket();
-    sendToken(wSession)
+    const sessionApiState: SessionApiState = useAppSelector(state => state.sessionApiState);
+    const {  sendToken } = useWebSocket();
+    useEffect(() => {
+            if (sessionApiState.sessionToken) {
+                sendToken(sessionApiState.sessionToken)
+            }
+
+        return () => {
+        }
+    }, [sessionApiState]);
     return (
         <section>
             <div>
                 <h2>Copy and paste </h2>
-                <p>hash: {wSession.wSession.sessionToken}</p></div>
+                <p>hash: {sessionApiState.sessionToken}</p></div>
         </section>
     )
 }

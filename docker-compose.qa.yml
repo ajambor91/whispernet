@@ -19,7 +19,7 @@ services:
   gateway:
     build: './nginx'
     ports:
-      - '8099:80'
+      - '80:80'
     networks:
       - whispernet
     hostname: gateway.whisper.net
@@ -60,8 +60,7 @@ services:
       - whispernet
     hostname: frontend.whisper.net
     container_name: frontend
-networks:
-  whispernet:
+networks:docker compos
     driver: 'bridge'
 
 volumes:

@@ -1,6 +1,6 @@
-import {Layout} from "@shared/layout/layout";
 import Navigation from "@/app/components/navigation/Navigation";
 import StoreProvider from "@/app/StoreProvider";
+import {Layout} from "../../../shared/layout/Layout";
 
 
 export const metadata = {

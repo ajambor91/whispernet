@@ -9,8 +9,8 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({children}) => {
   return (
-      <div class="container">
-        <main>{children}</main>
+      <div className="container">
+        <main>{children ? children : undefined}</main>
       </div>
   )
 }

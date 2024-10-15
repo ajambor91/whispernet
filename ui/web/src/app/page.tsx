@@ -1,50 +1,62 @@
 "use client"
 
-import ChatActions from "@shared/components/chat-actions/ChatActions";
-import Centered from "@shared/components/centered/Centered"
-import Header from "@shared/components/header/Header"
 import useNewChat from "../../../shared/hooks/useNewChat";
-import useJoinChat from "../../../shared/hooks/useJoinChat";
-import {useState} from "react";
-import {useRouter} from "next/navigation";
-import {useAppDispatch} from '@shared/store/store';
-import {setWSession} from '@shared/slices/wsession';
-import {useDispatch} from "react-redux";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import Centered from "../../../shared/components/centered/Centered";
+import Header from "../../../shared/components/header/Header";
+import ChatActions from "../../../shared/components/chat-actions/ChatActions";
+import { setCreateSession } from "../../../shared/slices/createSession.slice";
+import { SessionApiState } from "../../../shared/slices/createSession.slice";
+
 export default function Home() {
-    const { createNewChat, response, loading, error } = useNewChat();
-    const [showNewChat, setShowNewChat] = useState<boolean>(false);
-    const [data, setData] = useState(null);
+    const { createNewChat, response, error, loading } = useNewChat();
     const router = useRouter();
-    const {state} = router;
     const dispatch = useDispatch();
     const goToWaitingPage = () => {
-        console.log('xxxxxYYYY')
         router.push('/waiting');
     }
 
     const goToJoiningPage = () => {
         router.push('/join');
     }
-    const handleNewChatClick = async () => {
-        const data = await createNewChat(); // Wysyłamy request do API
-        console.log('DDDDDD', data)
-        if (data) {
-            dispatch(setWSession(data));
-            setShowNewChat(true); // Jeśli brak błędu, pokazujemy komponent NewChat
-            goToWaitingPage()
 
+    useEffect(() => {
+            dispatch(setCreateSession({
+                sessionToken: response ? response.sessionToken : null,
+                error: error,
+                loading: loading
+            }));
+
+            if (response && !error) {
+                goToWaitingPage();
+            }
+
+
+        return () => {
         }
+    }, [response, error, loading]);
+
+    const handleNewChatClick = async () => {
+        dispatch(setCreateSession({
+            sessionToken: null,
+            error: null,
+            loading: true
+        } as SessionApiState));
+        await createNewChat();
     };
 
     const handleJoinChatClick = async () => {
         goToJoiningPage();
-    }
-  return (
-      <div>
-          <Centered>
-        <Header />
-        <ChatActions onChatJoin={handleJoinChatClick.bind(this)} onChatCreate={handleNewChatClick.bind(this)} />
-          </Centered>
-      </div>
-  );
+    };
+
+    return (
+        <div>
+            <Centered>
+                <Header />
+                <ChatActions onChatJoin={handleJoinChatClick} onChatCreate={handleNewChatClick} loading={loading} />
+            </Centered>
+        </div>
+    );
 }

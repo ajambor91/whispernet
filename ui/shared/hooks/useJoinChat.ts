@@ -12,10 +12,12 @@ const useJoinChat = () => {
             if (!response.ok) {
                 throw new Error('Failed to found existing chat');
             }
-            return data;
+            setResponse(data);
 
         } catch (e: any) {
             setError(e);
+        } finally {
+            setLoading(false);
         }
     }
     return { joinChat, response, loading, error };

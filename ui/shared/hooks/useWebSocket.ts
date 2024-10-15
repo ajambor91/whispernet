@@ -1,12 +1,14 @@
 'use client'
-import {Ref, useEffect, useRef, useState} from "react";
+import {MutableRefObject, Ref, useEffect, useRef, useState} from "react";
 
 const useWebSocket = () => {
     const [messages, setMessages] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isConnected, setIsConnected] = useState(false);
-    const socketRef: Ref<WebSocket | null> = useRef<WebSocket | null>(null);
+    const socketRef = useRef<WebSocket | null>(null);
 
     const sendToken = (token: string) => {
+        setIsLoading(true)
         if(socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
             socketRef.current.send(token);
         }
@@ -15,7 +17,7 @@ const useWebSocket = () => {
     useEffect(() => {
         socketRef.current = new WebSocket('/api/signal');
         socketRef.current.onopen = () => {
-            console.log('connect');
+            setIsLoading(true)
             setIsConnected(true)
         }
 
@@ -29,6 +31,6 @@ const useWebSocket = () => {
             }
         };
     });
-    return { isConnected, messages, sendToken };
+    return {isLoading, isConnected, messages, sendToken };
 }
 export default useWebSocket;

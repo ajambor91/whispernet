@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CookiesService {
     public Cookie getCookie(TokenWithSessionTemplate tokenBody) {
-        Cookie httpOnlyCookie = new Cookie("sessionToken", tokenBody.getWSessionToken());
+        Cookie httpOnlyCookie = new Cookie("sessionToken", tokenBody.getUserToken());
         httpOnlyCookie.setHttpOnly(true);
         httpOnlyCookie.setSecure(true);
         httpOnlyCookie.setPath("/");

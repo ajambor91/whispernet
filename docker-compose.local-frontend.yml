@@ -52,6 +52,14 @@ services:
     build: './signal-server'
     networks:
       - whispernet
+  frontend:
+    build:
+      context: './ui'
+      dockerfile: './web/Dockerfile'
+    networks:
+      - whispernet
+    hostname: frontend.whisper.net
+    container_name: frontend
 networks:
   whispernet:
     driver: 'bridge'

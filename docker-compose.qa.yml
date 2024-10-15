@@ -60,9 +60,9 @@ services:
       - whispernet
     hostname: frontend.whisper.net
     container_name: frontend
-networks:docker compos
+networks:
+  whispernet:
     driver: 'bridge'
-
 volumes:
   cache:
     driver: local

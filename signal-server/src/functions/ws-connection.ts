@@ -4,6 +4,9 @@ import { wsSessionMap } from "../mappers/wssessions.map";
 import { clientsMap } from "../mappers/clients.map";
 import { ClientsSession } from "../models/clients-session.model";
 import * as console from "console";
+import {WebRTCMessage} from "../models/webrtc-message.model";
+import {WebRTCMessageEnum} from "../enums/webrtc-message-enum";
+import {WebRTCIceCandidate, WebRTCSessionDescription} from "../models/webrtc.interface";
 
 const getCookie: (req: IncomingMessage) => string = (req: IncomingMessage): string => {
     if (!req.headers?.cookie) {
@@ -63,6 +66,13 @@ const sendMessages: (clientsSession: ClientsSession, decodedMessage: string) => 
         });
     }
 };
+
+const createStringMessage: (message: WebRTCMessage) => string = (message: WebRTCMessage) => {
+    if (!message) {
+        throw new Error("No message to send");
+    }
+    return JSON.stringify(message);
+}
 
 export const wsConnection = (): void => {
     const socket: WebSocket.Server = new WebSocket.Server({ port: 3000 });

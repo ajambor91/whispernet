@@ -2,8 +2,7 @@
 import {MutableRefObject, Ref, useEffect, useRef, useState} from "react";
 
 const useWebSocket = () => {
-    const [messages, setMessages] = useState<string[]>([]);
-    const [waiting, setWaiting] = useState<string>(null);
+    const [message, setMessage] = useState<string>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isConnected, setIsConnected] = useState(false);
     const socketRef = useRef<WebSocket | null>(null);
@@ -16,7 +15,7 @@ const useWebSocket = () => {
                 const arrBuffer: ArrayBuffer = fileReader.result;
                 const byteArr: Uint8Array = new Uint8Array(arrBuffer);
                 decodedMessage = new TextDecoder().decode(byteArr);
-                setWaiting(decodedMessage);
+                setMessage(decodedMessage);
 
             }
         }
@@ -30,7 +29,6 @@ const useWebSocket = () => {
             const interval = setInterval(() => {
                 if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
                     socketRef.current.send(token);
-                    console.log("Token sent successfully after retry");
                     clearInterval(interval);
                 }
             }, 100);
@@ -40,13 +38,11 @@ const useWebSocket = () => {
     useEffect(() => {
         socketRef.current = new WebSocket('/api/signal');
         socketRef.current.onopen = () => {
-            console.log("OPEN")
             setIsLoading(true)
             setIsConnected(true)
         }
 
         socketRef.current.onmessage = (event: MessageEvent) => {
-            console.log('onmessage',event);
             decodeBinaryMessage(event);
         }
 
@@ -57,6 +53,10 @@ const useWebSocket = () => {
         //     }
         // };
     });
-    return {isLoading, isConnected, messages, sendToken, waiting };
+
+    useEffect(() => {
+        console.log("message", message)
+    }, [message]);
+    return {isLoading, isConnected, sendToken };
 }
 export default useWebSocket;

@@ -22,12 +22,9 @@ export async function startKafka() {
         eachMessage: async ({topic, partition, message}: EachMessagePayload) => {
             console.log('message kafka',message.value)
             if (message.value instanceof Buffer) {
-                console.log('kafka after if', message.value.toString())
                 const sessionToken: string = message.value.toString();
-                console.log('$$$$$$$$$$$$$$$$$$$$',sessionToken)
                 const sessiontTokensObj: Session = JSON.parse(JSON.parse(sessionToken));
-                console.log('sessiontTokensObj',sessiontTokensObj, typeof  sessionToken)
-                console.log('sessiont token extracted ######################',sessiontTokensObj.wsSessionToken)
+
                 clientsMap.setClient(sessiontTokensObj.wsSessionToken, sessiontTokensObj.usersTokens);
                 console.log(clientsMap.getClient(sessiontTokensObj.wsSessionToken));
             }

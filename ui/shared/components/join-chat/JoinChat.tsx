@@ -15,7 +15,6 @@ const JoinChat: React.FC<ChatJoiningProps> = ({onChatSubmit}) => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const sessionHash: string = e.target.value;
-        console.log(e.target.value)
         setHash(sessionHash);
     }
     return (

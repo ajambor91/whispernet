@@ -1,12 +1,11 @@
 import WebSocket from 'ws';
-import { IncomingMessage } from 'http';
-import { wsSessionMap } from "../mappers/wssessions.map";
-import { clientsMap } from "../mappers/clients.map";
-import { ClientsSession } from "../models/clients-session.model";
+import {IncomingMessage} from 'http';
+import {wsSessionMap} from "../mappers/wssessions.map";
+import {clientsMap} from "../mappers/clients.map";
+import {ClientsSession} from "../models/clients-session.model";
 import * as console from "console";
-import {WebRTCMessage} from "../models/webrtc-message.model";
 import {WebRTCMessageEnum} from "../enums/webrtc-message-enum";
-import {WebRTCIceCandidate, WebRTCSessionDescription} from "../models/webrtc.interface";
+import {WebRTCMessage} from "../models/webrtc-message.model";
 
 const getCookie: (req: IncomingMessage) => string = (req: IncomingMessage): string => {
     if (!req.headers?.cookie) {
@@ -54,18 +53,79 @@ const getWsSession: (decodedMessage: string, userToken: string, ws: WebSocket) =
     return clientsSession;
 };
 
-const sendMessages: (clientsSession: ClientsSession, decodedMessage: string) => void = (clientsSession: ClientsSession, decodedMessage: string): void => {
-    const clientWsConnections: WebSocket[] = Object.values(clientsSession[decodedMessage]);
-    console.log(clientsSession);
-    if (clientWsConnections.length === 1) {
-        clientWsConnections[0].send(Buffer.from('Waiting'));
-    } else if (clientWsConnections.length > 1) {
-        clientWsConnections.forEach((wsConn, index) => {
-            console.log('INNNNNNNNN', index)
-            wsConn.send(Buffer.from('Found client'));
+const parseMessageJson: (message: WebRTCMessage) => string = (message:WebRTCMessage): string => {
+    return JSON.stringify(message);
+}
+
+const sendWaiting = (connections: WebSocket[], message: WebRTCMessage) => {
+    const webRTCMessage: WebRTCMessage = {
+        type: WebRTCMessageEnum.Waiting,
+        sessionId: message.sessionId
+    }
+    connections[0].send(Buffer.from(parseMessageJson(webRTCMessage)));
+}
+
+const sendFound = (connections: WebSocket[], message: WebRTCMessage) => {
+    const webRTCMessage: WebRTCMessage = {
+        type: WebRTCMessageEnum.Found,
+        sessionId: message.sessionId,
+    }
+    connections.forEach((wsConn, index) => {
+        console.log('INNNNNNNNN', index)
+        wsConn.send(Buffer.from(parseMessageJson(webRTCMessage)));
+    });
+}
+
+const sendInitMessage = (connections: WebSocket[], message: WebRTCMessage) => {
+    console.log("CCCCCCCCCCCCCCCC")
+    if (connections.length === 1) {
+        sendWaiting(connections, message)
+    } else if (connections.length > 1) {
+        connections.forEach((wsConn, index) => {
+            sendFound(connections, message)
         });
     }
+}
+
+const getConnections: (clientWsConnections: ClientsSession, webRTCMessage: WebRTCMessage, excludeClient?: string) => WebSocket[] = (clientsSession: ClientsSession, webRTCMessage: WebRTCMessage, excludeClient?: string): WebSocket[] => {
+    if (!excludeClient) {
+        return  Object.values(clientsSession[webRTCMessage.sessionId]);
+
+    }   else {
+        const {[excludeClient]: omitted, ...clients} = clientsSession[webRTCMessage.sessionId];
+        return Object.values(clients);
+    }
+
+
+}
+
+const sendOffer = (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string) => {
+    message.type = WebRTCMessageEnum.IncommingOffer;
+    const connections: WebSocket[] = getConnections(clientsSession, message, userToken);
+    connections.forEach(ws => {
+        ws.send(parseMessageJson(message))
+    })
+}
+
+const sendMessages: (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string) => void = (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string): void => {
+    const connections: WebSocket[] = getConnections(clientsSession, message);
+    console.log("TYPE MESSAGE",message.type)
+    switch (message.type) {
+        case WebRTCMessageEnum.Init:
+            sendInitMessage(connections,message)
+            break;
+        case WebRTCMessageEnum.Offer:
+            sendOffer(clientsSession,message, userToken);
+            break;
+
+    }
+    console.log(clientsSession);
+
 };
+
+const parseForWebRTC: (decodedMessage: string) => WebRTCMessage = (decodeMessage:string): WebRTCMessage => {
+    return JSON.parse(decodeMessage);
+}
 
 const createStringMessage: (message: WebRTCMessage) => string = (message: WebRTCMessage) => {
     if (!message) {
@@ -84,11 +144,12 @@ export const wsConnection = (): void => {
             ws.on('message', (message: Buffer) => {
                 try {
                     const decodedMessage: string = decodeMessage(message);
+                    const webRTCMessage: WebRTCMessage = parseForWebRTC(decodedMessage);
                     console.log(JSON.parse(decodedMessage));
-                    const clients: string[] = getClients(decodedMessage);
+                    const clients: string[] = getClients(webRTCMessage.sessionId);
                     checkClientAuthorized(clients, userToken);
-                    const clientsSession: ClientsSession = getWsSession(decodedMessage, userToken, ws);
-                    sendMessages(clientsSession, decodedMessage);
+                    const clientsSession: ClientsSession = getWsSession(webRTCMessage.sessionId, userToken, ws);
+                    sendMessages(clientsSession, webRTCMessage, userToken);
                 } catch (e: unknown) {
                     if (e instanceof Error) {
                         console.error("Error processing WebSocket message:", e.message);

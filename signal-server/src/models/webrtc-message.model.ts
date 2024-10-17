@@ -7,7 +7,7 @@ export interface WebRTCMessage {
     candidate?: WebRTCIceCandidate;
     offer?: WebRTCSessionDescription;
     answer?: WebRTCSessionDescription;
-    target: string;
+    target?: string;
     from?: string;
     payload?: string;
     timestamp?: number;

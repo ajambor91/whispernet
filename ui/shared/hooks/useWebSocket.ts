@@ -1,5 +1,7 @@
 'use client'
 import {MutableRefObject, Ref, useEffect, useRef, useState} from "react";
+import {WebRTCMessage} from "../models/webrtc-connection.model";
+import {actionForMessage} from "../webrtc/functions";
 
 const useWebSocket = () => {
     const [message, setMessage] = useState<string>(null);
@@ -21,18 +23,12 @@ const useWebSocket = () => {
         }
         fileReader.readAsArrayBuffer(blob)
     }
-    const sendToken = (token: string) => {
+    const sendMessage = (message: WebRTCMessage) => {
         setIsLoading(true)
-        if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-            socketRef.current.send(token);
-        } else {
-            const interval = setInterval(() => {
-                if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-                    socketRef.current.send(token);
-                    clearInterval(interval);
-                }
-            }, 100);
-        }
+        const ws: WebSocket = socketRef.current;
+        actionForMessage(message, socketRef.current)
+
+
     }
 
     useEffect(() => {
@@ -57,6 +53,6 @@ const useWebSocket = () => {
     useEffect(() => {
         console.log("message", message)
     }, [message]);
-    return {isLoading, isConnected, sendToken };
+    return {isLoading, isConnected, sendMessage };
 }
 export default useWebSocket;

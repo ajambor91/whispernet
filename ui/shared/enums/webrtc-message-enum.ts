@@ -3,5 +3,6 @@ export enum WebRTCMessageEnum {
     Answer = 'answer',
     Candidate = 'candidate',
     Waiting = 'waiting',
-    Found = 'found'
+    Found = 'found',
+    Init = 'init'
 }

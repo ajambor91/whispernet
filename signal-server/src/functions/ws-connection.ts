@@ -84,6 +84,7 @@ export const wsConnection = (): void => {
             ws.on('message', (message: Buffer) => {
                 try {
                     const decodedMessage: string = decodeMessage(message);
+                    console.log(JSON.parse(decodedMessage));
                     const clients: string[] = getClients(decodedMessage);
                     checkClientAuthorized(clients, userToken);
                     const clientsSession: ClientsSession = getWsSession(decodedMessage, userToken, ws);

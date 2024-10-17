@@ -2,6 +2,7 @@
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 const nextConfig = {
+    reactStrictMode: false,
     async rewrites() {
         return [
             {
@@ -21,6 +22,7 @@ const nextConfig = {
     experimental: {
         externalDir: true,
     },
+
 };
 
 export default nextConfig;

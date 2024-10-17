@@ -8,38 +8,55 @@ const useWebSocket = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isConnected, setIsConnected] = useState(false);
     const socketRef = useRef<WebSocket | null>(null);
-    const decodeBinaryMessage = (msg: MessageEvent) => {
-        const blob: Blob = msg.data;
-        let decodedMessage: string;
-        const fileReader: FileReader = new FileReader();
-        fileReader.onload = () => {
-            if (!!fileReader.result &&  fileReader.result instanceof ArrayBuffer) {
-                const arrBuffer: ArrayBuffer = fileReader.result;
-                const byteArr: Uint8Array = new Uint8Array(arrBuffer);
-                decodedMessage = new TextDecoder().decode(byteArr);
-                setMessage(decodedMessage);
+    const decodeBinaryMessage = (msg: MessageEvent): Promise<WebRTCMessage> => {
+        return new Promise((resolve, reject) => {
+            const blob: Blob = msg.data;
+            const fileReader: FileReader = new FileReader();
 
+            fileReader.onload = () => {
+                if (fileReader.result instanceof ArrayBuffer) {
+                    const arrBuffer: ArrayBuffer = fileReader.result;
+                    const byteArr: Uint8Array = new Uint8Array(arrBuffer);
+                    const decodedMessage = new TextDecoder().decode(byteArr);
+                    const webRTCMessage: WebRTCMessage = JSON.parse(decodedMessage);
+                    resolve(webRTCMessage);
+                } else {
+                    reject(new Error("Niepoprawny format danych"));
+                }
+            };
+
+            fileReader.onerror = (error) => {
+                reject(error);
+            };
+            if (blob instanceof Blob) {
+                fileReader.readAsArrayBuffer(blob);
+
+            } else {
+                resolve(JSON.parse(msg.data))
             }
-        }
-        fileReader.readAsArrayBuffer(blob)
-    }
+        });
+    };
     const sendMessage = (message: WebRTCMessage) => {
         setIsLoading(true)
         const ws: WebSocket = socketRef.current;
-        actionForMessage(message, socketRef.current)
+        console.log("SEND MESSAGE", message.type)
+        actionForMessage(message, ws)
 
 
     }
 
     useEffect(() => {
+        console.log("EFFECT")
         socketRef.current = new WebSocket('/api/signal');
         socketRef.current.onopen = () => {
             setIsLoading(true)
             setIsConnected(true)
         }
 
-        socketRef.current.onmessage = (event: MessageEvent) => {
-            decodeBinaryMessage(event);
+        socketRef.current.onmessage = async (event: MessageEvent) => {
+            console.log("ON MESSAGE")
+            const message: WebRTCMessage = await decodeBinaryMessage(event);
+            sendMessage(message);
         }
 
         // return () => {
@@ -48,11 +65,9 @@ const useWebSocket = () => {
         //         socketRef.current.close();
         //     }
         // };
-    });
+    },[]);
 
-    useEffect(() => {
-        console.log("message", message)
-    }, [message]);
+
     return {isLoading, isConnected, sendMessage };
 }
 export default useWebSocket;

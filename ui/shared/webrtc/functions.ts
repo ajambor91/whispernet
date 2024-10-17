@@ -15,7 +15,7 @@ export const handleAnswer = async (peerConnection: RTCPeerConnection,offer: RTCS
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
 }
 
-export const createJSONString = (object: object): string => {
+export const createJSONString = (object: WebRTCMessage): string => {
     if (!object) {
         throw new Error('Empty json')
     }
@@ -39,6 +39,7 @@ const sendOffer = async (message: WebRTCMessage, socket: WebSocket) => {
         offer: peerConnection.localDescription,
         sessionId: message.sessionId
     }
+    socket.send(createJSONString(webRTCMessage))
 
 }
 export const sendWaitingStatus = (message: WebRTCMessage, socket: WebSocket) => {
@@ -87,7 +88,6 @@ const waitForConnection =  (message: WebRTCMessage, socket: WebSocket): Promise<
 }
 
 export const actionForMessage = async (message: WebRTCMessage, socket: WebSocket): Promise<void> => {
-    console.log("ACTION FOR MESSAGE", message)
     if (!message) {
         throw new Error('No message found');
     }
@@ -98,13 +98,18 @@ export const actionForMessage = async (message: WebRTCMessage, socket: WebSocket
     try {
         switch (message.type) {
             case WebRTCMessageEnum.Found:
+                console.log("SWITCH, OFFER")
                 sendOffer(message, socket)
                 break;
             case WebRTCMessageEnum.Waiting:
+                console.log("SWITCH, WAITNG")
+
                 sendWaitingStatus(message, socket);
                 break;
             case WebRTCMessageEnum.Init:
                 await waitForConnection(message,socket)
+                console.log("SWITCH, INIT")
+
                 break;
         }
     }

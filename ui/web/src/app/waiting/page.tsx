@@ -3,14 +3,15 @@ import React, {useEffect} from 'react';
 import {useAppSelector} from "../../../../shared/store/store";
 import useWebSocket from "../../../../shared/hooks/useWebSocket";
 import  {SessionApiState} from "../../../../shared/slices/createSession.slice";
+import {WebRTCMessageEnum} from "../../../../shared/enums/webrtc-message-enum";
 const ChatWaiting: React.FC = () => {
     const sessionApiState: SessionApiState = useAppSelector(state => state.sessionApiState);
-    const {  sendToken, isConnected } = useWebSocket();
+    const {  sendMessage, isConnected } = useWebSocket();
     useEffect(() => {
         console.log('isConnected',isConnected)
             console.log("(sessionApiState.sessionToken",sessionApiState.sessionToken)
             if (sessionApiState.sessionToken && isConnected) {
-                sendToken(sessionApiState.sessionToken)
+                sendMessage({sessionId: sessionApiState.sessionToken, type: WebRTCMessageEnum.Init})
             }
 
         return () => {

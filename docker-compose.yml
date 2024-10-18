@@ -8,6 +8,7 @@ services:
     container_name: session
     depends_on:
       - broker
+      - gateway
   wssession:
     build: 'net.whisper.wssession'
     networks:
@@ -16,6 +17,7 @@ services:
     container_name: wssession
     depends_on:
       - broker
+      - session
   gateway:
     build: './nginx'
     ports:
@@ -49,9 +51,20 @@ services:
     networks:
       - whispernet
   wsserver:
+    depends_on:
+      - broker
+      - wssession
     build: './signal-server'
     networks:
       - whispernet
+  coturn:
+    build: './coturn'
+    hostname: coturn
+    depends_on:
+      - wsserver
+    networks:
+      - whispernet
+    container_name: coturn
 networks:
   whispernet:
     driver: 'bridge'

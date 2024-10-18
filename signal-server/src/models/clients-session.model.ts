@@ -3,6 +3,6 @@ import WebSocket from "ws";
 export interface ClientsSession {
     [key: string]: Clients;
 }
-interface Clients {
+export interface Clients {
     [key: string]: WebSocket
 }

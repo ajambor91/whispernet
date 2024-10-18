@@ -20,13 +20,11 @@ export async function startKafka() {
     await consumer.subscribe({topic: 'request-ws-startws-topic', fromBeginning: true});
     await consumer.run({
         eachMessage: async ({topic, partition, message}: EachMessagePayload) => {
-            console.log('message kafka',message.value)
             if (message.value instanceof Buffer) {
                 const sessionToken: string = message.value.toString();
                 const sessiontTokensObj: Session = JSON.parse(JSON.parse(sessionToken));
 
                 clientsMap.setClient(sessiontTokensObj.wsSessionToken, sessiontTokensObj.usersTokens);
-                console.log(clientsMap.getClient(sessiontTokensObj.wsSessionToken));
             }
 
         }

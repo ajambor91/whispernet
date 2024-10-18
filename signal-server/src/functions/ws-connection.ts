@@ -85,51 +85,72 @@ const getSessionClients = (clientsSession: ClientsSession, message: WebRTCMessag
     return clientsSession[message.sessionId];
 }
 
-const sendInitMessage = (clientsSessions: ClientsSession, message: WebRTCMessage, clientToOmit: string) => {
-    const clients: Clients = getSessionClients(clientsSessions, message)
-    if (Object.keys(clients).length === 1) {
-        const connections: WebSocket[] = getConnections(clients, message, clientToOmit);
+const sendInitMessage = (clients: Clients, message: WebRTCMessage, clientToOmit: string) => {
+    const clientsCount: number = getClientsCount(clients)
+    if (clientsCount=== 1) {
+        const connections: WebSocket[] = getConnections(clients,message)
         sendWaiting(connections, message)
-    } else if (Object.keys(clients).length > 1) {
-        const clientsToSend: Clients = omitClient(clients, clientToOmit);
-        const connections: WebSocket[] = getConnections(clientsToSend, message);
-
+    } else if (clientsCount > 1) {
+        const connections: WebSocket[] = getReceiversConns(clients, message, clientToOmit)
         connections.forEach((wsConn, index) => {
             sendFound(connections, message)
         });
     }
 }
 
-const getConnections: (clients: Clients, webRTCMessage: WebRTCMessage, excludeClient?: string) => WebSocket[] = (clients: Clients, webRTCMessage: WebRTCMessage): WebSocket[] => {
-        return  Object.values(clients);
+const getClientsCount = (clients: Clients) => {
 
-
+    return Object.keys(clients).length
 
 }
 
-const sendOffer = (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string) => {
+
+
+const getConnections: (clients: Clients, webRTCMessage: WebRTCMessage) => WebSocket[] = (clients: Clients, webRTCMessage: WebRTCMessage): WebSocket[] => {
+        return  Object.values(clients);
+}
+
+const handleOffer = (connections: WebSocket[], message: WebRTCMessage, userToken: string) => {
     message.type = WebRTCMessageEnum.IncommingOffer;
-    const clients: Clients = getSessionClients(clientsSession,message)
-    const connections: WebSocket[] = getConnections(clients, message, userToken);
+    console.log('handleOffer    handleOffer   handleOffer   handleOffer   handleOffer   handleOffer')
+    console.log('conncetions', connections)
     connections.forEach(ws => {
         ws.send(parseMessageJson(message))
     })
 }
 
+const handleAnswer = (connections: WebSocket[], message: WebRTCMessage) => {
+    console.log('handleOffer    handleOffer   handleOffer   handleOffer   handleOffer   handleOffer')
+    console.log('conncetions', connections)
+    connections.forEach(ws => {
+        ws.send(parseMessageJson(message))
+    })
+}
+
+const getReceiversConns = (clients: Clients, message: WebRTCMessage, userToken: string): WebSocket[] => {
+  console.log('clients', clients)
+  const clientsToSend = omitClient(clients, userToken);
+  console.log('oomittted',clientsToSend)
+  return getConnections(clientsToSend, message)
+}
+
 const sendMessages: (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string) => void = (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string): void => {
     const clients: Clients = getSessionClients(clientsSession, message)
-    const connections: WebSocket[] = getConnections(clients, message);
+    console.log("clientssss",clients)
+    const receiversConn: WebSocket[] = getReceiversConns(clients, message, userToken);
     console.log("TYPE MESSAGE",message.type)
     switch (message.type) {
+        case WebRTCMessageEnum.Answer:
+            handleAnswer(receiversConn, message);
+            break;
         case WebRTCMessageEnum.Init:
-            sendInitMessage(clientsSession,message, userToken)
+            sendInitMessage(clients,message, userToken)
             break;
         case WebRTCMessageEnum.Offer:
-            sendOffer(clientsSession,message, userToken);
+            handleOffer(receiversConn,message, userToken);
             break;
 
     }
-    console.log(clientsSession);
 
 };
 
@@ -155,7 +176,6 @@ export const wsConnection = (): void => {
                 try {
                     const decodedMessage: string = decodeMessage(message);
                     const webRTCMessage: WebRTCMessage = parseForWebRTC(decodedMessage);
-                    console.log(JSON.parse(decodedMessage));
                     const clients: string[] = getClients(webRTCMessage.sessionId);
                     checkClientAuthorized(clients, userToken);
                     const clientsSession: ClientsSession = getWsSession(webRTCMessage.sessionId, userToken, ws);

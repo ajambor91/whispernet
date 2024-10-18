@@ -1,13 +1,14 @@
 'use client'
 import {MutableRefObject, Ref, useEffect, useRef, useState} from "react";
 import {WebRTCMessage} from "../models/webrtc-connection.model";
-import {actionForMessage} from "../webrtc/functions";
+import { connectRTC} from "../webrtc/functions";
 
 const useWebSocket = () => {
     const [message, setMessage] = useState<string>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isConnected, setIsConnected] = useState(false);
     const socketRef = useRef<WebSocket | null>(null);
+    const actionForMessage = connectRTC()
     const decodeBinaryMessage = (msg: MessageEvent): Promise<WebRTCMessage> => {
         return new Promise((resolve, reject) => {
             const blob: Blob = msg.data;
@@ -19,6 +20,7 @@ const useWebSocket = () => {
                     const byteArr: Uint8Array = new Uint8Array(arrBuffer);
                     const decodedMessage = new TextDecoder().decode(byteArr);
                     const webRTCMessage: WebRTCMessage = JSON.parse(decodedMessage);
+                    console.log(webRTCMessage)
                     resolve(webRTCMessage);
                 } else {
                     reject(new Error("Niepoprawny format danych"));
@@ -32,6 +34,7 @@ const useWebSocket = () => {
                 fileReader.readAsArrayBuffer(blob);
 
             } else {
+                console.log(JSON.parse(msg.data))
                 resolve(JSON.parse(msg.data))
             }
         });

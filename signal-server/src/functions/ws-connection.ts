@@ -2,7 +2,7 @@ import WebSocket from 'ws';
 import {IncomingMessage} from 'http';
 import {wsSessionMap} from "../mappers/wssessions.map";
 import {clientsMap} from "../mappers/clients.map";
-import {ClientsSession} from "../models/clients-session.model";
+import {Clients, ClientsSession} from "../models/clients-session.model";
 import * as console from "console";
 import {WebRTCMessageEnum} from "../enums/webrtc-message-enum";
 import {WebRTCMessage} from "../models/webrtc-message.model";
@@ -76,43 +76,53 @@ const sendFound = (connections: WebSocket[], message: WebRTCMessage) => {
     });
 }
 
-const sendInitMessage = (connections: WebSocket[], message: WebRTCMessage) => {
-    console.log("CCCCCCCCCCCCCCCC")
-    if (connections.length === 1) {
+export const omitClient = (clients: Clients, clientToOmit: string): Clients => {
+    const {[clientToOmit]: omitted, ...clientsToSend} = clients;
+    return clientsToSend;
+}
+
+const getSessionClients = (clientsSession: ClientsSession, message: WebRTCMessage): Clients => {
+    return clientsSession[message.sessionId];
+}
+
+const sendInitMessage = (clientsSessions: ClientsSession, message: WebRTCMessage, clientToOmit: string) => {
+    const clients: Clients = getSessionClients(clientsSessions, message)
+    if (Object.keys(clients).length === 1) {
+        const connections: WebSocket[] = getConnections(clients, message, clientToOmit);
         sendWaiting(connections, message)
-    } else if (connections.length > 1) {
+    } else if (Object.keys(clients).length > 1) {
+        const clientsToSend: Clients = omitClient(clients, clientToOmit);
+        const connections: WebSocket[] = getConnections(clientsToSend, message);
+
         connections.forEach((wsConn, index) => {
             sendFound(connections, message)
         });
     }
 }
 
-const getConnections: (clientWsConnections: ClientsSession, webRTCMessage: WebRTCMessage, excludeClient?: string) => WebSocket[] = (clientsSession: ClientsSession, webRTCMessage: WebRTCMessage, excludeClient?: string): WebSocket[] => {
-    if (!excludeClient) {
-        return  Object.values(clientsSession[webRTCMessage.sessionId]);
+const getConnections: (clients: Clients, webRTCMessage: WebRTCMessage, excludeClient?: string) => WebSocket[] = (clients: Clients, webRTCMessage: WebRTCMessage): WebSocket[] => {
+        return  Object.values(clients);
 
-    }   else {
-        const {[excludeClient]: omitted, ...clients} = clientsSession[webRTCMessage.sessionId];
-        return Object.values(clients);
-    }
 
 
 }
 
 const sendOffer = (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string) => {
     message.type = WebRTCMessageEnum.IncommingOffer;
-    const connections: WebSocket[] = getConnections(clientsSession, message, userToken);
+    const clients: Clients = getSessionClients(clientsSession,message)
+    const connections: WebSocket[] = getConnections(clients, message, userToken);
     connections.forEach(ws => {
         ws.send(parseMessageJson(message))
     })
 }
 
 const sendMessages: (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string) => void = (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string): void => {
-    const connections: WebSocket[] = getConnections(clientsSession, message);
+    const clients: Clients = getSessionClients(clientsSession, message)
+    const connections: WebSocket[] = getConnections(clients, message);
     console.log("TYPE MESSAGE",message.type)
     switch (message.type) {
         case WebRTCMessageEnum.Init:
-            sendInitMessage(connections,message)
+            sendInitMessage(clientsSession,message, userToken)
             break;
         case WebRTCMessageEnum.Offer:
             sendOffer(clientsSession,message, userToken);

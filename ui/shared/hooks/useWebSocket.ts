@@ -1,12 +1,14 @@
 'use client'
-import {MutableRefObject, Ref, useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {WebRTCMessage} from "../models/webrtc-connection.model";
-import { connectRTC} from "../webrtc/functions";
+import {connectRTC} from "../webrtc/functions";
+import {WebRTCMessageEnum} from "../enums/webrtc-message-enum";
 
 const useWebSocket = () => {
     const [message, setMessage] = useState<string>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isConnected, setIsConnected] = useState(false);
+    const [isJoined, setIsJoined] = useState<boolean>(false)
     const socketRef = useRef<WebSocket | null>(null);
     const actionForMessage = connectRTC()
     const decodeBinaryMessage = (msg: MessageEvent): Promise<WebRTCMessage> => {
@@ -37,8 +39,12 @@ const useWebSocket = () => {
             }
         });
     };
-    const sendMessage = (message: WebRTCMessage) => {
+    const sendMessage = (message: WebRTCMessage): boolean => {
         setIsLoading(true)
+        if (message.type === WebRTCMessageEnum.Join) {
+            setIsJoined(true);
+            return true;
+        }
         const ws: WebSocket = socketRef.current;
         actionForMessage(message, ws)
 
@@ -67,6 +73,6 @@ const useWebSocket = () => {
     },[]);
 
 
-    return {isLoading, isConnected, sendMessage };
+    return {isLoading, isConnected,isJoined, sendMessage };
 }
 export default useWebSocket;

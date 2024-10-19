@@ -16,16 +16,16 @@ class WebrtcSingleton {
     }
 
     public set state(state: ConnectionStateModel) {
-        if (Object.isFrozen(this._state)) {
-            throw new Error("Cannot modify a frozen state.");
-        }
+        // if (Object.isFrozen(this._state)) {
+        //     throw new Error("Cannot modify a frozen state.");
+        // }
         this._state = state;
     }
 }
 
 export const setConnectionState = (state: ConnectionStateModel): void => {
     WebrtcSingleton.getInstance().state = state;
-    Object.freeze(WebrtcSingleton.getInstance().state);
+    // Object.freeze(WebrtcSingleton.getInstance().state);
 
 }
 
@@ -34,9 +34,9 @@ export const getConnectionsState = (): ConnectionStateModel => {
 }
 
 export const sendWebRTCMessage = (content: string) => {
-    WebrtcSingleton.getInstance().state.dataChannel.send(content)
+    WebrtcSingleton.getInstance().state?.dataChannel.send(content)
 }
 
 export const getWebRTCDataChannel = () => {
-    return WebrtcSingleton.getInstance().state.dataChannel;
+    return WebrtcSingleton.getInstance().state?.dataChannel;
 }

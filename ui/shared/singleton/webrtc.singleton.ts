@@ -32,3 +32,11 @@ export const setConnectionState = (state: ConnectionStateModel): void => {
 export const getConnectionsState = (): ConnectionStateModel => {
     return WebrtcSingleton.getInstance().state;
 }
+
+export const sendWebRTCMessage = (content: string) => {
+    WebrtcSingleton.getInstance().state.dataChannel.send(content)
+}
+
+export const getWebRTCDataChannel = () => {
+    return WebrtcSingleton.getInstance().state.dataChannel;
+}

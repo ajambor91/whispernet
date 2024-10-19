@@ -4,13 +4,14 @@ import {useAppSelector} from "../../../../shared/store/store";
 import useWebSocket from "../../../../shared/hooks/useWebSocket";
 import  {SessionApiState} from "../../../../shared/slices/createSession.slice";
 import {WebRTCMessageEnum} from "../../../../shared/enums/webrtc-message-enum";
+import {useRouter} from "next/navigation";
 const ChatWaiting: React.FC = () => {
     console.log('//////////////////////////////////////////////////////////////////////')
     const [messageSent, setMessageSent] = useState<boolean>(false)
 
     const sessionApiState: SessionApiState = useAppSelector(state => state.sessionApiState);
-    const {  sendMessage, isConnected } = useWebSocket();
-
+    const {  sendMessage, isConnected, isJoined } = useWebSocket();
+    const router = useRouter();
     useEffect(() => {
         console.log('##########################################', sessionApiState, messageSent)
 
@@ -22,6 +23,12 @@ const ChatWaiting: React.FC = () => {
 
         }
     }, [sessionApiState.sessionToken]);
+
+    useEffect(() => {
+        if (isJoined) {
+            router.push('/chat')
+        }
+    }, [isJoined]);
     return (
         <section>
             <div>

@@ -31,9 +31,10 @@ export function connectRTC(){
             await state.peerConnection.setRemoteDescription(new RTCSessionDescription(message.answer));
             state.dataChannel.onopen = () => {
                 const openedMsg: WebRTCMessage = {
-                    type: WebRTCMessageEnum.Opened,
+                    type: WebRTCMessageEnum.Join,
                     sessionId: message.sessionId
                 };
+                socket.send(createJSONString(openedMsg))
                 console.log("Channel open")
                 state.dataChannel.send("HELLO")
 
@@ -111,8 +112,13 @@ export function connectRTC(){
         state.peerConnection.ondatachannel = (event) => {
             console.log("Otrzymano kanał danych od Peer A");
             state.dataChannel = event.channel;
-
+            setConnectionState(state)
             state.dataChannel.onopen = () => {
+                const openedMsg: WebRTCMessage = {
+                    type: WebRTCMessageEnum.Join,
+                    sessionId: message.sessionId
+                };
+                socket.send(createJSONString(openedMsg))
                 console.log("Kanał danych otwarty na Peer B - można wysyłać wiadomości.");
                 state.dataChannel.send("Cześć, Peer A! Otrzymałem twoją wiadomość.");
             };

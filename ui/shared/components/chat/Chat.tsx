@@ -1,3 +1,4 @@
+'use client'
 import React, {useState} from "react";
 import Message from "../message/Message";
 import MessageInput from "../message-input/MessageInput";
@@ -8,11 +9,11 @@ interface UserMessage {
     content: string;
     type: MessageType
 }
-const Chat: React.FC = () => {
+const ChatComponent: React.FC = () => {
     const [messages, setMessages] = useState<UserMessage[]>([]);
-    getWebRTCDataChannel().onmessage = (event) => {
+/*    getWebRTCDataChannel().onmessage = (event) => {
         console.log('ON MESSAGE', event.data)
-    }
+    }*/
 
     const addMessage = (content: string) => {
         setMessages(prevState =>  [
@@ -32,4 +33,4 @@ const Chat: React.FC = () => {
         </div>
     )
 }
-export default Chat;
+export default ChatComponent;

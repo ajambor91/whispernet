@@ -1,6 +1,7 @@
 import {WebRTCMessage} from "../models/webrtc-connection.model";
 import {WebRTCMessageEnum} from "../enums/webrtc-message-enum";
 import {ConnectionStateModel} from "../models/connection-state.model";
+import {setConnectionState} from "../singleton/webrtc.singleton";
 
 
 export function connectRTC(){
@@ -8,6 +9,7 @@ export function connectRTC(){
         peerConnection: null,
         dataChannel: null
     }
+    setConnectionState(state);
 
     const iceServers: RTCIceServer[] = [
         { urls: 'stun:coturn:3478' },
@@ -65,7 +67,6 @@ export function connectRTC(){
         state.peerConnection = new RTCPeerConnection({iceServers});
 
         state.dataChannel = state.peerConnection.createDataChannel("chat");
-
         const offer = await state.peerConnection.createOffer();
         state.peerConnection.onicecandidate = (event) => {
             if (!!event.candidate) {
@@ -91,7 +92,6 @@ export function connectRTC(){
 
     const handleOffer = async (message: WebRTCMessage, socket: WebSocket) => {
         state.peerConnection = new RTCPeerConnection({iceServers});
-
         await state.peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
 
         const answer = await state.peerConnection.createAnswer();

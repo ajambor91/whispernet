@@ -20,7 +20,6 @@ const useWebSocket = () => {
                     const byteArr: Uint8Array = new Uint8Array(arrBuffer);
                     const decodedMessage = new TextDecoder().decode(byteArr);
                     const webRTCMessage: WebRTCMessage = JSON.parse(decodedMessage);
-                    console.log(webRTCMessage)
                     resolve(webRTCMessage);
                 } else {
                     reject(new Error("Niepoprawny format danych"));
@@ -34,7 +33,6 @@ const useWebSocket = () => {
                 fileReader.readAsArrayBuffer(blob);
 
             } else {
-                console.log(JSON.parse(msg.data))
                 resolve(JSON.parse(msg.data))
             }
         });
@@ -42,14 +40,12 @@ const useWebSocket = () => {
     const sendMessage = (message: WebRTCMessage) => {
         setIsLoading(true)
         const ws: WebSocket = socketRef.current;
-        console.log("SEND MESSAGE", message.type)
         actionForMessage(message, ws)
 
 
     }
 
     useEffect(() => {
-        console.log("EFFECT")
         socketRef.current = new WebSocket('/api/signal');
         socketRef.current.onopen = () => {
             setIsLoading(true)

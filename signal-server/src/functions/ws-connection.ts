@@ -133,7 +133,7 @@ const getReceiversConns = (clients: Clients, message: WebRTCMessage, userToken: 
   console.log('oomittted',clientsToSend)
   return getConnections(clientsToSend, message)
 }
-
+const handleJoin = handleAnswer;
 export const handleCandidate = handleAnswer;
 
 const sendMessages: (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string) => void = (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string): void => {
@@ -142,6 +142,9 @@ const sendMessages: (clientsSession: ClientsSession, message: WebRTCMessage, use
     const receiversConn: WebSocket[] = getReceiversConns(clients, message, userToken);
     console.log("TYPE MESSAGE",message.type)
     switch (message.type) {
+        case WebRTCMessageEnum.Join:
+            handleJoin(receiversConn, message);
+            break;
         case WebRTCMessageEnum.Candidate:
             handleCandidate(receiversConn, message)
             break;

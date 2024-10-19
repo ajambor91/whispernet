@@ -36,6 +36,7 @@ export function connectRTC(){
                 };
                 console.log("Channel open")
                 state.dataChannel.send("HELLO")
+
             }
             state.peerConnection.onconnectionstatechange = () => {
                 console.log('Stan połączenia: ', state.peerConnection.connectionState);

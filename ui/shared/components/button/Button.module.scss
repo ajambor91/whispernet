@@ -1,0 +1,58 @@
+// Zmienne
+$primary-bg-color: #6f6fff;
+$primary-hover-color: #5757ff;
+$primary-active-color: #4a4aa3;
+
+$secondary-bg-color: #ff6f6f;
+$secondary-hover-color: #ff5757;
+$secondary-active-color: #a34a4a;
+
+$text-color: #fff;
+$shadow-color: rgba(0, 0, 0, 0.2);
+
+// Button Base style
+.button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: $text-color;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0px 4px 10px $shadow-color;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Primary button
+.button-primary {
+  background-color: $primary-bg-color;
+
+  &:hover {
+    background-color: $primary-hover-color;
+  }
+
+  &:active {
+    background-color: $primary-active-color;
+  }
+}
+
+// Secondary button
+.button-secondary {
+  background-color: $secondary-bg-color;
+
+  &:hover {
+    background-color: $secondary-hover-color;
+  }
+
+  &:active {
+    background-color: $secondary-active-color;
+  }
+}

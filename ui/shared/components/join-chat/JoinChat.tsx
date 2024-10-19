@@ -1,5 +1,6 @@
 import styles from './JoinChat.module.scss';
 import {useState} from "react";
+import Button from "../button/Button";
 
 interface ChatJoiningProps {
     onChatSubmit?: (hash: string) => void;
@@ -25,8 +26,9 @@ const JoinChat: React.FC<ChatJoiningProps> = ({onChatSubmit}) => {
                     <p>Paste hash from peer: </p>
                     <input id="sessionHash" name="sessionHash" value={hash} onChange={onChatSubmit ? handleChange : () =>{}} type="text"></input>
                 </div>
-                <div>
-                <button type="submit">Submit</button>
+                <div><Button className={"primary"} type={"submit"}>
+                    <span>ssss</span>
+                </Button>
                 </div>
             </form>
         </div>

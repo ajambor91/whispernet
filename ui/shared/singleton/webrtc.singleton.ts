@@ -24,6 +24,7 @@ class WebrtcSingleton {
 }
 
 export const setConnectionState = (state: ConnectionStateModel): void => {
+    console.log("state", state)
     WebrtcSingleton.getInstance().state = state;
     // Object.freeze(WebrtcSingleton.getInstance().state);
 

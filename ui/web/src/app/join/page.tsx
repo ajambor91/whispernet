@@ -6,6 +6,7 @@ import JoinChat from "../../../../shared/components/join-chat/JoinChat";
 import {useRouter} from "next/navigation";
 import {useDispatch} from "react-redux";
 import {SessionApiState, setCreateSession} from "../../../../shared/slices/createSession.slice";
+import Centered from "../../../../shared/components/centered/Centered";
 
 const ChatJoining: React.FC = () => {
     const router = useRouter();
@@ -38,8 +39,10 @@ const ChatJoining: React.FC = () => {
 
     }
     return (
-        <section>
-            <JoinChat onChatSubmit={onChatSubmit}></JoinChat>
+        <section className="full-screen">
+            <Centered>
+                <JoinChat onChatSubmit={onChatSubmit}></JoinChat>
+            </Centered>
         </section>
     )
 }

@@ -1,0 +1,36 @@
+.hash {
+  text-align: center;
+  &__header {
+    font-size: 2em;
+    font-weight: bold;
+    line-height: 2.5em;
+  }
+
+  &__hashUUID {
+
+  }
+  &__inputWrapper {
+    position: relative;
+
+    .hash__input {
+      /* Stylowanie dla input */
+      width: 400px;
+      border-radius: 2px;
+      border: solid 1px #ffffff;
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: center;
+      padding: 5px 5px;
+    }
+
+    &__copyButton {
+      /* Stylowanie dla przycisku kopiowania */
+      outline: none;
+      background-color: transparent;
+      border: #ffffff solid 1px;
+      border-radius: 2px;
+      font-size: 1.2em;
+      padding: 5px 5px;
+    }
+  }
+}

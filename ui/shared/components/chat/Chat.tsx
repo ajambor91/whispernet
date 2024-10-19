@@ -1,29 +1,35 @@
 'use client'
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Message from "../message/Message";
 import MessageInput from "../message-input/MessageInput";
-import {getWebRTCDataChannel, sendWebRTCMessage} from "../../singleton/webrtc.singleton";
+import {getConnectionsState, getWebRTCDataChannel, sendWebRTCMessage} from "../../singleton/webrtc.singleton";
+import {WebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
+import {SessionApiState} from "../../slices/createSession.slice";
 type MessageType = 'incoming' | 'reply'
-interface UserMessage {
-    id: number;
-    content: string;
-    type: MessageType
+interface ChatComponentProps {
+    sessionApiState: SessionApiState
 }
-const ChatComponent: React.FC = () => {
-    const [messages, setMessages] = useState<UserMessage[]>([]);
-/*    getWebRTCDataChannel().onmessage = (event) => {
-        console.log('ON MESSAGE', event.data)
-    }*/
-
-    const addMessage = (content: string) => {
+const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
+    const [messages, setMessages] = useState<WebrtcPeerMessage[]>([]);
+    const connectionState = getConnectionsState();
+    const addMessage = (content: WebrtcPeerMessage) => {
         setMessages(prevState =>  [
             ...prevState,
-            {id: prevState.length + 1, type: 'incoming', content}
+            content
         ])
     }
-    const sendMessage = (content: string) => {
-        sendWebRTCMessage("XXXXX")
+    const sendMessage = (content: WebrtcPeerMessage) => {
+        sendWebRTCMessage(JSON.stringify(content))
+        addMessage(content)
     }
+    useEffect(() => {
+        if (connectionState && connectionState.dataChannel) {
+            getWebRTCDataChannel().onmessage = (event) => {
+                const incommingMessage: WebrtcPeerMessage = JSON.parse(event.data)
+                addMessage(incommingMessage)
+            }
+        }
+    }, [connectionState]);
     return (
         <div>
             {messages.map(msg => (

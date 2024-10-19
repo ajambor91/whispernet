@@ -5,11 +5,13 @@ import useWebSocket from "../../../../shared/hooks/useWebSocket";
 import {SessionApiState} from "../../../../shared/slices/createSession.slice";
 import {WebRTCMessageEnum} from "../../../../shared/enums/webrtc-message-enum";
 import {useRouter} from "next/navigation";
+import Status from "../../../../shared/components/status/Status";
+import Indicator from "../../../../shared/components/indicator/Indicator";
 
 const ChatWaiting: React.FC = () => {
     const [messageSent, setMessageSent] = useState<boolean>(false)
     const sessionApiState: SessionApiState = useAppSelector(state => state.sessionApiState);
-    const { isLoading, sendMessage, isJoined } = useWebSocket();
+    const { isLoading, sendMessage, isJoined, isConnected } = useWebSocket();
     const router = useRouter();
     useEffect(() => {
 
@@ -17,18 +19,24 @@ const ChatWaiting: React.FC = () => {
 
                 sendMessage({sessionId: sessionApiState.sessionToken, type: WebRTCMessageEnum.Init});
                 setMessageSent(true)
-            }
+            } else  {
+            router.push('/')
+        }
     }, [sessionApiState.sessionToken]);
 
     useEffect(() => {
         if (isJoined) {
-            router.push('/chat')
+            setTimeout(() => {
+                router.push('/chat')
+
+            },1500)
         }
     }, [isJoined]);
     return (
         <section>
             <div>
-                {isLoading ? "Czekaj" :"Go"}
+                <Indicator />
+                <Status isLoading={isLoading} isConnected={isConnected} isJoined={isJoined} />
             </div>
         </section>
     )

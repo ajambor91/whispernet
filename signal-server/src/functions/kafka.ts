@@ -23,7 +23,8 @@ export async function startKafka() {
             if (message.value instanceof Buffer) {
                 const sessionToken: string = message.value.toString();
                 const sessiontTokensObj: Session = JSON.parse(JSON.parse(sessionToken));
-
+                console.log('KAFKA')
+                console.log(sessiontTokensObj.wsSessionToken, sessiontTokensObj.usersTokens)
                 clientsMap.setClient(sessiontTokensObj.wsSessionToken, sessiontTokensObj.usersTokens);
             }
 

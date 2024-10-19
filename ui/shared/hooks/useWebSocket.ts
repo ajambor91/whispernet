@@ -11,6 +11,9 @@ const useWebSocket = () => {
     const [isJoined, setIsJoined] = useState<boolean>(false)
     const socketRef = useRef<WebSocket | null>(null);
     const actionForMessage = connectRTC()
+    const closeConnection = () => {
+        socketRef.current.close();
+    }
     const decodeBinaryMessage = (msg: MessageEvent): Promise<WebRTCMessage> => {
         return new Promise((resolve, reject) => {
             const blob: Blob = msg.data;
@@ -62,6 +65,6 @@ const useWebSocket = () => {
     },[]);
 
 
-    return {isLoading, isConnected,isJoined, sendMessage };
+    return {isLoading, isConnected,isJoined, sendMessage, closeConnection };
 }
 export default useWebSocket;

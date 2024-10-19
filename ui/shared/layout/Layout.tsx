@@ -9,8 +9,8 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({children}) => {
   return (
-      <div className="container">
-        <main>{children ? children : undefined}</main>
+      <div className="container full-screen">
+        <main className="full-screen">{children ? children : undefined}</main>
       </div>
   )
 }

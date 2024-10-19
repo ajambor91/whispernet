@@ -5,35 +5,33 @@ import useWebSocket from "../../../../shared/hooks/useWebSocket";
 import  {SessionApiState} from "../../../../shared/slices/createSession.slice";
 import {WebRTCMessageEnum} from "../../../../shared/enums/webrtc-message-enum";
 import {useRouter} from "next/navigation";
+import Hash from "../../../../shared/components/hash/Hash";
 const ChatWaiting: React.FC = () => {
-    console.log('//////////////////////////////////////////////////////////////////////')
     const [messageSent, setMessageSent] = useState<boolean>(false)
 
     const sessionApiState: SessionApiState = useAppSelector(state => state.sessionApiState);
-    const {  sendMessage, isConnected, isJoined } = useWebSocket();
+    const {  sendMessage, isConnected, isJoined, isLoading } = useWebSocket();
     const router = useRouter();
     useEffect(() => {
-        console.log('##########################################', sessionApiState, messageSent)
-
         if (sessionApiState.sessionToken && !messageSent) {
-            console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-
             sendMessage({sessionId: sessionApiState.sessionToken, type: WebRTCMessageEnum.Init})
             setMessageSent(true)
 
+        } else  {
+            router.push('/')
         }
     }, [sessionApiState.sessionToken]);
 
     useEffect(() => {
         if (isJoined) {
-            router.push('/chat')
-        }
+            setTimeout(() => {
+                router.push('/chat')
+
+            },1500)        }
     }, [isJoined]);
     return (
-        <section>
-            <div>
-                <h2>Copy and paste </h2>
-                <p>hash: {sessionApiState.sessionToken}</p></div>
+        <section className="full-screen">
+            <Hash sessionApiState={sessionApiState} isLoading={isLoading} isConnected={isConnected} isJoined={isJoined} />
         </section>
     )
 }

@@ -71,7 +71,6 @@ const sendFound = (connections: WebSocket[], message: WebRTCMessage) => {
         sessionId: message.sessionId,
     }
     connections.forEach((wsConn, index) => {
-        console.log('INNNNNNNNN', index)
         wsConn.send(Buffer.from(parseMessageJson(webRTCMessage)));
     });
 }
@@ -112,25 +111,19 @@ const getConnections: (clients: Clients, webRTCMessage: WebRTCMessage) => WebSoc
 
 const handleOffer = (connections: WebSocket[], message: WebRTCMessage, userToken: string) => {
     message.type = WebRTCMessageEnum.IncommingOffer;
-    console.log('handleOffer    handleOffer   handleOffer   handleOffer   handleOffer   handleOffer')
-    console.log('conncetions', connections)
     connections.forEach(ws => {
         ws.send(parseMessageJson(message))
     })
 }
 
 const handleAnswer = (connections: WebSocket[], message: WebRTCMessage) => {
-    console.log('handleOffer    handleOffer   handleOffer   handleOffer   handleOffer   handleOffer')
-    console.log('conncetions', connections)
     connections.forEach(ws => {
         ws.send(parseMessageJson(message))
     })
 }
 
 const getReceiversConns = (clients: Clients, message: WebRTCMessage, userToken: string): WebSocket[] => {
-  console.log('clients', clients)
   const clientsToSend = omitClient(clients, userToken);
-  console.log('oomittted',clientsToSend)
   return getConnections(clientsToSend, message)
 }
 const handleJoin = handleAnswer;
@@ -138,9 +131,7 @@ export const handleCandidate = handleAnswer;
 
 const sendMessages: (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string) => void = (clientsSession: ClientsSession, message: WebRTCMessage, userToken: string): void => {
     const clients: Clients = getSessionClients(clientsSession, message)
-    console.log("clientssss",clients)
     const receiversConn: WebSocket[] = getReceiversConns(clients, message, userToken);
-    console.log("TYPE MESSAGE",message.type)
     switch (message.type) {
         case WebRTCMessageEnum.Join:
             handleJoin(receiversConn, message);
@@ -185,6 +176,10 @@ export const wsConnection = (): void => {
                     const decodedMessage: string = decodeMessage(message);
                     const webRTCMessage: WebRTCMessage = parseForWebRTC(decodedMessage);
                     const clients: string[] = getClients(webRTCMessage.sessionId);
+                    console.log('CLIENTS')
+                    console.log(clients)
+                    console.log('USER TOKEN')
+                    console.log(userToken)
                     checkClientAuthorized(clients, userToken);
                     const clientsSession: ClientsSession = getWsSession(webRTCMessage.sessionId, userToken, ws);
                     sendMessages(clientsSession, webRTCMessage, userToken);

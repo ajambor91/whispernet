@@ -19,8 +19,10 @@ const JoinChat: React.FC<ChatJoiningProps> = ({onChatSubmit}) => {
     }
     return (
         <div className={styles.joinChatContainer}>
+            <h2>Connect to Client Using Hash</h2>
             <form onSubmit={handleSubmit}>
                 <div>
+                    <p>Paste hash from peer: </p>
                     <input id="sessionHash" name="sessionHash" value={hash} onChange={onChatSubmit ? handleChange : () =>{}} type="text"></input>
                 </div>
                 <div>

@@ -6,37 +6,42 @@ import message from "../message/Message";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleUp} from "@fortawesome/free-solid-svg-icons/faCircleUp";
 interface MessageInput {
-    sendMessage?: (msg: WebrtcPeerMessage) => void;
+    sendMessage: (msg: WebrtcPeerMessage) => void;
 }
 const MessageInput: React.FC<MessageInput> = ({sendMessage}) => {
     const messageRef = useRef<HTMLDivElement>(null);
 
-    const handleInput = (e) => {
-        const input = messageRef.current;
-        input.style.height = 'auto'; // Resetuj wysokość
-        input.style.overflowY = 'hidden';
-        input.style.height = `${input.scrollHeight}px`; // Ustaw wysokość na podstawie treści
-        console.log(input.style.height.match(/[0-9]*/) )
-        console.log(input.style.height)
-        if (150 < +input.style.height.match(/[0-9]*/)[0] ) {
-            input.style.overflowY = 'auto'
+    const handleInput = () => {
+        const input = messageRef.current as HTMLDivElement;
+            input.style.height = 'auto'; // Resetuj wysokość
+            input.style.overflowY = 'hidden';
+            input.style.height = `${input.scrollHeight}px`; // Ustaw wysokość na podstawie treści
+            console.log(input.style.height.match(/[0-9]*/) )
+            console.log(input.style.height)
+                const heightMatch = input.style.height.match(/[0-9]*/);
+                if (heightMatch && 150 < +heightMatch[0]) {
+                    input.style.overflowY = 'auto';
+
+
         }
+
     };
     const passMessage = () => {
-        if (messageRef.current) {
+        const messageElement: HTMLDivElement = messageRef.current as HTMLDivElement;
             const msg: WebrtcPeerMessage = {
                 type: undefined,
-                sessionId: 'fdsfdsfd',
-                content: messageRef.current.innerHTML
+                sessionId: '',
+                content: messageElement.innerHTML
             }
+            console.log('DSSFDDSF')
             sendMessage(msg)
-            messageRef.current.focus();
-            messageRef.current.innerHTML = '';
-        }
+            messageElement.focus();
+            messageElement.innerHTML = '';
+
     }
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: any) => {
         if (e.key === 'Enter') {
-            if (e.ctrlKey) {
+            if (e.shiftKey) {
                 insertLineBreak();
             } else {
                 e.preventDefault();
@@ -46,8 +51,8 @@ const MessageInput: React.FC<MessageInput> = ({sendMessage}) => {
     };
 
     const insertLineBreak = () => {
-        const selection = window.getSelection();
-        if (!selection.rangeCount) return;
+        const selection: Selection = window.getSelection() as Selection;
+        if (!!selection && !selection.rangeCount) return;
 
         const range = selection.getRangeAt(0);
         const br = document.createElement('br');

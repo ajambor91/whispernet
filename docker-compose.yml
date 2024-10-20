@@ -22,6 +22,7 @@ services:
     build: './nginx'
     ports:
       - '8099:80'
+      - '8098:443'
     networks:
       - whispernet
     hostname: gateway.whisper.net
@@ -63,11 +64,20 @@ services:
     depends_on:
       - wsserver
     networks:
-      - whispernet
+      whispernet:
+        ipv4_address: 172.18.0.10
     container_name: coturn
+    ports:
+      - "3478:3478/udp"            # STUN dostępny na host:3478
+      - "3478:3478/tcp"            # TURN dostępny na host:3478
+      - "5349:5349/udp"            # TURN z TLS dostępny na host:5349
+      - "5349:5349/tcp"            # TURN z TLS dostępny na host:5349
 networks:
   whispernet:
-    driver: 'bridge'
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
 
 volumes:
   cache:

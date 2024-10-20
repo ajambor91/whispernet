@@ -6,7 +6,7 @@ const nextConfig = {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://gateway/api/:path*',
+                destination: 'https://gateway/api/:path*',
             },
         ];
     },

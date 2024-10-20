@@ -2,7 +2,7 @@ import {ConnectionStateModel} from "../models/connection-state.model";
 
 class WebrtcSingleton {
     private static _instance: WebrtcSingleton;
-    private _state: ConnectionStateModel;
+    private _state!: ConnectionStateModel;
 
     public static getInstance(): WebrtcSingleton {
         if (!this._instance) {
@@ -35,7 +35,12 @@ export const getConnectionsState = (): ConnectionStateModel => {
 }
 
 export const sendWebRTCMessage = (content: string) => {
-    WebrtcSingleton.getInstance().state?.dataChannel.send(content)
+    const instance = WebrtcSingleton?.getInstance();
+    if (instance?.state?.dataChannel) {
+        instance.state.dataChannel.send(content);
+    } else {
+        console.error("Data channel is not available.");
+    }
 }
 
 export const getWebRTCDataChannel = () => {

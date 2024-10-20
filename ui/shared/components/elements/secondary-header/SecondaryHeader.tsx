@@ -7,7 +7,7 @@ const StyledSecondaryHeader = styled.h1`
     text-align: center;
 `;
 
-const SecondaryHeader: React.FC = ({ children }) => {
+const SecondaryHeader: React.FC<any> = ({ children }) => {
     return (
         <StyledSecondaryHeader>
             {children}

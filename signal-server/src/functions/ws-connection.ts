@@ -11,7 +11,18 @@ const getCookie: (req: IncomingMessage) => string = (req: IncomingMessage): stri
     if (!req.headers?.cookie) {
         throw new Error("No user token cookie found!");
     }
-    return req.headers.cookie.replace('sessionToken=', '');
+    console.log("$coookie", req.headers.cookie)
+    const regexp: RegExp = /sessionToken=([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i;
+    const cookie: string = req.headers.cookie;
+    const result: RegExpMatchArray | null = cookie.match(regexp);
+    console.log('$result', result)
+    let token: string;
+    if (result && result[1]) {
+        token = result[1]
+    } else {
+        throw new Error('No token found')
+    }
+    return token;
 };
 
 const decodeMessage: (buffer: Buffer) => string = (buffer: Buffer): string => {

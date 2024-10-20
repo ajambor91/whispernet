@@ -1,5 +1,5 @@
 import styles from './JoinChat.module.scss';
-import {useState} from "react";
+import React, {useState} from "react";
 import Button from "../elements/button/Button";
 import Input from "../elements/input/input";
 import InlineDiv from "../elements/inline-div/InlineDiv";
@@ -20,7 +20,7 @@ const JoinChat: React.FC<ChatJoiningProps> = ({onChatSubmit}) => {
         }
         }
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e:any) => {
         const sessionHash: string = e.target.value;
         setHash(sessionHash);
     }

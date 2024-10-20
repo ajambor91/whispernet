@@ -1,9 +1,11 @@
 
 .navigation {
-  padding-top: 50px;
+  padding-top: 20px;
   padding-bottom: 20px;
   border-bottom: 1px solid #fff;
   .navigation__list {
+    max-width: 1440px;
+    margin: auto;
     display: flex;
     list-style: none;
     gap: 40px;

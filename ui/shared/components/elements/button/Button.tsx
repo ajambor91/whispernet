@@ -1,22 +1,21 @@
 import styled from 'styled-components';
 import React from "react";
-
+import '../../../styles/globals.scss'
 const StyledButton = styled.button`
     margin: 10px;
     padding: 10px 30px;
     font-size: 18px;
     font-weight: bold;
-    color: #cfcfcf; /* Tekst podobny do tego z obrazka */
+    color: var(--font-color) /* Tekst podobny do tego z obrazka */
     background-color: transparent; /* Przezroczyste tło */
-    border: 2px solid #cfcfcf; /* Obramowanie w kolorze tekstu */
+    border: 2px solid var(--border-color); /* Obramowanie w kolorze tekstu */
     border-radius: 8px; /* Delikatne zaokrąglenie */
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
 
     &:hover {
-        background-color: #5757ff; /* Niebieskie tło na hover */
+        background-color: #231a69; /* Niebieskie tło na hover */
         color: #fff; /* Biały tekst na hover */
-        transform: translateY(-2px); /* Lekko podnosi się na hover */
     }
 
     &:active {

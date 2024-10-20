@@ -1,0 +1,29 @@
+.messageContainer {
+  width: 100%;
+  height: auto;
+  display: flex;
+  padding: 10px 30px;
+
+  &Incoming {
+    justify-content: left;
+  }
+
+  &Reply {
+    justify-content: right;
+  }
+
+  &__messageContent {
+    font-weight: 600;
+    border-radius: 5px;
+    padding: 8px;
+    max-width: 50%;
+
+    &Incoming {
+      background-color: #283c63 ;
+    }
+
+    &Reply {
+      background-color:  #6a0dad;
+    }
+  }
+}

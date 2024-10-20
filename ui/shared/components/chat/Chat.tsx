@@ -1,4 +1,6 @@
 'use client'
+import '../../styles/globals.scss'
+import styles from './Chat.module.scss'
 import React, {useEffect, useState} from "react";
 import Message from "../message/Message";
 import MessageInput from "../message-input/MessageInput";
@@ -13,29 +15,64 @@ const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
     const [messages, setMessages] = useState<WebrtcPeerMessage[]>([]);
     const connectionState = getConnectionsState();
     const addMessage = (content: WebrtcPeerMessage) => {
+        if (content.sessionId !== sessionApiState.sessionToken) {
+            throw new Error('Invalid session token!')
+        }
         setMessages(prevState =>  [
             ...prevState,
-            content
+            {
+                ...content,
+                messageId: prevState.length + 1
+            }
         ])
     }
+
+    const stringfyWebRTCPeerMsg = (msg: WebrtcPeerMessage) => {
+      return JSON.stringify(msg);
+    }
+
+    const parseWebRTCPeerMsg = (msg: string): WebrtcPeerMessage => {
+        return JSON.parse(msg);
+    }
     const sendMessage = (content: WebrtcPeerMessage) => {
-        sendWebRTCMessage(JSON.stringify(content))
-        addMessage(content)
+        sendWebRTCMessage(stringfyWebRTCPeerMsg({...content, sessionId: sessionApiState.sessionToken}))
+        addMessage({
+            ...content,
+            type: 'reply',
+            sessionId: sessionApiState.sessionToken
+        })
     }
     useEffect(() => {
         if (connectionState && connectionState.dataChannel) {
             getWebRTCDataChannel().onmessage = (event) => {
-                const incommingMessage: WebrtcPeerMessage = JSON.parse(event.data)
-                addMessage(incommingMessage)
+                const incommingMessage: WebrtcPeerMessage = parseWebRTCPeerMsg(event.data)
+                console.log(incommingMessage)
+                addMessage({
+                    ...incommingMessage,
+                    type: 'incoming'
+                })
             }
         }
     }, [connectionState]);
     return (
-        <div>
-            {messages.map(msg => (
-                <Message message={msg.content}/>
-            ))}
-            <MessageInput sendMessage={sendMessage} />
+        <div className="full-screen relative">
+            <div className={styles.chatContainer}>
+                <div className={styles.messageContaner}>
+                    {messages.map(msg => (
+                        <div key={msg.messageId} className={styles.messageContaner__wrapper}>
+                        <Message message={msg}/>
+                        </div>
+                    ))}
+                </div>
+            <div>
+
+            </div>
+
+            <div className={styles.chatContainer__input}>
+                <MessageInput sendMessage={sendMessage} />
+            </div>
+            </div>
+
         </div>
     )
 }

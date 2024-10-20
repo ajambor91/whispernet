@@ -1,0 +1,8 @@
+.centeredContainer {
+  position: relative;
+  .centeredContainer__content {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

@@ -1,6 +1,12 @@
 import styles from './JoinChat.module.scss';
 import {useState} from "react";
-import Button from "../button/Button";
+import Button from "../elements/button/Button";
+import Input from "../elements/input/input";
+import InlineDiv from "../elements/inline-div/InlineDiv";
+import SecondaryHeader from "../elements/secondary-header/SecondaryHeader";
+import TertiaryHeader from "../elements/tertiary-header/TertiaryHeader";
+import {faCopy} from "@fortawesome/free-solid-svg-icons/faCopy";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 interface ChatJoiningProps {
     onChatSubmit?: (hash: string) => void;
@@ -18,17 +24,19 @@ const JoinChat: React.FC<ChatJoiningProps> = ({onChatSubmit}) => {
         const sessionHash: string = e.target.value;
         setHash(sessionHash);
     }
+
     return (
         <div className={styles.joinChatContainer}>
-            <h2>Connect to Client Using Hash</h2>
+            <SecondaryHeader>Connect to Client Using Hash</SecondaryHeader>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <p>Paste hash from peer: </p>
-                    <input id="sessionHash" name="sessionHash" value={hash} onChange={onChatSubmit ? handleChange : () =>{}} type="text"></input>
-                </div>
-                <div><Button className={"primary"} type={"submit"}>
-                    <span>ssss</span>
-                </Button>
+                    <TertiaryHeader>Paste hash from peer: </TertiaryHeader>
+                    <InlineDiv><Input id="sessionHash" name="sessionHash" value={hash} onChange={onChatSubmit ? handleChange : () =>{}} type="text" /> </InlineDiv>
+                    <InlineDiv>
+                    <Button className={"primary"} type={"submit"}>
+                       Submit  <FontAwesomeIcon style={{ fontSize: '1.5rem' }} icon={faCopy} />
+                    </Button>
+                    </InlineDiv>
                 </div>
             </form>
         </div>

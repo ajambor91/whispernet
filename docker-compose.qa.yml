@@ -8,6 +8,7 @@ services:
     container_name: session
     depends_on:
       - broker
+      - gateway
   wssession:
     build: 'net.whisper.wssession'
     networks:
@@ -16,16 +17,18 @@ services:
     container_name: wssession
     depends_on:
       - broker
+      - session
   gateway:
     build: './nginx'
     ports:
       - '80:80'
+      - '443:443'
     networks:
       - whispernet
     hostname: gateway.whisper.net
     container_name: gateway
-    volumes:
-      - './nginx/nginx.conf:/etc/nginx/nginx.conf'
+    depends_on:
+      - frontend
   zookeeper:
     image: zookeeper:latest
     container_name: zookeeper
@@ -52,6 +55,9 @@ services:
     build: './signal-server'
     networks:
       - whispernet
+    depends_on:
+      - broker
+      - wssession
   frontend:
     build:
       context: './ui'
@@ -60,9 +66,27 @@ services:
       - whispernet
     hostname: frontend.whisper.net
     container_name: frontend
+  coturn:
+    build: './coturn'
+    hostname: coturn
+    depends_on:
+      - wsserver
+    networks:
+      whispernet:
+        ipv4_address: 172.18.0.10
+    container_name: coturn
+    ports:
+      - "3478:3478/udp"            # STUN dostępny na host:3478
+      - "3478:3478/tcp"            # TURN dostępny na host:3478
+      - "5349:5349/udp"            # TURN z TLS dostępny na host:5349
+      - "5349:5349/tcp"            # TURN z TLS dostępny na host:5349
+      - "55000-56000:55000-56000/udp"  # Nowy zakres portów dla relay TURN
 networks:
   whispernet:
-    driver: 'bridge'
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
 volumes:
   cache:
     driver: local

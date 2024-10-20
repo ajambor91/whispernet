@@ -59,7 +59,7 @@ public class WSSessionService {
             wsSessionRepository.saveToken(newWsTokenValue, wsToken);
             TokenCreatedWSession tokenCreatedWSession = createCreatedSessionTokenObject(wsToken, newWsTokenValue);
             String jsonSession = objectMapper.writeValueAsString(tokenCreatedWSession);
-            System.out.println("SENDINS");
+            System.out.println("SENDINS"); 
             System.out.println(jsonSession);
             sendKafkaMsg(jsonSession, "request-ws-startws-topic");
         } catch (java.lang.Exception e) {

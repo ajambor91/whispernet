@@ -5,11 +5,11 @@ import {connectRTC} from "../webrtc/functions";
 import {WebRTCMessageEnum} from "../enums/webrtc-message-enum";
 
 const useWebSocket = () => {
-    const [message, setMessage] = useState<string>(null);
+    // const [message, setMessage] = useState<string>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isConnected, setIsConnected] = useState(false);
     const [isJoined, setIsJoined] = useState<boolean>(false)
-    const socketRef = useRef<WebSocket | null>(null);
+    const socketRef = useRef<WebSocket>({} as WebSocket);
     const actionForMessage = connectRTC()
     const closeConnection = () => {
         socketRef.current.close();
@@ -41,7 +41,7 @@ const useWebSocket = () => {
             }
         });
     };
-    const sendMessage = (message: WebRTCMessage): boolean => {
+    const sendMessage = (message: WebRTCMessage): boolean | undefined=> {
         if (message.type === WebRTCMessageEnum.Join) {
             setIsJoined(true);
             return true;

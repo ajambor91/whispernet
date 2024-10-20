@@ -7,20 +7,25 @@ export function connectRTC(){
         peerConnection: null,
         dataChannel: null
     }
+    const iceServers: RTCIceServer[] =  [{
+        urls: [ "stun:fr-turn1.xirsys.com" ]
+    }, {
+        username: "d0z7JG_f-uEKOa6yoLFYkl4bYrPN6DioU5MkqiLQHAmTn2JOrRkVA9_0Wap5kukxAAAAAGcVRbRBamo5MTI=",
+        credential: "7833a8be-8f0d-11ef-9a9b-0242ac120004",
+        urls: [
+            "turn:fr-turn1.xirsys.com:80?transport=udp",
+            "turn:fr-turn1.xirsys.com:3478?transport=udp",
+            "turn:fr-turn1.xirsys.com:80?transport=tcp",
+            "turn:fr-turn1.xirsys.com:3478?transport=tcp",
+            "turns:fr-turn1.xirsys.com:443?transport=tcp",
+            "turns:fr-turn1.xirsys.com:5349?transport=tcp"
+        ]}];
 
-    const iceServers: RTCIceServer[] = [
-        { urls: 'stun:coturn:3478' },
-        {
-            urls: 'turn:coturn:3478',
-            username: 'exampleuser',
-            credential: 'examplepass'
-        }
-    ];
 
     const handleAnswer = async (message: WebRTCMessage, socket: WebSocket) => {
         try {
-            await state.peerConnection.setRemoteDescription(new RTCSessionDescription(message.answer));
-            state.dataChannel.onopen = () => {
+            await (state.peerConnection as RTCPeerConnection).setRemoteDescription(new RTCSessionDescription((message.answer as RTCSessionDescriptionInit)));
+            (state.dataChannel as RTCDataChannel).onopen = () => {
                 setConnectionState(state);
                 const openedMsg: WebRTCMessage = {
                     type: WebRTCMessageEnum.Join,
@@ -28,8 +33,8 @@ export function connectRTC(){
                 };
                 socket.send(createJSONString(openedMsg))
             }
-            state.peerConnection.onconnectionstatechange = () => {
-                if (state.peerConnection.connectionState === 'failed') {
+            (state.peerConnection as RTCPeerConnection).onconnectionstatechange = () => {
+                if ((state.peerConnection as RTCPeerConnection).connectionState === 'failed') {
                     console.error('Połączenie WebRTC nie udało się - sprawdź konfigurację ICE.');
                 }
             };
@@ -48,9 +53,9 @@ export function connectRTC(){
     const sendOffer = async (message: WebRTCMessage, socket: WebSocket) => {
         state.peerConnection = new RTCPeerConnection({iceServers});
 
-        state.dataChannel = state.peerConnection.createDataChannel("chat");
-        const offer = await state.peerConnection.createOffer();
-        state.peerConnection.onicecandidate = (event) => {
+        state.dataChannel = (state.peerConnection as RTCPeerConnection).createDataChannel("chat");
+        const offer = await (state.peerConnection as RTCPeerConnection).createOffer();
+        (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
             if (!!event.candidate) {
                 const iceCandidateMsg: WebRTCMessage = {
                     type: WebRTCMessageEnum.Candidate,
@@ -61,10 +66,10 @@ export function connectRTC(){
             }
 
         }
-        await state.peerConnection.setLocalDescription(offer);
+        await (state.peerConnection as RTCPeerConnection).setLocalDescription(offer);
         const webRTCMessage: WebRTCMessage = {
             type: WebRTCMessageEnum.Offer,
-            offer: state.peerConnection.localDescription,
+            offer: state.peerConnection.localDescription as RTCSessionDescriptionInit,
             sessionId: message.sessionId
         }
 
@@ -74,10 +79,10 @@ export function connectRTC(){
 
     const handleOffer = async (message: WebRTCMessage, socket: WebSocket) => {
         state.peerConnection = new RTCPeerConnection({iceServers});
-        await state.peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
-        const answer = await state.peerConnection.createAnswer();
-        await state.peerConnection.setLocalDescription(answer);
-        state.peerConnection.onicecandidate = (event) => {
+        await (state.peerConnection as RTCPeerConnection).setRemoteDescription(new RTCSessionDescription(message.offer as RTCSessionDescriptionInit));
+        const answer = await (state.peerConnection as RTCPeerConnection).createAnswer();
+        await (state.peerConnection as RTCPeerConnection).setLocalDescription(answer);
+        (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
             if (!!event.candidate) {
                 const iceCandidateMsg: WebRTCMessage = {
                     candidate: event.candidate,
@@ -88,7 +93,7 @@ export function connectRTC(){
             }
 
         }
-        state.peerConnection.ondatachannel = (event) => {
+        (state.peerConnection as RTCPeerConnection).ondatachannel = (event) => {
             state.dataChannel = event.channel;
             state.dataChannel.onopen = () => {
                 const openedMsg: WebRTCMessage = {
@@ -102,7 +107,7 @@ export function connectRTC(){
         const webRTCMessage: WebRTCMessage = {
             type: WebRTCMessageEnum.Answer,
             sessionId: message.sessionId,
-            answer: state.peerConnection.localDescription,
+            answer: (state.peerConnection as RTCPeerConnection).localDescription as RTCSessionDescriptionInit,
         };
         socket.send(createJSONString(webRTCMessage))
     }
@@ -117,7 +122,7 @@ export function connectRTC(){
     const handleIceCandidate = async (message: WebRTCMessage) => {
         if (message.candidate) {
             try {
-                await state.peerConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
+                await (state.peerConnection as RTCPeerConnection).addIceCandidate(new RTCIceCandidate(message.candidate));
             } catch (error) {
                 console.error('Błąd podczas dodawania kandydata ICE:', error);
             }

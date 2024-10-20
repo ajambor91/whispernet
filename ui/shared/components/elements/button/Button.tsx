@@ -24,7 +24,7 @@ const StyledButton = styled.button`
     }
 `;
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>{
-    className: 'primary' | 'secondary';
+    className: 'primary' | 'secondary' | string;
 }
 const Button: React.FC<ButtonProps> = ({ children, className, ...props }) => {
     return (

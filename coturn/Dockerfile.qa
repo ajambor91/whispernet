@@ -1,0 +1,11 @@
+FROM coturn/coturn
+COPY ./turnserver.qa.conf /etc/coturn/turnserver.conf
+COPY ./turn_server_cert.pem /etc/coturn/ssl/turn_server_cert.pem
+COPY ./turn_server_pkey.pem /etc/coturn/ssl/turn_server_pkey.pem
+
+EXPOSE 3478/udp
+EXPOSE 3478/tcp
+EXPOSE 5349/udp
+EXPOSE 5349/tcp
+
+EXPOSE 55000-56000/udp

@@ -7,7 +7,7 @@ interface StatusProps {
 
 const Status: React.FC<StatusProps> = ({isLoading, isConnected, isJoined}) => {
     const [status, setStatus] = useState<string>("Started connection")
-    const getStatus = (): string => {
+    const getStatus = (): string  => {
         if (isJoined) {
             return "Connected with peer";
         } else if (isConnected) {
@@ -17,7 +17,7 @@ const Status: React.FC<StatusProps> = ({isLoading, isConnected, isJoined}) => {
             return 'Connecting to signal server'
         } else if (isConnected) {
             return "Connected with signal server, P2P session estabilishing"
-        } else if (isJoined) {
+        } else  {
             return "Connected with peer"
         }
     }

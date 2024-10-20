@@ -18,9 +18,11 @@ interface HashProps {
 }
 const Hash: React.FC<HashProps> = ({sessionApiState, isLoading, isConnected, isJoined}) => {
     const handleCopy = () => {
-        navigator.clipboard.writeText(sessionApiState.sessionToken).then(() => {
+        if (!!sessionApiState.sessionToken) {
+            navigator.clipboard.writeText(sessionApiState.sessionToken).then(() => {
 
-        });
+            });
+        }
     };
     return (
         <div className={`${styles.hash} full-screen`}>

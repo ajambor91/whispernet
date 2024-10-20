@@ -35,16 +35,16 @@ const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
         return JSON.parse(msg);
     }
     const sendMessage = (content: WebrtcPeerMessage) => {
-        sendWebRTCMessage(stringfyWebRTCPeerMsg({...content, sessionId: sessionApiState.sessionToken}))
+        sendWebRTCMessage(stringfyWebRTCPeerMsg({...content, sessionId: sessionApiState.sessionToken as string}))
         addMessage({
             ...content,
             type: 'reply',
-            sessionId: sessionApiState.sessionToken
+            sessionId: sessionApiState.sessionToken as string
         })
     }
     useEffect(() => {
         if (connectionState && connectionState.dataChannel) {
-            getWebRTCDataChannel().onmessage = (event) => {
+            ( getWebRTCDataChannel() as RTCDataChannel).onmessage = (event) => {
                 const incommingMessage: WebrtcPeerMessage = parseWebRTCPeerMsg(event.data)
                 console.log(incommingMessage)
                 addMessage({

@@ -8,7 +8,7 @@ const StyledTertiaryHeader = styled.h1`
 
 `;
 
-const TertiaryHeader: React.FC = ({ children }) => {
+const TertiaryHeader: React.FC<any> = ({ children }) => {
     return (
         <StyledTertiaryHeader>
             {children}

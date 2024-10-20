@@ -7,6 +7,7 @@ import {WebRTCMessageEnum} from "../../../../shared/enums/webrtc-message-enum";
 import {useRouter} from "next/navigation";
 import Status from "../../../../shared/components/status/Status";
 import Indicator from "../../../../shared/components/indicator/Indicator";
+import Centered from "../../../../shared/components/centered/Centered";
 
 const ChatWaiting: React.FC = () => {
     const [messageSent, setMessageSent] = useState<boolean>(false)
@@ -34,10 +35,12 @@ const ChatWaiting: React.FC = () => {
     }, [isJoined]);
     return (
         <section>
+            <Centered>
             <div>
                 <Indicator />
                 <Status isLoading={isLoading} isConnected={isConnected} isJoined={isJoined} />
             </div>
+            </Centered>
         </section>
     )
 }

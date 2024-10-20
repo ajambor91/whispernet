@@ -1,5 +1,44 @@
-.inputContainer {
+.input-container {
+  position: relative;
   width: 80%;
-  min-height: 200px;
-  background-color: white;
+  margin: auto;
+  background-color: transparent;
+  display: flex;
+  vertical-align: bottom;
+
+  &__input {
+    width: 100%;
+    min-height: 50px;
+    height: auto;
+    max-height: 150px;
+    overflow-y: hidden;
+    resize: none;
+    padding: 10px;
+    font-size: 1em;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    margin-bottom: 50px;
+    background-color: #2a2a5e;
+
+  }
+
+  &__button-container {
+    position: absolute;
+    bottom: 50px;
+    right: 10px;
+    color: #b0b3c0;
+    font-weight: bold;
+    padding-right: 10px;
+    padding-left: 10px;
+
+    &__button {
+      height: 50px;
+      margin-top: 0;
+      border: none;
+      background-color: transparent;
+      cursor: pointer;
+    }
+  }
 }

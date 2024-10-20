@@ -4,6 +4,12 @@ import {SessionApiState} from "../../slices/createSession.slice";
 import Status from "../status/Status";
 import styles from "./Hash.module.scss"
 import Centered from "../centered/Centered";
+import Input from "../elements/input/input";
+import Button from "../elements/button/Button";
+import SecondaryHeader from "../elements/secondary-header/SecondaryHeader";
+import TertiaryHeader from "../elements/tertiary-header/TertiaryHeader";
+import {faCopy} from "@fortawesome/free-solid-svg-icons/faCopy";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 interface HashProps {
     sessionApiState: SessionApiState; // Typ dla sessionApiState, np. string
     isLoading: boolean;
@@ -11,17 +17,19 @@ interface HashProps {
     isJoined: boolean;
 }
 const Hash: React.FC<HashProps> = ({sessionApiState, isLoading, isConnected, isJoined}) => {
-    const copyHash = () => {
+    const handleCopy = () => {
+        navigator.clipboard.writeText(sessionApiState.sessionToken).then(() => {
 
-    }
+        });
+    };
     return (
         <div className={`${styles.hash} full-screen`}>
             <Centered>
-                <h2 className={styles.hash__header}>Waiting for peer...</h2>
-                <p className={styles.hash__header}>Copy below hash:</p>
+                <SecondaryHeader className={styles.hash__header}>Waiting for peer...</SecondaryHeader>
+                <TertiaryHeader className={styles.hash__header}>Copy below hash:</TertiaryHeader>
                 <div className={styles.hash__inputWrapper}>
-                    <input className={styles.hash__input} value={sessionApiState.sessionToken ?? ''} disabled={true}/>
-                    <button className={styles.hash__inputWrapper__copyButton} onClick={copyHash}>Copy hash!</button>
+                    <Input type="text" value={sessionApiState.sessionToken ?? ''} disabled={true}/>
+                    <Button className={styles.hash__inputWrapper__copyButton} onClick={handleCopy}><FontAwesomeIcon style={{ fontSize: '1.5rem' }} icon={faCopy} /></Button>
                 </div>
                 <Indicator/>
                 <Status isLoading={isLoading} isConnected={isConnected} isJoined={isJoined}/>

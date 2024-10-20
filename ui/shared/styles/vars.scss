@@ -1,0 +1,44 @@
+
+$theme-color: #14133b;
+$secondary-theme-color: #231a69;
+$foreground-theme-color: #b0b3c0;
+$primary-color: #b0b3c0;
+$secondary-color: #ffff;
+
+$primary-font-weight: bold;
+$secondary-font-weight: bolder;
+
+$secondary-font-size: 2em;
+$button-font-size: 1.15em;
+$button-font-weight: 600;
+
+$main-header-font-size: 50px;
+$main-header-font-weight: 900;
+$secondary-header-font-size: 30px;
+$secondary-header-font-weight: 600;
+$tertiary-header-font-size: 20px;
+$tertiary-header-font-weight: 600;
+$font-color: #b0b3c0;
+:root {
+  --theme-color: #{$theme-color};
+  --secondary-theme-color: #{$secondary-theme-color};
+  --foreground-theme-color: #{$foreground-theme-color};
+  --primary-color: #{$primary-color};
+  --secondary-color: #{$secondary-color};
+
+  --primary-font-weight: #{$primary-font-weight};
+  --secondary-font-weight: #{$secondary-font-weight};
+
+  --secondary-font-size: #{$secondary-font-size};
+  --button-font-size: #{$button-font-size};
+  --button-font-weight: #{$button-font-weight};
+  --border-color: #{$foreground-theme-color};
+  --font-color: #{$font-color};
+  --main-header-font-size: #{$main-header-font-size};
+  --main-header-font-weight: #{$main-header-font-weight};
+  --secondary-header-font-size: #{$secondary-header-font-size};
+  --secondary-header-font-weight: #{$secondary-header-font-weight};
+
+  --tertiary-header-font-size: #{$tertiary-header-font-size};
+  --tertiary-header-font-weight: #{$tertiary-header-font-weight};
+}

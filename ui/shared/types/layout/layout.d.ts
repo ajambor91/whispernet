@@ -1,4 +1,4 @@
-import "../styles/globals.css";
+import "../styles/globals.scss";
 import React from "react";
 interface LayoutProps {
     children: React.ReactNode;

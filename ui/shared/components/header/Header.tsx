@@ -1,12 +1,14 @@
 import styles from './Header.module.scss';
 import React from "react";
+import PrimaryHeader from "../elements/primary-header/PrimaryHeader";
+import SecondaryHeader from "../elements/secondary-header/SecondaryHeader";
 
 
 const Header: React.FC = () => {
     return (
         <header className={styles.header}>
-            <h1 className={styles.header__h1}>WHISPER NET</h1>
-            <h2 className={styles.header__h2}>A Fully Anonymous Chat Over WebRTC</h2>
+            <PrimaryHeader>WHISPER NET</PrimaryHeader>
+            <SecondaryHeader>A Fully Anonymous Chat Over WebRTC</SecondaryHeader>
         </header>
     )
 }

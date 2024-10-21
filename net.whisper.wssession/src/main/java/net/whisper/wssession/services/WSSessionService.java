@@ -17,6 +17,10 @@ import net.whisper.wssession.TokenCreatedWSession;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import net.whisper.wssession.SessionClients;
+import net.whisper.wssession.Session;
+import net.whisper.wssession.Client;
+import net.whisper.wssession.ConnectionStatus;
 
 @Component
 public class WSSessionService {
@@ -28,18 +32,19 @@ public class WSSessionService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public void processToken(String kafkaMessage) {
+    public void processClient(String kafkaMessage) {
 
         try {
-            String userToken = mapToken(kafkaMessage).getUserToken();
-            String wsToken = UUID.randomUUID().toString();
-            wsSessionRepository.saveToken(userToken, wsToken);
-            TokenWithSessionTemplate tokenTemplate = createWSessionTokenTemplate(userToken, wsToken);
-            TokenCreatedWSession tokenCreatedWSession = createCreatedSessionTokenObject(wsToken, userToken);
-            String jsonSession = objectMapper.writeValueAsString(tokenTemplate);
-            String jsonCreatedSession = objectMapper.writeValueAsString(tokenCreatedWSession);
-            sendKafkaMsg(jsonCreatedSession, "request-ws-startws-topic");
-            sendKafkaMsg(jsonSession, "request-ws-token-topic");
+            Client client = mapToClient(kafkaMessage);
+            String userToken = client.getUserToken();
+            String sessionToken = UUID.randomUUID().toString();
+            wsSessionRepository.saveToken(userToken, sessionToken);
+            Client newClient = createWSSession(userToken, sessionToken);
+            SessionClients sessionClients = createSessionClients(sessionToken, userToken);
+            String jsonNewClient = objectMapper.writeValueAsString(newClient);
+            String jsonSessionClients = objectMapper.writeValueAsString(sessionClients);
+            sendKafkaMsg(jsonSessionClients, "request-init-ws-session-topic");
+            sendKafkaMsg(jsonNewClient, "request-ws-token-topic");
         } catch (java.lang.Exception e) {
             throw new RuntimeException(e);
         }
@@ -57,29 +62,29 @@ public class WSSessionService {
             }
             String newWsTokenValue = wsTokenValue + "," + userToken;
             wsSessionRepository.saveToken(newWsTokenValue, wsToken);
-            TokenCreatedWSession tokenCreatedWSession = createCreatedSessionTokenObject(wsToken, newWsTokenValue);
+            SessionClients tokenCreatedWSession = createSessionClients(wsToken, newWsTokenValue);
             String jsonSession = objectMapper.writeValueAsString(tokenCreatedWSession);
             System.out.println("SENDINS"); 
             System.out.println(jsonSession);
-            sendKafkaMsg(jsonSession, "request-ws-startws-topic");
+            sendKafkaMsg(jsonSession, "request-init-ws-session-topic");
         } catch (java.lang.Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private TokenTemplate mapToken(String message)  throws JsonProcessingException {
-        return objectMapper.readValue(message, TokenTemplate.class);
+    private Client mapToClient(String message)  throws JsonProcessingException {
+        return objectMapper.readValue(message, Client.class);
     }
 
     private TokenWithSessionTemplate mapTokenWithSession(String message)  throws JsonProcessingException {
         return objectMapper.readValue(message, TokenWithSessionTemplate.class);
     }
 
-    private TokenWithSessionTemplate createWSessionTokenTemplate(String token, String sessionToken) {
-        TokenWithSessionTemplate tokenTemplate = new TokenWithSessionTemplate();
-        tokenTemplate.setUserToken(token);
-        tokenTemplate.setWSessionToken(sessionToken);
-        return tokenTemplate;
+    private Client createWSSession(String userToken, String sessionToken) {
+        Client client = new Client();
+        client.setUserToken(userToken);
+        client.getSession().setSessionToken(sessionToken);
+        return client;
     }
 
     private void sendKafkaMsg(String parsedObject, String topic){
@@ -92,16 +97,20 @@ public class WSSessionService {
 
     }
 
-    private TokenCreatedWSession createCreatedSessionTokenObject(String wsToken, String usersTokens) {
-        TokenCreatedWSession createdSession = new TokenCreatedWSession();
+    private SessionClients createSessionClients(String sessionToken, String usersTokens) {
+        SessionClients sessionClients = new SessionClients();
+        sessionClients.setSessionToken(sessionToken);
         String[] tokensArray = usersTokens.split(",");
+        List<Client> clientsList = new ArrayList<>();
         for (int i = 0; i < tokensArray.length; i++) {
-            tokensArray[i] = tokensArray[i].trim();
+            Client client = new Client();
+            client.setUserToken(tokensArray[i].trim());
+            client.getSession().setSessionToken(sessionToken);
+            client.setConnectionStatus(ConnectionStatus.SESSION_TOKEN_CREATED);
+            clientsList.add(client);
         }
-        List<String> userTokensList = Arrays.asList(tokensArray);
-        createdSession.setWsSessionToken(wsToken);
-        createdSession.setUsersTokens(userTokensList);
-        return createdSession;
+        sessionClients.setClients(clientsList);
+        return sessionClients;
 
     }
 

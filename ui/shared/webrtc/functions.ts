@@ -2,6 +2,7 @@ import {WebRTCMessage} from "../models/webrtc-connection.model";
 import {WebRTCMessageEnum} from "../enums/webrtc-message-enum";
 import {ConnectionStateModel} from "../models/connection-state.model";
 import {setConnectionState} from "../singleton/webrtc.singleton";
+import message from "../components/message/Message";
 export function connectRTC(){
     const state: ConnectionStateModel = {
         peerConnection: null,
@@ -21,7 +22,7 @@ export function connectRTC(){
             "turns:fr-turn1.xirsys.com:5349?transport=tcp"
         ]}];
 
-
+    console.log("process.env.TURN_1",process.env.TURN_1)
     const handleAnswer = async (message: WebRTCMessage, socket: WebSocket) => {
         try {
             await (state.peerConnection as RTCPeerConnection).setRemoteDescription(new RTCSessionDescription((message.answer as RTCSessionDescriptionInit)));
@@ -52,7 +53,7 @@ export function connectRTC(){
 
     const sendOffer = async (message: WebRTCMessage, socket: WebSocket) => {
         state.peerConnection = new RTCPeerConnection({iceServers});
-
+        console.log(message)
         state.dataChannel = (state.peerConnection as RTCPeerConnection).createDataChannel("chat");
         const offer = await (state.peerConnection as RTCPeerConnection).createOffer();
         (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
@@ -129,6 +130,13 @@ export function connectRTC(){
         }
     };
 
+    const getIce = (message: WebRTCMessage, socket: WebSocket) => {
+        const webRTCMessage: WebRTCMessage = {
+            type: WebRTCMessageEnum.ICERequest,
+            sessionId: message.sessionId,
+        }
+        socket.send(createJSONString(webRTCMessage));    }
+
     const waitForConnection = (message: WebRTCMessage, socket: WebSocket): Promise<boolean> => {
         return new Promise((resolve, reject) => {
             let interval: NodeJS.Timeout;
@@ -166,6 +174,9 @@ export function connectRTC(){
         }
         try {
             switch (message.type) {
+                case WebRTCMessageEnum.Found:
+                    getIce(message, socket);
+                    break
                 case WebRTCMessageEnum.Candidate:
                     await handleIceCandidate(message);
                     break;
@@ -175,8 +186,8 @@ export function connectRTC(){
                 case WebRTCMessageEnum.IncommingOffer:
                     handleOffer(message, socket)
                     break;
-                case WebRTCMessageEnum.Found:
-                    sendOffer(message, socket)
+                case WebRTCMessageEnum.ICEResponse:
+                    // sendOffer(message, socket)
                     break;
                 case WebRTCMessageEnum.Waiting:
                     sendWaitingStatus(message, socket);

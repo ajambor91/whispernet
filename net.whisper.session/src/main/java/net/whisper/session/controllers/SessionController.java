@@ -17,7 +17,8 @@ import java.util.Map;
 import net.whisper.session.CookiesService;
 import net.whisper.session.SessionService;
 import net.whisper.session.KafkaService;
-
+import net.whisper.session.Session;
+import net.whisper.session.Client;
 @RestController
 @RequestMapping("/session")
 public class SessionController {
@@ -37,9 +38,9 @@ public class SessionController {
     @PostMapping("/create")
     public ResponseEntity<Map<String, String>> createSession(HttpServletResponse response) {
         try {
-            TokenWithSessionTemplate token = sessionService.createUserSession();
-            Cookie httpOnlyCookie = cookiesService.getCookie(token);
-            Map<String, String> responseBody = Map.of("sessionToken", token.getWSessionToken());
+            Client client = sessionService.createClient();
+            Cookie httpOnlyCookie = cookiesService.getCookie(client);
+            Map<String, String> responseBody = Map.of("sessionToken", client.getSession().getSessionToken());
             response.addCookie(httpOnlyCookie);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
@@ -49,12 +50,12 @@ public class SessionController {
         }
     }
 
-    @PostMapping("/exists/{wsToken}")
-    public ResponseEntity<Map<String, String>> createSessionForExixts(HttpServletResponse response, @PathVariable String wsToken) {
+    @PostMapping("/exists/{sessionToken}")
+    public ResponseEntity<Map<String, String>> createNextClientSession(HttpServletResponse response, @PathVariable String sessionToken) {
         try {
-            TokenWithSessionTemplate token = sessionService.createUserSessionForExistingWSession(wsToken);
-            Cookie httpOnlyCookie = cookiesService.getCookie(token);
-            Map<String, String> responseBody = Map.of("sessionToken", token.getWSessionToken());
+            Client client = sessionService.createNextClientSession(sessionToken);
+            Cookie httpOnlyCookie = cookiesService.getCookie(client);
+            Map<String, String> responseBody = Map.of("sessionToken", client.getSession().getSessionToken());
 
             response.addCookie(httpOnlyCookie);
             return ResponseEntity.ok()

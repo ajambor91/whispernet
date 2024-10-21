@@ -7,6 +7,8 @@ export enum WebRTCMessageEnum {
     Found = 'found',
     Init = 'init',
     Join = 'join',
-    Opened = 'opened'
+    Opened = 'opened',
+    ICERequest = 'ice-request',
+    ICEResponse = 'ice'
 
 }

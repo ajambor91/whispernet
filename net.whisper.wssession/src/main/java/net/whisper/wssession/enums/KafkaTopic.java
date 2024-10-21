@@ -1,8 +1,8 @@
 package net.whisper.wssession;
 
 public enum KafkaTopic {
-    USER_TOKEN_TOPIC("request-user-token-topic"),
-    USER_TOKEN_EXISTS_WSESSION_TOPIC("request-user-token-exists-wsession-topic");
+    CLIENT_TOPIC("request-client-topic"),
+    CLIENT_JOINING_TOPIC("request-joining-client-topic");
 
     private final String topicName;
 

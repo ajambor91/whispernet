@@ -1,5 +1,5 @@
 import {EachMessagePayload, Kafka, KafkaConfig, PartitionAssigners} from "kafkajs";
-import {Session} from "../models/session.model";
+import { SessionClients} from "../models/session-clients.model";
 import {clientsMap} from "../mappers/clients.map";
 import * as console from "console";
 
@@ -17,15 +17,13 @@ export async function startKafka() {
     const kafka: Kafka = new Kafka(kafkaConfig)
     const consumer = kafka.consumer({groupId: 'whispernet-node-group',  partitionAssigners: [PartitionAssigners.roundRobin]});
     await consumer.connect();
-    await consumer.subscribe({topic: 'request-ws-startws-topic', fromBeginning: true});
+    await consumer.subscribe({topic: 'request-init-ws-session-topic', fromBeginning: true});
     await consumer.run({
         eachMessage: async ({topic, partition, message}: EachMessagePayload) => {
             if (message.value instanceof Buffer) {
                 const sessionToken: string = message.value.toString();
-                const sessiontTokensObj: Session = JSON.parse(JSON.parse(sessionToken));
-                console.log('KAFKA')
-                console.log(sessiontTokensObj.wsSessionToken, sessiontTokensObj.usersTokens)
-                clientsMap.setClient(sessiontTokensObj.wsSessionToken, sessiontTokensObj.usersTokens);
+                const sessionClients: SessionClients = JSON.parse(JSON.parse(sessionToken));
+                clientsMap.setClient(sessionClients);
             }
 
         }

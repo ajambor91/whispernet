@@ -4,7 +4,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TokenTemplate {
-    private String userToken;
-
+public class Session {
+    private String sessionToken;
 }

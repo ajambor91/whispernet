@@ -1,5 +1,8 @@
+import {Client} from "../models/clients-session.model";
+import {SessionClients} from "../models/session-clients.model";
+
 class ClientsMap {
-    private readonly _clientsMap: Map<string, string[]> = new Map<string, string[]>();
+    private readonly _clientsMap: Map<string, Client[]> = new Map<string, Client[]>();
     private static _instance: ClientsMap;
 
 
@@ -10,11 +13,11 @@ class ClientsMap {
         return this._instance;
     }
 
-    public setClient(wssession: string, clients: string[]): void  {
-        this._clientsMap.set(wssession, clients);
+    public setClient(sessionClients: SessionClients): void  {
+        this._clientsMap.set(sessionClients.sessionToken, sessionClients.clients);
     }
-    public getClient(wssession: string): string[] | undefined  {
-        return this._clientsMap.get(wssession);
+    public getClient(sessionToken: string): Client[] | undefined  {
+        return this._clientsMap.get(sessionToken);
     }
 }
 

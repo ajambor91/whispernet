@@ -3,8 +3,7 @@ package net.whisper.session;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import net.whisper.session.SessionRepository;
-import net.whisper.session.TokenTemplate;
-import net.whisper.session.TokenWithSessionTemplate;
+import net.whisper.session.Client;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +11,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import net.whisper.session.KafkaService;
+import net.whisper.session.ConnectionStatus;
 @Service
 public class SessionService {
     @Autowired
@@ -23,31 +23,31 @@ public class SessionService {
 
     @Autowired
     private KafkaService kafkaService;
-    public TokenWithSessionTemplate createUserSession() {
+    public Client createClient() {
         try {
             String token = createUserSessionToken();
             sessionRepository.saveToken(token);
-            TokenTemplate tokenTemplate = createTokenTemplate(token);
+            Client client = createClient(token);
 
-            String jsonSession = objectMapper.writeValueAsString(tokenTemplate);
-            sendKafkaMsg(jsonSession, "request-user-token-topic");
-            TokenWithSessionTemplate tokenWithSessionTemplate = kafkaService.waitForMessage(token, 5);
+            String jsonSession = objectMapper.writeValueAsString(client);
+            sendKafkaMsg(jsonSession, "request-client-topic");
+            Client newClient = kafkaService.waitForMessage(client, 5);
 //            String response = objectMapper.writeValueAsString(tokenWithSessionTemplate);
-            return tokenWithSessionTemplate;
+            return newClient;
         } catch (java.lang.Exception e) {
             throw new RuntimeException(e);
         }
 
     }
 
-    public TokenWithSessionTemplate createUserSessionForExistingWSession(String wsToken) {
+    public Client createNextClientSession(String sessionToken) {
         try {
-            String token = createUserSessionToken();
-            TokenWithSessionTemplate tokenTemplate = createTokenWithExistedWSessionTemplate(token, wsToken);
-            String jsonSession = objectMapper.writeValueAsString(tokenTemplate);
-            sendKafkaMsg(jsonSession, "request-user-token-exists-wsession-topic");
+            String userToken = createUserSessionToken();
+            Client client = createTokenWithExistedWSessionTemplate(userToken, sessionToken);
+            String jsonSession = objectMapper.writeValueAsString(client);
+            sendKafkaMsg(jsonSession, "request-joining-client-topic");
 
-            return tokenTemplate;
+            return client;
         } catch (java.lang.Exception e) {
             throw new RuntimeException(e);
         }
@@ -73,16 +73,17 @@ public class SessionService {
 
     }
 
-    private TokenTemplate createTokenTemplate(String token) {
-        TokenTemplate tokenTemplate = new TokenTemplate();
-        tokenTemplate.setUserToken(token);
-        return tokenTemplate;
+    private Client createClient(String token) {
+        Client client = new Client();
+        client.setUserToken(token);
+        return client;
     }
 
-    private TokenWithSessionTemplate createTokenWithExistedWSessionTemplate(String token, String wToken) {
-        TokenWithSessionTemplate template = new TokenWithSessionTemplate();
-        template.setWSessionToken(wToken);
-        template.setUserToken(token);
-        return template;
+    private Client createTokenWithExistedWSessionTemplate(String userToken, String sessionToken) {
+        Client client = new Client();
+        client.getSession().setSessionToken(sessionToken);
+        client.setUserToken(userToken);
+        client.setConnectionStatus(ConnectionStatus.INIT);
+        return client;
     }
 }

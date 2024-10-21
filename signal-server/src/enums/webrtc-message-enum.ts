@@ -6,6 +6,9 @@ export enum WebRTCMessageEnum {
     Waiting = 'waiting',
     Found = 'found',
     Init = 'init',
-    Join = 'join'
+    Join = 'join',
+    ICERequest = 'ice-request',
+    ICEResponse = 'ice',
+    Ready = 'ready'
 
 }

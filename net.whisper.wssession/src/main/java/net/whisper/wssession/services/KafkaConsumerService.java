@@ -19,7 +19,7 @@ public class KafkaConsumerService {
     private WSSessionService wsSessionService;
 
 
-    @KafkaListener(topics = {"request-user-token-topic", "request-user-token-exists-wsession-topic"}, groupId = "whispernet-group")
+    @KafkaListener(topics = {"request-client-topic", "request-joining-client-topic"}, groupId = "whispernet-group")
     public void handleTokenEvent(ConsumerRecord<String, String> record) {
         System.out.println("HO");
 
@@ -27,10 +27,10 @@ public class KafkaConsumerService {
             String topic = record.topic();
             String message = record.value();
             System.out.println(message);
-            if (KafkaTopic.USER_TOKEN_TOPIC.getTopicName().equals(topic)) {
+            if (KafkaTopic.CLIENT_TOPIC.getTopicName().equals(topic)) {
                 System.out.println("KAFKA PROCESS");
-                    wsSessionService.processToken(message);
-                } else if (KafkaTopic.USER_TOKEN_EXISTS_WSESSION_TOPIC.getTopicName().equals(topic)) {
+                    wsSessionService.processClient(message);
+                } else if (KafkaTopic.CLIENT_JOINING_TOPIC.getTopicName().equals(topic)) {
                 // Obsługa dla USER_TOKEN_EXISTS_WSESSION_TOPIC
                 wsSessionService.processExistingSession(message);
                 System.out.println("KAFGKA ELSE");

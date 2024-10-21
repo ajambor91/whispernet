@@ -2,7 +2,7 @@ package net.whisper.session;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
+import net.whisper.session.Client;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,42 +17,42 @@ public class KafkaService {
 
     @Autowired
     private ObjectMapper objectMapper;
-    private final ConcurrentHashMap<String, BlockingQueue<TokenWithSessionTemplate>> responseMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, BlockingQueue<Client>> responseMap = new ConcurrentHashMap<>();
 
     @KafkaListener(topics = "request-ws-token-topic", groupId = "whispernet-group")
     public void listen(String message) {
-        TokenWithSessionTemplate userToken = null;
+        Client client = null;
         try {
-            userToken = getToken(message);
+            client = getClient(message);
 
         } catch (JsonProcessingException  e) {
             throw new RuntimeException(e);
         }
-        BlockingQueue<TokenWithSessionTemplate> queue = responseMap.get(userToken.getUserToken());
+        BlockingQueue<Client> queue = responseMap.get(client.getUserToken());
         if (queue != null) {
             try {
-                queue.put(userToken);
+                queue.put(client);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
     }
 
-    public TokenWithSessionTemplate waitForMessage(String userToken, long timeoutInSeconds) throws InterruptedException {
-        BlockingQueue<TokenWithSessionTemplate> queue = responseMap.computeIfAbsent(userToken, k -> new LinkedBlockingQueue<>());
-        TokenWithSessionTemplate message = queue.poll(timeoutInSeconds, TimeUnit.SECONDS);
-        responseMap.remove(userToken);
+    public Client waitForMessage(Client client, long timeoutInSeconds) throws InterruptedException {
+        BlockingQueue<Client> queue = responseMap.computeIfAbsent(client.getUserToken(), k -> new LinkedBlockingQueue<>());
+        Client message = queue.poll(timeoutInSeconds, TimeUnit.SECONDS);
+        responseMap.remove(client.getUserToken());
 
         if (message == null) {
-            throw new RuntimeException("Timeout: No message received from Kafka for token: " + userToken);
+            throw new RuntimeException("Timeout: No message received from Kafka for token: " + client.getUserToken());
         }
         return message;
     }
 
-    private TokenWithSessionTemplate getToken(String message) throws  JsonProcessingException {
+    private Client getClient(String message) throws  JsonProcessingException {
         System.out.println("message");
         System.out.println(message);
-        TokenWithSessionTemplate tokenWithSessionTemplate = objectMapper.readValue(message, TokenWithSessionTemplate.class);
-        return tokenWithSessionTemplate;
+        Client client = objectMapper.readValue(message, Client.class);
+        return client;
     }
 }

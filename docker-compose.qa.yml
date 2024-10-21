@@ -19,7 +19,9 @@ services:
       - broker
       - session
   gateway:
-    build: './nginx'
+    build:
+      context: './nginx'
+      dockerfile: './Dockerfile.qa'
     ports:
       - '80:80'
       - '443:443'
@@ -67,20 +69,22 @@ services:
     hostname: frontend.whisper.net
     container_name: frontend
   coturn:
-    build: './coturn'
+    build:
+      context: './coturn'
+      dockerfile: './Dockerfile.qa'
     hostname: coturn
     depends_on:
       - wsserver
     networks:
-      whispernet:
-        ipv4_address: 172.18.0.10
+      - whispernet
+
     container_name: coturn
     ports:
-      - "3478:3478/udp"            # STUN dostępny na host:3478
-      - "3478:3478/tcp"            # TURN dostępny na host:3478
-      - "5349:5349/udp"            # TURN z TLS dostępny na host:5349
-      - "5349:5349/tcp"            # TURN z TLS dostępny na host:5349
-      - "55000-56000:55000-56000/udp"  # Nowy zakres portów dla relay TURN
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+      - "5349:5349/udp"
+      - "5349:5349/tcp"
+      - "55000-56000:55000-56000/udp"
 networks:
   whispernet:
     driver: bridge

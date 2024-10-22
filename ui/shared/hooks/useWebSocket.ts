@@ -1,8 +1,8 @@
 'use client'
 import {useEffect, useRef, useState} from "react";
-import {WebRTCMessage} from "../models/webrtc-connection.model";
+import {WSMessage, WSMessage} from "../models/ws-message.model";
 import {connectRTC} from "../webrtc/functions";
-import {WebRTCMessageEnum} from "../enums/webrtc-message-enum";
+import {WsMessageEnum} from "../enums/ws-message.enum";
 
 const useWebSocket = () => {
     // const [message, setMessage] = useState<string>(null);
@@ -14,7 +14,7 @@ const useWebSocket = () => {
     const closeConnection = () => {
         socketRef.current.close();
     }
-    const decodeBinaryMessage = (msg: MessageEvent): Promise<WebRTCMessage> => {
+    const decodeBinaryMessage = (msg: MessageEvent): Promise<WSMessage> => {
         return new Promise((resolve, reject) => {
             const blob: Blob = msg.data;
             const fileReader: FileReader = new FileReader();
@@ -23,8 +23,8 @@ const useWebSocket = () => {
                     const arrBuffer: ArrayBuffer = fileReader.result;
                     const byteArr: Uint8Array = new Uint8Array(arrBuffer);
                     const decodedMessage = new TextDecoder().decode(byteArr);
-                    const webRTCMessage: WebRTCMessage = JSON.parse(decodedMessage);
-                    resolve(webRTCMessage);
+                    const WSMessage: WSMessage = JSON.parse(decodedMessage);
+                    resolve(WSMessage);
                 } else {
                     reject(new Error("Niepoprawny format danych"));
                 }
@@ -41,8 +41,8 @@ const useWebSocket = () => {
             }
         });
     };
-    const sendMessage = (message: WebRTCMessage): boolean | undefined=> {
-        if (message.type === WebRTCMessageEnum.Join) {
+    const sendMessage = (message: WSMessage): boolean | undefined=> {
+        if (message.type === WsMessageEnum.Join) {
             setIsJoined(true);
             return true;
         }
@@ -58,7 +58,7 @@ const useWebSocket = () => {
         }
 
         socketRef.current.onmessage = async (event: MessageEvent) => {
-            const message: WebRTCMessage = await decodeBinaryMessage(event);
+            const message: WSMessage = await decodeBinaryMessage(event);
             sendMessage(message);
         }
 

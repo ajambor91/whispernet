@@ -12,6 +12,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import net.whisper.session.KafkaService;
 import net.whisper.session.ConnectionStatus;
+import net.whisper.session.PeerRole;
 @Service
 public class SessionService {
     @Autowired
@@ -76,6 +77,8 @@ public class SessionService {
     private Client createClient(String token) {
         Client client = new Client();
         client.setUserToken(token);
+        client.setConnectionStatus(ConnectionStatus.INIT.getStatusName());
+        client.setPeerRole(PeerRole.INITIATOR.getPeerRoleName());
         return client;
     }
 
@@ -83,7 +86,8 @@ public class SessionService {
         Client client = new Client();
         client.getSession().setSessionToken(sessionToken);
         client.setUserToken(userToken);
-        client.setConnectionStatus(ConnectionStatus.INIT);
+        client.setConnectionStatus(ConnectionStatus.INIT.getStatusName());
+        client.setPeerRole(PeerRole.JOINER.getPeerRoleName());
         return client;
     }
 }

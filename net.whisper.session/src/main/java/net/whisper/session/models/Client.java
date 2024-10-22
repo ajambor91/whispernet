@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 public class Client {
     private String userToken;
-    private ConnectionStatus connectionStatus;
+    private String connectionStatus;
     private Session session = new Session();
+    private String peerRole;
 
 }

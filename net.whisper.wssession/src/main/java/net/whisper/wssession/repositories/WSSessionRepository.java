@@ -11,8 +11,8 @@ public class WSSessionRepository {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    public void saveToken(String userToken, String wsToken) {
-        redisTemplate.opsForValue().set(wsToken, userToken);
+    public void saveToken(String sessionToken, String userToken) {
+        redisTemplate.opsForValue().set(sessionToken, userToken);
     }
 
     public String getToken(String sessionId) {

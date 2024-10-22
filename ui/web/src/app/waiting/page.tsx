@@ -2,10 +2,14 @@
 import React, {useEffect, useState} from 'react';
 import {useAppSelector} from "../../../../shared/store/store";
 import useWebSocket from "../../../../shared/hooks/useWebSocket";
-import  {SessionApiState} from "../../../../shared/slices/createSession.slice";
-import {WebRTCMessageEnum} from "../../../../shared/enums/webrtc-message-enum";
+import {SessionApiState} from "../../../../shared/slices/createSession.slice";
 import {useRouter} from "next/navigation";
 import Hash from "../../../../shared/components/hash/Hash";
+import {WSMessage} from "../../../../shared/models/ws-message.model";
+import {ClientStatus} from "../../../../shared/enums/client-status.model";
+import {WsMessageEnum} from "../../../../shared/enums/ws-message.enum";
+import {PeerRole} from "../../../../shared/enums/peer-role.enum";
+
 const ChatWaiting: React.FC = () => {
     const [messageSent, setMessageSent] = useState<boolean>(false)
 
@@ -14,7 +18,15 @@ const ChatWaiting: React.FC = () => {
     const router = useRouter();
     useEffect(() => {
         if (sessionApiState.sessionToken && !messageSent) {
-            sendMessage({sessionId: sessionApiState.sessionToken, type: WebRTCMessageEnum.Init})
+            const wsMessage: WSMessage = {
+                session: {
+                    sessionToken: sessionApiState.sessionToken
+                },
+                remotePeerStatus: ClientStatus.Unknown,
+                type: WsMessageEnum.Start,
+                peerStatus: ClientStatus.Start,
+            }
+            sendMessage(wsMessage)
             setMessageSent(true)
 
         } else  {

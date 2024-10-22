@@ -1,0 +1,21 @@
+export enum WsMessageEnum {
+    Offer = 'offer',
+    IncommingOffer = 'incomming_offer',
+    Answer = 'answer',
+    Candidate = 'candidate',
+    Waiting = 'waiting',
+    Found = 'found',
+    Init = 'init',
+    InitAccepted = 'init-accepted',
+    Join = 'join',
+    ICERequest = 'ice-request',
+    ICEResponse = 'ice',
+    ICEAccepted = 'ice-accepted',
+    RoleRequest = 'role-request',
+    RoleResponse = 'role-response',
+    RoleAccepted = 'role-accepted',
+    PrepareRTC = 'prepare-rtc',
+    Ready = 'ready',
+    Start = 'start'
+
+}

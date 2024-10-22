@@ -1,7 +1,8 @@
 import {EachMessagePayload, Kafka, KafkaConfig, PartitionAssigners} from "kafkajs";
-import { SessionClients} from "../models/session-clients.model";
-import {clientsMap} from "../mappers/clients.map";
+
 import * as console from "console";
+import {Client} from "../models/client.model";
+import {createSessionManager, SessionManager, sessionMap} from "./session-manager";
 
 
 const kafkaConfig: KafkaConfig = {
@@ -21,9 +22,17 @@ export async function startKafka() {
     await consumer.run({
         eachMessage: async ({topic, partition, message}: EachMessagePayload) => {
             if (message.value instanceof Buffer) {
-                const sessionToken: string = message.value.toString();
-                const sessionClients: SessionClients = JSON.parse(JSON.parse(sessionToken));
-                clientsMap.setClient(sessionClients);
+                let sessionManager: SessionManager | undefined;
+                const clientMsg: string = message.value.toString();
+                const client: Client = JSON.parse(JSON.parse(clientMsg));
+                sessionManager = sessionMap.get(client.session.sessionToken)
+                if (!sessionManager) {
+                    sessionManager = createSessionManager();
+                    sessionMap.set(client.session.sessionToken, sessionManager);
+                }
+
+                sessionManager.addClient(client);
+                console.log(sessionManager.getClients())
             }
 
         }

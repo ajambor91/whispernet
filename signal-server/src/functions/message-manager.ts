@@ -212,7 +212,6 @@ export const messageManager = (message: WSMessage, userToken: string): void => {
     const clients: Client[] = sessionManager.getClients();
     const senderReceiver: SenderReceiver = senderReceiverHandler(userToken,clients);
     switch (message.type) {
-        ca
         case WsMessageEnum.Connect:
             handleConnect(message, senderReceiver);
             break;
@@ -220,7 +219,7 @@ export const messageManager = (message: WSMessage, userToken: string): void => {
             handlePeerReady(message, senderReceiver);
             break;
         case WsMessageEnum.MsgReceived:
-            handleMsgReceived(message,senderReceiver)
+            handleMsgReceived(message,senderReceiver);
             break;
         case WsMessageEnum.Listen:
             handleListen(message, senderReceiver);

@@ -12,6 +12,7 @@ import lombok.Setter;
 public class Client {
     private String userToken;
     private String connectionStatus;
+    private String userId;
     private Session session = new Session();
     private String peerRole;
 

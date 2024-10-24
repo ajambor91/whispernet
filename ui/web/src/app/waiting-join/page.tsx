@@ -10,7 +10,6 @@ import Centered from "../../../../shared/components/centered/Centered";
 import {WSMessage} from "../../../../shared/models/ws-message.model";
 import {ClientStatus} from "../../../../shared/enums/client-status.model";
 import {WsMessageEnum} from "../../../../shared/enums/ws-message.enum";
-import {PeerRole} from "../../../../shared/enums/peer-role.enum";
 
 const ChatWaiting: React.FC = () => {
     const [messageSent, setMessageSent] = useState<boolean>(false)
@@ -21,7 +20,7 @@ const ChatWaiting: React.FC = () => {
 
         if (sessionApiState.sessionToken && !messageSent) {
                 const wsMessage: WSMessage = {
-                    type: WsMessageEnum.Start,
+                    type: WsMessageEnum.Connect,
                     session: {
                         sessionToken: sessionApiState.sessionToken
                     },

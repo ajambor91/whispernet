@@ -9,19 +9,21 @@ export function connectRTC(){
     const state: ConnectionStateModel = {
         peerConnection: null,
         dataChannel: null,
-        role: null
+        role: null,
+        userId: null
     }
-    const iceServers: RTCIceServer[] = []
+    const iceServers: RTCIceServer[] = [{ urls: 'stun:stun.l.google.com:19302' }]
 
     console.log("process.env.TURN_1",process.env.TURN_1)
     const handleAnswer = async (message: WSMessage, socket: WebSocket) => {
+        console.log('HANDLE ANWSER FN')
         if (state.role === PeerRole.Initiator) {
             try {
                 await (state.peerConnection as RTCPeerConnection).setRemoteDescription(new RTCSessionDescription((message.answer as RTCSessionDescriptionInit)));
                 (state.dataChannel as RTCDataChannel).onopen = () => {
                     setConnectionState(state);
                     const openedMsg: WSMessage = {
-                        type: WsMessageEnum.Join,
+                        type: WsMessageEnum.PeerReady,
                         session: message.session,
                         peerStatus: ClientStatus.Prepare,
                         remotePeerStatus: ClientStatus.Unknown
@@ -46,106 +48,19 @@ export function connectRTC(){
         return JSON.stringify(object);
     }
 
-    // const sendOffer = async (message: WSMessage, socket: WebSocket) => {
-    //     state.peerConnection = new RTCPeerConnection({iceServers});
-    //     console.log(message)
-    //     state.dataChannel = (state.peerConnection as RTCPeerConnection).createDataChannel("chat");
-    //     const offer = await (state.peerConnection as RTCPeerConnection).createOffer();
-    //     (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
-    //         if (!!event.candidate) {
-    //             const iceCandidateMsg: WSMessage = {
-    //                 type: WSMessageEnum.Candidate,
-    //                 sessionId: message.sessionId,
-    //                 candidate: event.candidate
-    //             }
-    //             socket.send(createJSONString(iceCandidateMsg));
-    //         }
-    //
-    //     }
-    //     await (state.peerConnection as RTCPeerConnection).setLocalDescription(offer);
-    //     const WSMessage: WSMessage = {
-    //         type: WSMessageEnum.Offer,
-    //         offer: state.peerConnection.localDescription as RTCSessionDescriptionInit,
-    //         sessionId: message.sessionId
-    //     }
 
-        // socket.send(createJSONString(WSMessage))
-
-    // }
-    //
-    // const handleOffer = async (message: WSMessage, socket: WebSocket) => {
-    //     state.peerConnection = new RTCPeerConnection({iceServers});
-    //     await (state.peerConnection as RTCPeerConnection).setRemoteDescription(new RTCSessionDescription(message.offer as RTCSessionDescriptionInit));
-    //     const answer = await (state.peerConnection as RTCPeerConnection).createAnswer();
-    //     await (state.peerConnection as RTCPeerConnection).setLocalDescription(answer);
-    //     (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
-    //         if (!!event.candidate) {
-    //             const iceCandidateMsg: WSMessage = {
-    //                 candidate: event.candidate,
-    //                 type: WSMessageEnum.Candidate,
-    //                 sessionId: message.sessionId
-    //             }
-    //             socket.send(createJSONString(iceCandidateMsg))
-    //         }
-    //
-    //     }
-    //     (state.peerConnection as RTCPeerConnection).ondatachannel = (event) => {
-    //         state.dataChannel = event.channel;
-    //         state.dataChannel.onopen = () => {
-    //             const openedMsg: WSMessage = {
-    //                 type: WSMessageEnum.Join,
-    //                 sessionId: message.sessionId
-    //             }
-    //             setConnectionState(state)
-    //             socket.send(createJSONString(openedMsg))
-    //         };
-    //     };
-    //     const WSMessage: WSMessage = {
-    //         type: WSMessageEnum.Answer,
-    //         sessionId: message.sessionId,
-    //         answer: (state.peerConnection as RTCPeerConnection).localDescription as RTCSessionDescriptionInit,
-    //     };
-    //     socket.send(createJSONString(WSMessage))
-    // }
-    // const sendWaitingStatus = (message: WSMessage, socket: WebSocket) => {
-    //     const WSMessage: WSMessage = {
-    //         type: WSMessageEnum.Waiting,
-    //         sessionId: message.sessionId,
-    //     }
-    //     socket.send(createJSONString(WSMessage));
-    // }
-    //
-    // const handleIceCandidate = async (message: WSMessage) => {
-    //     if (message.candidate) {
-    //         try {
-    //             await (state.peerConnection as RTCPeerConnection).addIceCandidate(new RTCIceCandidate(message.candidate));
-    //         } catch (error) {
-    //             console.error('Błąd podczas dodawania kandydata ICE:', error);
-    //         }
-    //     }
-    // };
-    //
-    // const getIce = (message: WSMessage, socket: WebSocket) => {
-    //     const WSMessage: WSMessage = {
-    //         type: WSMessageEnum.ICERequest,
-    //         sessionId: message.sessionId,
-    //     }
-    //     socket.send(createJSONString(WSMessage));    }
     const processOffer = async (message: WSMessage, socket: WebSocket) => {
         console.log('*********************************************************', message.offer)
         console.log('*******************ICEICE********', iceServers)
 
         state.peerConnection = new RTCPeerConnection({iceServers});
-        console.log("####################################")
-
         await (state.peerConnection as RTCPeerConnection).setRemoteDescription(new RTCSessionDescription(message.offer as RTCSessionDescriptionInit));
-        console.log("####################################")
-
         const answer = await (state.peerConnection as RTCPeerConnection).createAnswer();
         await (state.peerConnection as RTCPeerConnection).setLocalDescription(answer);
-        console.log("####################################")
         (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
-            if (!!event.candidate) {
+            console.log('ON ICE CANDIDATE', event)
+            if (event.candidate) {
+                console.log("ANSWER ON ICE", event.candidate)
                 const iceCandidateMsg: WSMessage = {
                     candidate: event.candidate,
                     type: WsMessageEnum.Candidate,
@@ -155,15 +70,14 @@ export function connectRTC(){
                 }
                 socket.send(createJSONString(iceCandidateMsg))
             }
-
         }
-        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
         (state.peerConnection as RTCPeerConnection).ondatachannel = (event) => {
+            console.log('%^%^%^%^%^%^%&^%&^%^&$^%$&^%$&^(%$(&^$#%^#%^$%&^%&^*')
+
             state.dataChannel = event.channel;
             state.dataChannel.onopen = () => {
                 const openedMsg: WSMessage = {
-                    type: WsMessageEnum.Answer,
+                    type: WsMessageEnum.PeerReady,
                     session: message.session,
                     remotePeerStatus: message.peerStatus,
                     peerStatus: ClientStatus.Prepare
@@ -203,6 +117,8 @@ export function connectRTC(){
         }
         socket.send(createJSONString(WSMessage));
     }
+    const iceCandidatesQueue: RTCIceCandidate[] = [];
+
     const handleIceResponse = (message: WSMessage, socket: WebSocket) => {
 
         const WSMessage: WSMessage = {
@@ -213,7 +129,7 @@ export function connectRTC(){
 
         }
         console.log("message ice", message)
-        iceServers.push(...message.metadata);
+        // iceServers.push(...message.metadata);
         socket.send(createJSONString(WSMessage));
     }
 
@@ -231,6 +147,8 @@ export function connectRTC(){
 
     const handleRoleResponse = (message: WSMessage, socket: WebSocket) => {
         state.role = message.metadata.role;
+        console.log("HANDLE ROLE RESPONSE", state.role, message.metadata.role)
+
         const WSMessage: WSMessage = {
             type: WsMessageEnum.RoleAccepted,
             session: message.session,
@@ -245,22 +163,24 @@ export function connectRTC(){
         if (state.role === PeerRole.Initiator) {
             console.log('ININININITIATIOR')
                 state.peerConnection = new RTCPeerConnection({iceServers});
+            (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
+                console.log("INITIATOR ON CANDIDATE", event.candidate)
+                if (!!event.candidate) {
+                    const iceCandidateMsg: WSMessage = {
+                        type: WsMessageEnum.Candidate,
+                        session: message.session,
+                        candidate: event.candidate,
+                        peerStatus: ClientStatus.Prepare,
+                        remotePeerStatus: message.peerStatus
+                    }
+                    socket.send(createJSONString(iceCandidateMsg));
+                }
+
+            }
                 console.log(message)
                 state.dataChannel = (state.peerConnection as RTCPeerConnection).createDataChannel("chat");
                 const offer = await (state.peerConnection as RTCPeerConnection).createOffer();
-                (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
-                    if (!!event.candidate) {
-                        const iceCandidateMsg: WSMessage = {
-                            type: WsMessageEnum.Candidate,
-                            session: message.session,
-                            candidate: event.candidate,
-                            peerStatus: ClientStatus.Prepare,
-                            remotePeerStatus: message.peerStatus
-                        }
-                        socket.send(createJSONString(iceCandidateMsg));
-                    }
 
-                }
                 await (state.peerConnection as RTCPeerConnection).setLocalDescription(offer);
             console.log('ININININITIATIOR                     type: WsMessageEnum.Offer,\n')
 
@@ -302,6 +222,7 @@ export function connectRTC(){
         })
 
     }
+
     const handleOffer = async (message: WSMessage, socket: WebSocket) => {
         console.log("state reole", state.role)
         if(state.role === PeerRole.Joiner) {
@@ -311,8 +232,72 @@ export function connectRTC(){
         }
     }
 
+    const addICECandidateFromQueue = () => {
+        while (iceCandidatesQueue.length > 0) {
+            const candidate = iceCandidatesQueue.shift();
+            state.peerConnection.addIceCandidate(candidate);
+        }
+    }
+    const handleCandidate = async (message: WSMessage) => {
+        const candidate = new RTCIceCandidate(message.candidate);
+            console.log('handle candidate', message)
+        console.log("userId", state.userId, message.metadata.userId)
 
-        const actionForMessage = async (message: WSMessage, socket: WebSocket): Promise<void> => {
+        if(state.peerConnection.remoteDescription && state.role !== PeerRole.Joiner) {
+
+                try {
+                    console.log("HANDLE CANDIDATER TRY BLOCK", message.candidate)
+                    await (state.peerConnection as RTCPeerConnection).addIceCandidate(new RTCIceCandidate(message.candidate));
+                } catch (error) {
+                    console.error('Błąd podczas dodawania kandydata ICE:', error);
+                }
+            } else  {
+                iceCandidatesQueue.push(candidate);
+        }
+    };
+
+
+
+    const handleConnected = (message: WSMessage, socket: WebSocket) => {
+        state.userId = message.metadata.userId;
+        console.log("HANDLE ROLE RESPONSE", state.role, message.metadata.role)
+
+        const WSMessage: WSMessage = {
+            type: WsMessageEnum.Start,
+            session: message.session,
+            peerStatus: ClientStatus.Prepare,
+            remotePeerStatus: message.remotePeerStatus,
+
+        }
+        socket.send(createJSONString(WSMessage));
+    }
+    const handlePeerReady = (message: WSMessage, socket: WebSocket) => {
+            const wsMessage: WSMessage = {
+                type: WsMessageEnum.Listen,
+                session: message.session,
+                peerStatus: ClientStatus.Unknown,
+                remotePeerStatus: ClientStatus.Prepare
+            }
+        state.dataChannel.onmessage = (msg) => {
+            const wsMessage: WSMessage = {
+                type: WsMessageEnum.MsgReceived,
+                session: message.session,
+                peerStatus: ClientStatus.Unknown,
+                remotePeerStatus: ClientStatus.Prepare
+            }
+            socket.send(createJSONString(wsMessage))
+
+        }
+        socket.send(createJSONString(wsMessage))
+
+    }
+
+    const handleListen = (message: WSMessage, socket: WebSocket) => {
+
+        console.log('HANDLE LISTEN XXXXXXXXXXXXXX')
+        state.dataChannel.send('ssss')
+    }
+    const actionForMessage = async (message: WSMessage, socket: WebSocket): Promise<void> => {
         if (!message) {
             throw new Error('No message found');
         }
@@ -321,11 +306,22 @@ export function connectRTC(){
 
         }
         try {
+            console.log("CURRENT INCOMMING MESSAGE TYPE: ", message.type)
             switch (message.type) {
+                case WsMessageEnum.Listen:
+                    handleListen(message, socket);
+                    break
+                case WsMessageEnum.PeerReady:
+                    handlePeerReady(message, socket);
+                    break
+                case WsMessageEnum.Connected:
+                    handleConnected(message, socket);
+                    break
                 case WsMessageEnum.Init:
                     handleInit(message, socket);
                     break
                 case WsMessageEnum.InitAccepted:
+                    console.log("HANDLE INIT ACCEPTED, ICE REQUEST")
                     handleInitAccepted(message,socket)
                     break;
                 case WsMessageEnum.ICEResponse:
@@ -335,6 +331,7 @@ export function connectRTC(){
                     handleIceAccepted(message,socket);
                     break;
                 case WsMessageEnum.RoleResponse:
+                    console.log("ROLE RESPONSE", state.role)
                     handleRoleResponse(message,socket);
                     break;
                 case WsMessageEnum.PrepareRTC:
@@ -349,11 +346,12 @@ export function connectRTC(){
 
                     await handleAnswer(message,socket);
                     break
-                // case WSMessageE
-                //     await handleIceCandidate(message);
-                //     break;
-                // case WSMessageEnum.Answer:
-                //     handleAnswer(message, socket);
+                case WsMessageEnum.Candidate:
+                    console.log('CANDIDARE')
+                    await handleCandidate(message);
+                    break;
+                // case WsMessageEnum.Ready:
+                //     handleReady(message, socket);
                 //     break;
                 // case WSMessageEnum.IncommingOffer:
                 //     handleOffer(message, socket)
@@ -364,7 +362,7 @@ export function connectRTC(){
                 // case WSMessageEnum.Waiting:
                 //     sendWaitingStatus(message, socket);
                 //     break;
-                case WsMessageEnum.Start:
+                case WsMessageEnum.Connect:
                     await waitForConnection(message, socket)
                     break;
             }

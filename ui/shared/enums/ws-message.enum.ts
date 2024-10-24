@@ -16,7 +16,13 @@ export enum WsMessageEnum {
     RoleResponse = 'role-response',
     PrepareRTC = 'prepare-rtc',
     Ready = 'ready',
-    Start = 'start'
+    Start = 'start',
+    Connect = 'connect',
+    Connected = 'connected',
+    PeerReady = 'peer-ready',
+    PeerJoin = 'peer-join',
+    Listen = 'listen',
+    MsgReceived = 'msg-received'
 
 
 }

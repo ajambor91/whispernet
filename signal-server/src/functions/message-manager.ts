@@ -5,14 +5,11 @@ import {SenderReceiver} from "../models/sender-receiver.model";
 import {WsMessageEnum} from "../enums/ws-message.enum";
 import {ClientStatus} from "../enums/client-status.enum";
 import {createStringWSMsg} from "./helpers";
-import console from "console";
 import {RTCIceServer} from "../models/rtc-ice-server.model";
-import {PeerRole} from "../enums/peer-role.enum";
 
 let test: boolean = true;
 
 const senderReceiverHandler = (userToken: string, clients: Client[]): SenderReceiver => {
-    console.log
     let sender: Client | undefined;
     const receivers: Client[] = [];
     clients.forEach(client => {
@@ -32,8 +29,20 @@ const senderReceiverHandler = (userToken: string, clients: Client[]): SenderRece
 
 }
 const sendMessage = (msg: WSMessage, clients: Client[]) => {
-    console.log("$$$$$ send message $$$$")
     clients.forEach(conn => conn.conn?.send(Buffer.from(createStringWSMsg(msg))));
+}
+const handleConnect = (msg: WSMessage, senderReceiver: SenderReceiver) => {
+    const wsMessage: WSMessage = {
+        session: msg.session,
+        type: WsMessageEnum.Connected,
+        peerStatus: ClientStatus.NotConnected,
+        remotePeerStatus: ClientStatus.Unknown,
+        metadata: {
+            userId: senderReceiver.sender.userId
+        }
+
+    };
+    sendMessage(wsMessage, [senderReceiver.sender])
 }
 const handleStart = (msg: WSMessage, clients: SenderReceiver) => {
     let wsMessage: WSMessage;
@@ -92,19 +101,17 @@ const handleICEAccepted = (msg: WSMessage, clients: SenderReceiver) => {
     sendMessage(wsMessage, clients.receivers)
 }
 const handleICERequest = (msg: WSMessage, senderReceiver: SenderReceiver) => {
-    const iceServers: RTCIceServer[] =  [{
-        urls: [ "stun:fr-turn1.xirsys.com" ]
-    }, {
-        username: "d0z7JG_f-uEKOa6yoLFYkl4bYrPN6DioU5MkqiLQHAmTn2JOrRkVA9_0Wap5kukxAAAAAGcVRbRBamo5MTI=",
-        credential: "7833a8be-8f0d-11ef-9a9b-0242ac120004",
-        urls: [
-            "turn:fr-turn1.xirsys.com:80?transport=udp",
-            "turn:fr-turn1.xirsys.com:3478?transport=udp",
-            "turn:fr-turn1.xirsys.com:80?transport=tcp",
-            "turn:fr-turn1.xirsys.com:3478?transport=tcp",
-            "turns:fr-turn1.xirsys.com:443?transport=tcp",
-            "turns:fr-turn1.xirsys.com:5349?transport=tcp"
-        ]}];
+
+
+    const iceServers: RTCIceServer[] = [
+        { urls: 'stun:coturn:3478' },
+        {
+            urls: 'turn:coturn:3478',
+            username: 'exampleuser',
+            credential: 'examplepass'
+        }
+    ];
+
     const wsMessage: WSMessage = {
         remotePeerStatus: msg.peerStatus,
         session: msg.session,
@@ -132,9 +139,9 @@ const handleOffer = (msg: WSMessage, clients: SenderReceiver) => {
         peerStatus: msg.peerStatus,
         session: msg.session,
         type: WsMessageEnum.IncommingOffer,
-        offer: msg.offer
+        offer: msg.offer,
+        candidate: msg.candidate
     }
-    console.log('ASDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
     sendMessage(wsMessage, clients.receivers)
 }
 const handleAnswer = (msg: WSMessage, clients: SenderReceiver) => {
@@ -142,7 +149,8 @@ const handleAnswer = (msg: WSMessage, clients: SenderReceiver) => {
         remotePeerStatus: msg.remotePeerStatus,
         peerStatus: msg.peerStatus,
         session: msg.session,
-        type: WsMessageEnum.Ready,
+        answer: msg.answer,
+        type: WsMessageEnum.Answer,
     }
     sendMessage(wsMessage, clients.receivers)
 }
@@ -151,11 +159,49 @@ const handleCandidate = (msg: WSMessage, clients: SenderReceiver) => {
         remotePeerStatus: msg.remotePeerStatus,
         peerStatus: msg.peerStatus,
         session: msg.session,
+        candidate: msg.candidate,
         type: WsMessageEnum.Candidate,
+        metadata: {
+            userId: clients.sender.userId
+        }
     }
     sendMessage(wsMessage, clients.receivers)
 }
-const handleJoin = handleOffer;
+const handleListen = (msg: WSMessage, clients: SenderReceiver) => {
+    const wsMessage: WSMessage = {
+        remotePeerStatus: msg.remotePeerStatus,
+        peerStatus: msg.peerStatus,
+        session: msg.session,
+        candidate: msg.candidate,
+        type: WsMessageEnum.Listen,
+
+    }
+    sendMessage(wsMessage, [clients.sender, ...clients.receivers])
+}
+
+const handlePeerReady = (msg: WSMessage, clients: SenderReceiver) => {
+    const wsMessage: WSMessage = {
+        remotePeerStatus: msg.remotePeerStatus,
+        peerStatus: msg.peerStatus,
+        session: msg.session,
+        candidate: msg.candidate,
+        type: WsMessageEnum.PeerReady,
+
+    }
+    sendMessage(wsMessage, [clients.sender, ...clients.receivers])
+}
+
+const handleMsgReceived = (msg: WSMessage, clients: SenderReceiver) => {
+    const wsMessage: WSMessage = {
+        remotePeerStatus: msg.remotePeerStatus,
+        peerStatus: msg.peerStatus,
+        session: msg.session,
+        candidate: msg.candidate,
+        type: WsMessageEnum.Ready,
+
+    }
+    sendMessage(wsMessage,[clients.sender, ...clients.receivers])
+}
 export const messageManager = (message: WSMessage, userToken: string): void => {
 
     let sessionManager: SessionManager | undefined = sessionMap.get(message.session.sessionToken);
@@ -166,14 +212,22 @@ export const messageManager = (message: WSMessage, userToken: string): void => {
     const clients: Client[] = sessionManager.getClients();
     const senderReceiver: SenderReceiver = senderReceiverHandler(userToken,clients);
     switch (message.type) {
-        case WsMessageEnum.Join:
-            handleJoin(message, senderReceiver);
+        case WsMessageEnum.Connect:
+            handleConnect(message, senderReceiver);
+            break;
+        case WsMessageEnum.PeerReady:
+            handlePeerReady(message, senderReceiver);
+            break;
+        case WsMessageEnum.MsgReceived:
+            handleMsgReceived(message,senderReceiver)
+            break;
+        case WsMessageEnum.Listen:
+            handleListen(message, senderReceiver);
             break;
         case WsMessageEnum.Candidate:
             handleCandidate(message, senderReceiver)
             break;
         case WsMessageEnum.Answer:
-            console.log('ANWSWEEEEEDSHJKFDHUIYLEWFGULYIEGFDUIYWEGDHFIU')
             handleAnswer(message, senderReceiver);
             break;
         case WsMessageEnum.Start:

@@ -212,6 +212,7 @@ export const messageManager = (message: WSMessage, userToken: string): void => {
     const clients: Client[] = sessionManager.getClients();
     const senderReceiver: SenderReceiver = senderReceiverHandler(userToken,clients);
     switch (message.type) {
+        ca
         case WsMessageEnum.Connect:
             handleConnect(message, senderReceiver);
             break;

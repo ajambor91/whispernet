@@ -14,9 +14,7 @@ export function connectRTC(){
     }
     const iceServers: RTCIceServer[] = [{ urls: 'stun:stun.l.google.com:19302' }]
 
-    console.log("process.env.TURN_1",process.env.TURN_1)
     const handleAnswer = async (message: WSMessage, socket: WebSocket) => {
-        console.log('HANDLE ANWSER FN')
         if (state.role === PeerRole.Initiator) {
             try {
                 await (state.peerConnection as RTCPeerConnection).setRemoteDescription(new RTCSessionDescription((message.answer as RTCSessionDescriptionInit)));
@@ -50,17 +48,12 @@ export function connectRTC(){
 
 
     const processOffer = async (message: WSMessage, socket: WebSocket) => {
-        console.log('*********************************************************', message.offer)
-        console.log('*******************ICEICE********', iceServers)
-
         state.peerConnection = new RTCPeerConnection({iceServers});
         await (state.peerConnection as RTCPeerConnection).setRemoteDescription(new RTCSessionDescription(message.offer as RTCSessionDescriptionInit));
         const answer = await (state.peerConnection as RTCPeerConnection).createAnswer();
         await (state.peerConnection as RTCPeerConnection).setLocalDescription(answer);
         (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
-            console.log('ON ICE CANDIDATE', event)
             if (event.candidate) {
-                console.log("ANSWER ON ICE", event.candidate)
                 const iceCandidateMsg: WSMessage = {
                     candidate: event.candidate,
                     type: WsMessageEnum.Candidate,
@@ -72,8 +65,6 @@ export function connectRTC(){
             }
         }
         (state.peerConnection as RTCPeerConnection).ondatachannel = (event) => {
-            console.log('%^%^%^%^%^%^%&^%&^%^&$^%$&^%$&^(%$(&^$#%^#%^$%&^%&^*')
-
             state.dataChannel = event.channel;
             state.dataChannel.onopen = () => {
                 const openedMsg: WSMessage = {
@@ -82,7 +73,6 @@ export function connectRTC(){
                     remotePeerStatus: message.peerStatus,
                     peerStatus: ClientStatus.Prepare
                 }
-                console.log(')))))))))))))))))))))))))))))))(((((((((((((((((((((((((((((((((')
                 setConnectionState(state)
                 socket.send(createJSONString(openedMsg))
             };
@@ -94,7 +84,6 @@ export function connectRTC(){
             peerStatus: ClientStatus.Prepare,
             answer: (state.peerConnection as RTCPeerConnection).localDescription as RTCSessionDescriptionInit,
         };
-        console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
         socket.send(createJSONString(WSMessage))
     }
     const handleInit = (message: WSMessage, socket: WebSocket) => {
@@ -128,7 +117,6 @@ export function connectRTC(){
             remotePeerStatus: message.remotePeerStatus,
 
         }
-        console.log("message ice", message)
         // iceServers.push(...message.metadata);
         socket.send(createJSONString(WSMessage));
     }
@@ -147,7 +135,6 @@ export function connectRTC(){
 
     const handleRoleResponse = (message: WSMessage, socket: WebSocket) => {
         state.role = message.metadata.role;
-        console.log("HANDLE ROLE RESPONSE", state.role, message.metadata.role)
 
         const WSMessage: WSMessage = {
             type: WsMessageEnum.RoleAccepted,
@@ -161,10 +148,8 @@ export function connectRTC(){
 
     const handlePrepareRTCResponse = async (message: WSMessage, socket: WebSocket) => {
         if (state.role === PeerRole.Initiator) {
-            console.log('ININININITIATIOR')
                 state.peerConnection = new RTCPeerConnection({iceServers});
             (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
-                console.log("INITIATOR ON CANDIDATE", event.candidate)
                 if (!!event.candidate) {
                     const iceCandidateMsg: WSMessage = {
                         type: WsMessageEnum.Candidate,
@@ -177,12 +162,10 @@ export function connectRTC(){
                 }
 
             }
-                console.log(message)
                 state.dataChannel = (state.peerConnection as RTCPeerConnection).createDataChannel("chat");
                 const offer = await (state.peerConnection as RTCPeerConnection).createOffer();
 
                 await (state.peerConnection as RTCPeerConnection).setLocalDescription(offer);
-            console.log('ININININITIATIOR                     type: WsMessageEnum.Offer,\n')
 
             const WSMessage: WSMessage = {
                     type: WsMessageEnum.Offer,
@@ -224,9 +207,7 @@ export function connectRTC(){
     }
 
     const handleOffer = async (message: WSMessage, socket: WebSocket) => {
-        console.log("state reole", state.role)
         if(state.role === PeerRole.Joiner) {
-            console.log("state reole 2", state.role)
 
             await processOffer(message, socket)
         }
@@ -240,13 +221,10 @@ export function connectRTC(){
     }
     const handleCandidate = async (message: WSMessage) => {
         const candidate = new RTCIceCandidate(message.candidate);
-            console.log('handle candidate', message)
-        console.log("userId", state.userId, message.metadata.userId)
 
         if(state.peerConnection.remoteDescription && state.role !== PeerRole.Joiner) {
 
                 try {
-                    console.log("HANDLE CANDIDATER TRY BLOCK", message.candidate)
                     await (state.peerConnection as RTCPeerConnection).addIceCandidate(new RTCIceCandidate(message.candidate));
                 } catch (error) {
                     console.error('Błąd podczas dodawania kandydata ICE:', error);
@@ -260,7 +238,6 @@ export function connectRTC(){
 
     const handleConnected = (message: WSMessage, socket: WebSocket) => {
         state.userId = message.metadata.userId;
-        console.log("HANDLE ROLE RESPONSE", state.role, message.metadata.role)
 
         const WSMessage: WSMessage = {
             type: WsMessageEnum.Start,
@@ -293,8 +270,6 @@ export function connectRTC(){
     }
 
     const handleListen = (message: WSMessage, socket: WebSocket) => {
-
-        console.log('HANDLE LISTEN XXXXXXXXXXXXXX')
         state.dataChannel.send('ssss')
     }
     const actionForMessage = async (message: WSMessage, socket: WebSocket): Promise<void> => {
@@ -306,7 +281,6 @@ export function connectRTC(){
 
         }
         try {
-            console.log("CURRENT INCOMMING MESSAGE TYPE: ", message.type)
             switch (message.type) {
                 case WsMessageEnum.Listen:
                     handleListen(message, socket);
@@ -321,7 +295,6 @@ export function connectRTC(){
                     handleInit(message, socket);
                     break
                 case WsMessageEnum.InitAccepted:
-                    console.log("HANDLE INIT ACCEPTED, ICE REQUEST")
                     handleInitAccepted(message,socket)
                     break;
                 case WsMessageEnum.ICEResponse:
@@ -331,37 +304,20 @@ export function connectRTC(){
                     handleIceAccepted(message,socket);
                     break;
                 case WsMessageEnum.RoleResponse:
-                    console.log("ROLE RESPONSE", state.role)
                     handleRoleResponse(message,socket);
                     break;
                 case WsMessageEnum.PrepareRTC:
                     handlePrepareRTCResponse(message,socket);
                     break;
                 case WsMessageEnum.IncommingOffer:
-                    console.log('INFOMMING OFFER')
                     await handleOffer(message, socket)
                     break;
                 case WsMessageEnum.Answer:
-                    console.log('ANSWER')
-
                     await handleAnswer(message,socket);
                     break
                 case WsMessageEnum.Candidate:
-                    console.log('CANDIDARE')
                     await handleCandidate(message);
                     break;
-                // case WsMessageEnum.Ready:
-                //     handleReady(message, socket);
-                //     break;
-                // case WSMessageEnum.IncommingOffer:
-                //     handleOffer(message, socket)
-                //     break;
-                // case WSMessageEnum.ICEResponse:
-                //     // sendOffer(message, socket)
-                //     break;
-                // case WSMessageEnum.Waiting:
-                //     sendWaitingStatus(message, socket);
-                //     break;
                 case WsMessageEnum.Connect:
                     await waitForConnection(message, socket)
                     break;

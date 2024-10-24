@@ -22,6 +22,8 @@ export enum WsMessageEnum {
     PeerReady = 'peer-ready',
     PeerJoin = 'peer-join',
     Listen = 'listen',
-    MsgReceived = 'msg-received'
+    MsgReceived = 'msg-received',
+    ConnectionClose = 'connection-close',
+    Retry = 'retry'
 
 }

@@ -23,7 +23,7 @@ const ChatWaiting: React.FC = () => {
                     sessionToken: sessionApiState.sessionToken
                 },
                 remotePeerStatus: ClientStatus.Unknown,
-                type: WsMessageEnum.Start,
+                type: WsMessageEnum.Connect,
                 peerStatus: ClientStatus.Start,
             }
             sendMessage(wsMessage)

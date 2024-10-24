@@ -42,7 +42,7 @@ const useWebSocket = () => {
         });
     };
     const sendMessage = (message: WSMessage): boolean | undefined=> {
-        if (message.type === WsMessageEnum.Join) {
+        if (message.type === WsMessageEnum.Ready) {
             setIsJoined(true);
             return true;
         }

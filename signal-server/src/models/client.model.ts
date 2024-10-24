@@ -5,6 +5,7 @@ import {PeerRole} from "../enums/peer-role.enum";
 
 export interface Client {
     userToken: string;
+    userId: string;
     session: Session;
     status: ClientStatus;
     conn?: WebSocket;

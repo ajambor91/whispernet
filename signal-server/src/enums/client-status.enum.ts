@@ -7,5 +7,6 @@ export enum ClientStatus {
     Waiting = 'waiting',
     Prepare = 'prepare',
     Ready = 'ready',
-    Set = 'set'
+    Set = 'set',
+    Unknown = 'unknown'
 }

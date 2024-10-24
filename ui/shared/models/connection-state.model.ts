@@ -4,4 +4,5 @@ export interface ConnectionStateModel {
     peerConnection: RTCPeerConnection | null;
     dataChannel: RTCDataChannel | null;
     role: PeerRole | null;
+    userId: string | null;
 }

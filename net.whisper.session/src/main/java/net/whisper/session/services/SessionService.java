@@ -75,16 +75,20 @@ public class SessionService {
     }
 
     private Client createClient(String token) {
+        String userId = UUID.randomUUID().toString();
         Client client = new Client();
         client.setUserToken(token);
+        client.setUserId(userId);
         client.setConnectionStatus(ConnectionStatus.INIT.getStatusName());
         client.setPeerRole(PeerRole.INITIATOR.getPeerRoleName());
         return client;
     }
 
     private Client createTokenWithExistedWSessionTemplate(String userToken, String sessionToken) {
+        String userId = UUID.randomUUID().toString();
         Client client = new Client();
         client.getSession().setSessionToken(sessionToken);
+        client.setUserId(userId);
         client.setUserToken(userToken);
         client.setConnectionStatus(ConnectionStatus.INIT.getStatusName());
         client.setPeerRole(PeerRole.JOINER.getPeerRoleName());

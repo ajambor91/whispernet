@@ -6,6 +6,7 @@ import {WsMessageEnum} from "../enums/ws-message.enum";
 import {ClientStatus} from "../enums/client-status.enum";
 import {createStringWSMsg} from "./helpers";
 import {RTCIceServer} from "../models/rtc-ice-server.model";
+import {createWebRTCSessionManager, WebRTCSessionManager, webRTCSessionMap} from "./webrtc-session-manager";
 
 let test: boolean = true;
 
@@ -131,7 +132,7 @@ const handleRoleRequest = (msg: WSMessage, clients: SenderReceiver, userToken: s
         type: WsMessageEnum.RoleResponse,
         metadata: {role: sesssionManager.getClient(userToken).peerRole}
     }
-    sendMessage(wsMessage, clients.receivers)
+    sendMessage(wsMessage, [clients.sender])
 }
 const handleOffer = (msg: WSMessage, clients: SenderReceiver) => {
     const wsMessage: WSMessage = {
@@ -202,8 +203,14 @@ const handleMsgReceived = (msg: WSMessage, clients: SenderReceiver) => {
     }
     sendMessage(wsMessage,[clients.sender, ...clients.receivers])
 }
-export const messageManager = (message: WSMessage, userToken: string): void => {
 
+
+export const messageManager = (message: WSMessage, userToken: string): void => {
+    let webRTCManager: WebRTCSessionManager | undefined = webRTCSessionMap.get(message.session.sessionToken);
+    if (!webRTCManager) {
+        webRTCManager = createWebRTCSessionManager();
+        webRTCSessionMap.set(message.session.sessionToken, webRTCManager);
+    }
     let sessionManager: SessionManager | undefined = sessionMap.get(message.session.sessionToken);
     if (!sessionManager) {
         sessionManager = createSessionManager();

@@ -4,9 +4,16 @@ import {Client} from "../models/client.model";
 import {SenderReceiver} from "../models/sender-receiver.model";
 import {WsMessageEnum} from "../enums/ws-message.enum";
 import {ClientStatus} from "../enums/client-status.enum";
-import {createStringWSMsg} from "./helpers";
+import {createStringWSMsg, sendMessage} from "./helpers";
 import {RTCIceServer} from "../models/rtc-ice-server.model";
-import {createWebRTCSessionManager, WebRTCSessionManager, webRTCSessionMap} from "./webrtc-session-manager";
+import {
+    createWebRTCSessionManager,
+    getWebRTCSessionManager,
+    WebRTCSessionManager,
+    webRTCSessionMap
+} from "./webrtc-session-manager";
+import console from "console";
+import {WsConnectionError} from "../enums/wsconnection-error.enum";
 
 let test: boolean = true;
 
@@ -29,9 +36,7 @@ const senderReceiverHandler = (userToken: string, clients: Client[]): SenderRece
     }
 
 }
-const sendMessage = (msg: WSMessage, clients: Client[]) => {
-    clients.forEach(conn => conn.conn?.send(Buffer.from(createStringWSMsg(msg))));
-}
+
 const handleConnect = (msg: WSMessage, senderReceiver: SenderReceiver) => {
     const wsMessage: WSMessage = {
         session: msg.session,
@@ -135,38 +140,61 @@ const handleRoleRequest = (msg: WSMessage, clients: SenderReceiver, userToken: s
     sendMessage(wsMessage, [clients.sender])
 }
 const handleOffer = (msg: WSMessage, clients: SenderReceiver) => {
-    const wsMessage: WSMessage = {
-        remotePeerStatus: msg.remotePeerStatus,
-        peerStatus: msg.peerStatus,
-        session: msg.session,
-        type: WsMessageEnum.IncommingOffer,
-        offer: msg.offer,
-        candidate: msg.candidate
+    if (msg.offer) {
+        const wsMessage: WSMessage = {
+            remotePeerStatus: msg.remotePeerStatus,
+            peerStatus: msg.peerStatus,
+            session: msg.session,
+            type: WsMessageEnum.IncommingOffer,
+            offer: msg.offer,
+            candidate: msg.candidate
+        }
+        const webRTCSessionManager: WebRTCSessionManager = getWebRTCSessionManager(msg.session.sessionToken);
+        webRTCSessionManager.setOffer(msg.offer);
+        sendMessage(wsMessage, clients.receivers)
+    } else  {
+        throw new Error(WsConnectionError.WEBRTC_OFFER_NOT_FOUND);
     }
-    sendMessage(wsMessage, clients.receivers)
+
 }
 const handleAnswer = (msg: WSMessage, clients: SenderReceiver) => {
-    const wsMessage: WSMessage = {
-        remotePeerStatus: msg.remotePeerStatus,
-        peerStatus: msg.peerStatus,
-        session: msg.session,
-        answer: msg.answer,
-        type: WsMessageEnum.Answer,
+    if (msg.answer) {
+        const wsMessage: WSMessage = {
+            remotePeerStatus: msg.remotePeerStatus,
+            peerStatus: msg.peerStatus,
+            session: msg.session,
+            answer: msg.answer,
+            type: WsMessageEnum.Answer,
+        }
+        const webRTCSessionManager: WebRTCSessionManager = getWebRTCSessionManager(msg.session.sessionToken);
+        webRTCSessionManager.setAnswer(msg.answer);
+        sendMessage(wsMessage, clients.receivers)
+    } else  {
+        throw new Error(WsConnectionError.WEBRTC_ANSWER_NOT_FOUND);
     }
-    sendMessage(wsMessage, clients.receivers)
+
 }
 const handleCandidate = (msg: WSMessage, clients: SenderReceiver) => {
-    const wsMessage: WSMessage = {
-        remotePeerStatus: msg.remotePeerStatus,
-        peerStatus: msg.peerStatus,
-        session: msg.session,
-        candidate: msg.candidate,
-        type: WsMessageEnum.Candidate,
-        metadata: {
-            userId: clients.sender.userId
+    if (msg.candidate) {
+        console.log(msg.candidate)
+        const wsMessage: WSMessage = {
+            remotePeerStatus: msg.remotePeerStatus,
+            peerStatus: msg.peerStatus,
+            session: msg.session,
+            candidate: msg.candidate,
+            type: WsMessageEnum.Candidate,
+            metadata: {
+                userId: clients.sender.userId
+            }
         }
+        const webRTCSessionManager: WebRTCSessionManager = getWebRTCSessionManager(msg.session.sessionToken);
+
+        webRTCSessionManager.addIceCandidate(msg.candidate)
+        sendMessage(wsMessage, clients.receivers)
+    } else  {
+        throw new Error(WsConnectionError.ICE_CANDIDATE_NOT_FOUND);
     }
-    sendMessage(wsMessage, clients.receivers)
+
 }
 const handleListen = (msg: WSMessage, clients: SenderReceiver) => {
     const wsMessage: WSMessage = {

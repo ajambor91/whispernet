@@ -32,7 +32,6 @@ export async function startKafka() {
                 }
 
                 sessionManager.addClient(client);
-                console.log(sessionManager.getClients())
             }
 
         }

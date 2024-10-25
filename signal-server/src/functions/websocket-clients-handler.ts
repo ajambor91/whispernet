@@ -15,7 +15,6 @@ export const websocketClientsHandler: (ws: WebSocket, req: IncomingMessage) => v
             const rawMessage: string = decodeMessage(buffer);
             const wsMsg: WSMessage = parseForWSMsg(rawMessage);
             const sessionToken: string = wsMsg.session.sessionToken;
-            console.log('sessionToken', sessionToken)
             let sessionManager = sessionMap.get(sessionToken);
             if (!sessionManager) {
                 sessionManager = createSessionManager();

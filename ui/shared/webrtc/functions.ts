@@ -10,7 +10,8 @@ export function connectRTC(){
         peerConnection: null,
         dataChannel: null,
         role: null,
-        userId: null
+        userId: null,
+        stage: null
     }
     const iceServers: RTCIceServer[] = [{ urls: 'stun:stun.l.google.com:19302' }]
 

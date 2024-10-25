@@ -24,10 +24,25 @@ export const createWebRTCSessionManager = (): WebRTCSessionManager => {
 
     return {
         addIceCandidate: (iceCandidate: WebRTCIceCandidate): void => {
-            webRTCState.iceCandidates.push(iceCandidate);
+            iceCandidate.unique = iceCandidate.usernameFragment + iceCandidate.sdpMid + iceCandidate.sdpMLineIndex;
+            const isExists: boolean = webRTCState.iceCandidates.some(existingCandidate => existingCandidate.unique = iceCandidate.unique);
+            if (isExists) {
+                webRTCState.iceCandidates.push(iceCandidate);
+            }
         },
         setIceCandidates: (iceCandidates: WebRTCIceCandidate[]): void => {
-            webRTCState.iceCandidates.push(...iceCandidates);
+
+            const uniqueCandidates = new Set<string>();
+
+            const candidatesToSet = iceCandidates.filter(curr => {
+                const unique = curr.usernameFragment + curr.sdpMid + curr.sdpMLineIndex;
+                if (!uniqueCandidates.has(unique)) {
+                    uniqueCandidates.add(unique);
+                    return true;
+                }
+                return false;
+            });
+            webRTCState.iceCandidates.push(...candidatesToSet);
         },
         getIceCandidates: () => webRTCState.iceCandidates,
         setAnswer: (answer: WebRTCSessionDescription) => {
@@ -43,3 +58,12 @@ export const createWebRTCSessionManager = (): WebRTCSessionManager => {
         getStage: () => webRTCState.stage
     };
 };
+
+export const getWebRTCSessionManager = (session: string): WebRTCSessionManager => {
+    let manager: WebRTCSessionManager | undefined = webRTCSessionMap.get(session);
+    if (!manager) {
+        manager = createWebRTCSessionManager();
+        webRTCSessionMap.set(session, manager)
+    }
+    return manager;
+}

@@ -1,4 +1,4 @@
-export enum WsMessageEnum {
+export enum EWebSocketEventType  {
     Offer = 'offer',
     IncommingOffer = 'incomming_offer',
     Answer = 'answer',
@@ -24,6 +24,9 @@ export enum WsMessageEnum {
     Listen = 'listen',
     MsgReceived = 'msg-received',
     ConnectionClose = 'connection-close',
-    Retry = 'retry'
+    Retry = 'retry',
+    ReconnectSignal = 'reconnect-signal',
+    Ping = 'ping',
+    Pong = 'pong'
 
 }

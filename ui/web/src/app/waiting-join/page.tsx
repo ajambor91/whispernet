@@ -20,6 +20,7 @@ const ChatWaiting: React.FC = () => {
 
         if (sessionApiState.sessionToken && !messageSent) {
                 const wsMessage: WSMessage = {
+                    msgType: 'peer',
                     type: WsMessageEnum.Connect,
                     session: {
                         sessionToken: sessionApiState.sessionToken

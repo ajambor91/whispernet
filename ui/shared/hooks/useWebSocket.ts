@@ -47,6 +47,7 @@ const useWebSocket = () => {
             return true;
         }
         const ws: WebSocket = socketRef.current;
+        console.log("SEND MESSAGE", message)
         actionForMessage(message, ws)
     }
 

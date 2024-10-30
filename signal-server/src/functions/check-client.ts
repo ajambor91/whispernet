@@ -1,7 +1,5 @@
 import {IncomingMessage} from "http";
-import console from "console";
-import {Client} from "../models/client.model";
-import * as buffer from "buffer";
+
 
 
 
@@ -21,19 +19,3 @@ export const getCookie: (req: IncomingMessage) => string = (req: IncomingMessage
     return token;
 };
 
-
-export const decodeMessage: (buffer: Buffer) => string = (buffer: Buffer): string => {
-    if (!(buffer instanceof Buffer)) {
-        throw new Error("No message found");
-    }
-    return buffer.toString();
-};
-
-export const compareTokens = (clients: Client[], userToken: string) => {
-    const isAuthorized: boolean = clients.some(client => client.userToken === userToken);
-    if (!isAuthorized) {
-        throw new Error("Client not authorized, userToken: " + userToken)
-    }
-    return true;
-
-}

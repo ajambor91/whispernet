@@ -1,14 +1,15 @@
 import {WebRTCIceCandidate, WebRTCSessionDescription} from "./webrtc.interface";
-import {WsMessageEnum} from "../enums/ws-message.enum";
-import {Session} from "./session.model";
-import {ClientStatus} from "../enums/client-status.enum";
+import {EWebSocketEventType} from "../enums/ws-message.enum";
+import {ISession} from "./session.model";
+import {EClientStatus} from "../enums/client-status.enum";
 import {PeerRole} from "../enums/peer-role.enum";
 
 export interface WSMessage {
-    type: WsMessageEnum;
-    peerStatus: ClientStatus;
-    remotePeerStatus: ClientStatus;
-    session: Session;
+    msgType: 'peer' | 'signal';
+    type: EWebSocketEventType;
+    peerStatus: EClientStatus;
+    remotePeerStatus: EClientStatus;
+    session: ISession;
     candidate?: WebRTCIceCandidate;
     offer?: WebRTCSessionDescription;
     answer?: WebRTCSessionDescription;
@@ -18,3 +19,5 @@ export interface WSMessage {
     timestamp?: number;
     metadata?: any;
 }
+
+export interface WSSignalMessage extends Pick<WSMessage, 'type' | 'session' | 'msgType'> {}

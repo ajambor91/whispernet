@@ -1,3 +1,3 @@
-export interface Session {
+export interface ISession {
     sessionToken: string;
 }

@@ -19,6 +19,7 @@ const ChatWaiting: React.FC = () => {
     useEffect(() => {
         if (sessionApiState.sessionToken && !messageSent) {
             const wsMessage: WSMessage = {
+                msgType: 'peer',
                 session: {
                     sessionToken: sessionApiState.sessionToken
                 },
@@ -26,6 +27,7 @@ const ChatWaiting: React.FC = () => {
                 type: WsMessageEnum.Connect,
                 peerStatus: ClientStatus.Start,
             }
+            console.log('XXXXXXXXXXXXXXXXX')
             sendMessage(wsMessage)
             setMessageSent(true)
 

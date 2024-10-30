@@ -1,17 +1,21 @@
-import { WSMessage} from "../models/ws-message.model";
-import {Client} from "../models/client.model";
+import {WSMessage, WSSignalMessage} from "../models/ws-message.model";
+import {IClient} from "../models/client.model";
 
+
+export const decodeMessage: (buffer: Buffer) => WSMessage | WSSignalMessage = (buffer: Buffer): WSMessage | WSSignalMessage => {
+    if (!(buffer instanceof Buffer)) {
+        throw new Error("No message found");
+    }
+    return parseForWSMsg(buffer.toString());
+};
 export const parseForWSMsg: (decodedMessage: string) => WSMessage = (decodeMessage:string): WSMessage => {
     return JSON.parse(decodeMessage);
 }
 
-export const createStringWSMsg: (message: WSMessage) => string = (message: WSMessage) => {
+export const formatMessageForWS: (message: WSMessage | WSSignalMessage) => Buffer = (message: WSMessage | WSSignalMessage) => {
     if (!message) {
-        throw new Error("No message to send");
+        throw new Error("Message object is required to send.");
     }
-    return JSON.stringify(message);
-}
+    return Buffer.from(JSON.stringify(message));
+};
 
-export const sendMessage = (msg: WSMessage, clients: Client[]) => {
-    clients.forEach(conn => conn.conn?.send(Buffer.from(createStringWSMsg(msg))));
-}

@@ -6,6 +6,7 @@ interface Session {
     sessionToken: string;
 }
 export interface WSMessage {
+    msgType: 'peer' | 'signal';
     type: WsMessageEnum;
     peerStatus: ClientStatus;
     remotePeerStatus: ClientStatus;
@@ -19,3 +20,5 @@ export interface WSMessage {
     timestamp?: number;
     metadata?: any;
 }
+
+export interface WSSignalMessage extends Pick<WSMessage, 'type' | 'session' | 'msgType'> {}

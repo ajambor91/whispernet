@@ -1,36 +1,31 @@
-import { Client } from "../models/client.model";
 import WebSocket from "ws";
 import { IncomingMessage } from "http";
 import { getCookie } from "./check-client";
-import { decodeMessage } from "./decode-binary-message";
 import console from "console";
-import {createSessionManager, sessionMap} from "./session-manager";
-import {messageManager} from "./message-manager";
+import { getSessionManager, SessionManager, sessionMap} from "../managers/session-manager";
+import { SessionController} from "../classes/session.controller";
 import {WSMessage} from "../models/ws-message.model";
-import {parseForWSMsg} from "./helpers";
+import {decodeMessage, parseForWSMsg} from "./helpers";
 
 export const websocketClientsHandler: (ws: WebSocket, req: IncomingMessage) => void = (ws: WebSocket, req: IncomingMessage): void => {
-    ws.on('message', (buffer: Buffer) => {
+    const sessionManager: SessionManager = getSessionManager;
+    console.log("SESSION MANAGER", sessionManager.getSessions())
+    const userToken: string = getCookie(req);
+    ws.once('message', (buffer: Buffer) => {
         try {
-            const rawMessage: string = decodeMessage(buffer);
-            const wsMsg: WSMessage = parseForWSMsg(rawMessage);
+            const wsMsg: WSMessage = decodeMessage(buffer) as WSMessage;
             const sessionToken: string = wsMsg.session.sessionToken;
-            let sessionManager = sessionMap.get(sessionToken);
-            if (!sessionManager) {
-                sessionManager = createSessionManager();
-                sessionMap.set(sessionToken, sessionManager);
+            console.log("sessionToken", sessionToken)
+            const currentSession: SessionController | undefined = sessionManager.getSession(sessionToken);
+            if (!currentSession) {
+                throw new Error("No session found")
             }
-            const userToken: string = getCookie(req);
-            let client: Client = sessionManager.getClient(userToken)
-
-            if (client) {
-                client = { conn: ws, ...client };
-                sessionManager.setClient(client);
-                messageManager(wsMsg,userToken )
-
-            } else {
-                throw new Error("Client not authorized");
-            }
+            currentSession.initNewConnection(userToken, ws);
+            currentSession.processMessage(wsMsg);
+            ws.on('message', (buffer: Buffer) => {
+                const wsMsg: WSMessage = decodeMessage(buffer) as WSMessage;
+                currentSession.processMessage(wsMsg);
+            })
         } catch (e) {
             console.error(e);
         }

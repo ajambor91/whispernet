@@ -1,6 +1,6 @@
-import {Client} from "./client.model";
+import { IClient} from "./client.model";
 
 export interface SenderReceiver {
-    sender: Client;
-    receivers: Client[];
+    sender: IClient;
+    receivers: IClient[];
 }

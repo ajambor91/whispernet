@@ -5,5 +5,5 @@ export interface ConnectionStateModel {
     dataChannel: RTCDataChannel | null;
     role: PeerRole | null;
     userId: string | null;
-    stage: string;
+    stage: string | null;
 }

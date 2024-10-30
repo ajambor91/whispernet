@@ -1,4 +1,4 @@
-import {WSMessage} from "../models/ws-message.model";
+import {WSMessage, WSSignalMessage} from "../models/ws-message.model";
 import {ConnectionStateModel} from "../models/connection-state.model";
 import {WsMessageEnum} from '../enums/ws-message.enum'
 import {ClientStatus} from "../enums/client-status.model";
@@ -22,6 +22,7 @@ export function connectRTC(){
                 (state.dataChannel as RTCDataChannel).onopen = () => {
                     setConnectionState(state);
                     const openedMsg: WSMessage = {
+                        msgType: 'peer',
                         type: WsMessageEnum.PeerReady,
                         session: message.session,
                         peerStatus: ClientStatus.Prepare,
@@ -40,7 +41,7 @@ export function connectRTC(){
         }
     }
 
-    const createJSONString = (object: WSMessage): string => {
+    const createJSONString = (object: WSMessage | WSSignalMessage): string => {
         if (!object) {
             throw new Error('Empty json')
         }
@@ -56,6 +57,7 @@ export function connectRTC(){
         (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
             if (event.candidate) {
                 const iceCandidateMsg: WSMessage = {
+                    msgType: 'peer',
                     candidate: event.candidate,
                     type: WsMessageEnum.Candidate,
                     session: message.session,
@@ -69,6 +71,7 @@ export function connectRTC(){
             state.dataChannel = event.channel;
             state.dataChannel.onopen = () => {
                 const openedMsg: WSMessage = {
+                    msgType: 'peer',
                     type: WsMessageEnum.PeerReady,
                     session: message.session,
                     remotePeerStatus: message.peerStatus,
@@ -79,6 +82,7 @@ export function connectRTC(){
             };
         };
         const WSMessage: WSMessage = {
+            msgType: 'peer',
             type: WsMessageEnum.Answer,
             session: message.session,
             remotePeerStatus: message.peerStatus,
@@ -89,6 +93,7 @@ export function connectRTC(){
     }
     const handleInit = (message: WSMessage, socket: WebSocket) => {
         const WSMessage: WSMessage = {
+            msgType: 'peer',
             type: WsMessageEnum.InitAccepted,
             session: message.session,
             peerStatus: ClientStatus.Init,
@@ -100,6 +105,7 @@ export function connectRTC(){
     const handleInitAccepted = (message: WSMessage, socket: WebSocket) => {
 
         const WSMessage: WSMessage = {
+            msgType: 'peer',
             type: WsMessageEnum.ICERequest,
             session: message.session,
             peerStatus: ClientStatus.Prepare,
@@ -112,6 +118,7 @@ export function connectRTC(){
     const handleIceResponse = (message: WSMessage, socket: WebSocket) => {
 
         const WSMessage: WSMessage = {
+            msgType: 'peer',
             type: WsMessageEnum.ICEAccepted,
             session: message.session,
             peerStatus: ClientStatus.Prepare,
@@ -125,6 +132,7 @@ export function connectRTC(){
     const handleIceAccepted = (message: WSMessage, socket: WebSocket) => {
 
         const WSMessage: WSMessage = {
+            msgType: 'peer',
             type: WsMessageEnum.RoleRequest,
             session: message.session,
             peerStatus: ClientStatus.Prepare,
@@ -138,6 +146,7 @@ export function connectRTC(){
         state.role = message.metadata.role;
 
         const WSMessage: WSMessage = {
+            msgType: 'peer',
             type: WsMessageEnum.RoleAccepted,
             session: message.session,
             peerStatus: ClientStatus.Prepare,
@@ -153,6 +162,7 @@ export function connectRTC(){
             (state.peerConnection as RTCPeerConnection).onicecandidate = (event) => {
                 if (!!event.candidate) {
                     const iceCandidateMsg: WSMessage = {
+                        msgType: 'peer',
                         type: WsMessageEnum.Candidate,
                         session: message.session,
                         candidate: event.candidate,
@@ -169,6 +179,7 @@ export function connectRTC(){
                 await (state.peerConnection as RTCPeerConnection).setLocalDescription(offer);
 
             const WSMessage: WSMessage = {
+                    msgType: 'peer',
                     type: WsMessageEnum.Offer,
                     offer: state.peerConnection.localDescription as RTCSessionDescriptionInit,
                     session: message.session,
@@ -235,12 +246,23 @@ export function connectRTC(){
         }
     };
 
+    const handlePing = (msg: WSSignalMessage, socket: WebSocket) => {
+            console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+            const wsSignalMsg: WSSignalMessage = {
+                msgType: 'signal',
+                type: WsMessageEnum.Pong,
+                session: msg.session
+            }
+            socket.send(createJSONString(wsSignalMsg))
 
+
+    }
 
     const handleConnected = (message: WSMessage, socket: WebSocket) => {
         state.userId = message.metadata.userId;
 
         const WSMessage: WSMessage = {
+            msgType: 'peer',
             type: WsMessageEnum.Start,
             session: message.session,
             peerStatus: ClientStatus.Prepare,
@@ -251,6 +273,7 @@ export function connectRTC(){
     }
     const handlePeerReady = (message: WSMessage, socket: WebSocket) => {
             const wsMessage: WSMessage = {
+                msgType: 'peer',
                 type: WsMessageEnum.Listen,
                 session: message.session,
                 peerStatus: ClientStatus.Unknown,
@@ -258,6 +281,7 @@ export function connectRTC(){
             }
         state.dataChannel.onmessage = (msg) => {
             const wsMessage: WSMessage = {
+                msgType: 'peer',
                 type: WsMessageEnum.MsgReceived,
                 session: message.session,
                 peerStatus: ClientStatus.Unknown,
@@ -270,7 +294,7 @@ export function connectRTC(){
 
     }
 
-    const handleListen = (message: WSMessage, socket: WebSocket) => {
+    const handleListen = (message: WSMessage | WSSignalMessage, socket: WebSocket) => {
         state.dataChannel.send('ssss')
     }
     const actionForMessage = async (message: WSMessage, socket: WebSocket): Promise<void> => {
@@ -282,6 +306,7 @@ export function connectRTC(){
 
         }
         try {
+            console.log("MSE ACTION FOR MESSAGE", message)
             switch (message.type) {
                 case WsMessageEnum.Listen:
                     handleListen(message, socket);
@@ -321,6 +346,9 @@ export function connectRTC(){
                     break;
                 case WsMessageEnum.Connect:
                     await waitForConnection(message, socket)
+                    break;
+                case WsMessageEnum.Ping:
+                    handlePing(message, socket)
                     break;
             }
         } catch (e) {

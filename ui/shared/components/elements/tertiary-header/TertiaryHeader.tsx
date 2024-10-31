@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import React from "react";
 import '../../../styles/vars.scss'
+
 const StyledTertiaryHeader = styled.h1`
     font-size: var(--tertiary-header-font-size);
     font-weight: var(--tertiary-header-font-weight);
@@ -8,7 +9,7 @@ const StyledTertiaryHeader = styled.h1`
 
 `;
 
-const TertiaryHeader: React.FC<any> = ({ children }) => {
+const TertiaryHeader: React.FC<any> = ({children}) => {
     return (
         <StyledTertiaryHeader>
             {children}

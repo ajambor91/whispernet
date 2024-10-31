@@ -11,6 +11,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 interface ChatJoiningProps {
     onChatSubmit?: (hash: string) => void;
 }
+
 const JoinChat: React.FC<ChatJoiningProps> = ({onChatSubmit}) => {
     const [hash, setHash] = useState('');
     const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -18,9 +19,9 @@ const JoinChat: React.FC<ChatJoiningProps> = ({onChatSubmit}) => {
             e.preventDefault();
             onChatSubmit(hash);
         }
-        }
+    }
 
-    const handleChange = (e:any) => {
+    const handleChange = (e: any) => {
         const sessionHash: string = e.target.value;
         setHash(sessionHash);
     }
@@ -31,11 +32,13 @@ const JoinChat: React.FC<ChatJoiningProps> = ({onChatSubmit}) => {
             <form onSubmit={handleSubmit}>
                 <div>
                     <TertiaryHeader>Paste hash from peer: </TertiaryHeader>
-                    <InlineDiv><Input id="sessionHash" name="sessionHash" value={hash} onChange={onChatSubmit ? handleChange : () =>{}} type="text" /> </InlineDiv>
+                    <InlineDiv><Input id="sessionHash" name="sessionHash" value={hash}
+                                      onChange={onChatSubmit ? handleChange : () => {
+                                      }} type="text"/> </InlineDiv>
                     <InlineDiv>
-                    <Button className={"primary"} type={"submit"}>
-                       Submit  <FontAwesomeIcon style={{ fontSize: '1.5rem' }} icon={faCopy} />
-                    </Button>
+                        <Button className={"primary"} type={"submit"}>
+                            Submit <FontAwesomeIcon style={{fontSize: '1.5rem'}} icon={faCopy}/>
+                        </Button>
                     </InlineDiv>
                 </div>
             </form>

@@ -17,14 +17,14 @@ const ChatJoining: React.FC = () => {
 
     }
     useEffect(() => {
-            if (response) {
-                dispatch(setCreateSession({
-                    sessionToken: response ? response.sessionToken : null,
-                    error: error,
-                    loading: loading
-                }));
-                navigateToWaiting();
-            }
+        if (response) {
+            dispatch(setCreateSession({
+                sessionToken: response ? response.sessionToken : null,
+                error: error,
+                loading: loading
+            }));
+            navigateToWaiting();
+        }
 
         return () => {
         }

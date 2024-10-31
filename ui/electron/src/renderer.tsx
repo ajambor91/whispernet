@@ -1,14 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ChatActions from "@shared/components/chat-actions/ChatActions";
+
 function App() {
     return (
-    <div>
-        <p>Hello React</p>
-        <ChatActions />
-    </div>
-);
+        <div>
+            <p>Hello React</p>
+            <ChatActions/>
+        </div>
+    );
 }
+
 console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 // Renderuj aplikację React w kontenerze `div#root`
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App/>, document.getElementById('root'));

@@ -24,7 +24,10 @@ export enum WsMessageEnum {
     Listen = 'listen',
     MsgReceived = 'msg-received',
     Ping = 'ping',
-    Pong = 'pong'
+    Pong = 'pong',
+    Auth = 'auth',
+    Authorized = 'authorized',
+    Unauthorized = 'unauthorized'
 
 
 }

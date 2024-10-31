@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./Indicator.module.scss";
+
 const Indicator: React.FC = () => {
     return (
         <div className={styles.indicatorWrapper}>
@@ -7,7 +8,7 @@ const Indicator: React.FC = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 100 100"
                 preserveAspectRatio="xMidYMid"
-                style={{ background: 'transparent' }}
+                style={{background: 'transparent'}}
                 width="100"
                 height="100"
             >

@@ -12,6 +12,7 @@ import {EClientConnectionStatus} from "../enums/client-connection-status.enum";
 import {EClientStatus} from "../enums/client-status.enum";
 import {formatMessageForWS} from "../functions/helpers";
 import WebSocket from "ws";
+import {AppEvent} from "./base-event.class";
 
 export class SessionController {
     private readonly _session!: ISession
@@ -34,7 +35,7 @@ export class SessionController {
 
     }
 
-    public initNewConnection(userToken: string, ws: WebSocket): void {
+    public initNewConnection(userToken: string, ws: AppEvent): void {
         const currentSender: IClient | undefined = this._users.getUser(userToken);
         const currentReceiver: IClient | undefined = this._users.getOppositeUser(userToken)
         if (!currentSender) {
@@ -96,12 +97,14 @@ export class SessionController {
             peerStatus:  this._currentSender.status,
             remotePeerStatus: remotePeerStatus,
             metadata: { userId: this._currentSender.userId }};
+        console.log("HANDLE CONNECT")
+        console.log("CURRENT SENDER", this._currentSender)
         this.sendMessageFor(this._currentSender, wsMessage)
     }
 
     private handleStart(msg: WSMessage) {
         let wsMessage: WSMessage;
-        if (this._currentReceiver.status === EClientStatus.Unknown) {
+        if (!this._currentReceiver || this._currentReceiver.status === EClientStatus.Unknown) {
             this._currentSender.status = EClientStatus.Waiting
             wsMessage = {
                 msgType: 'peer',
@@ -274,29 +277,19 @@ export class SessionController {
     }
 
     public sendMessageFor(user: IClient, message: WSMessage): void {
-        user.conn?.send(formatMessageForWS(message))
+        user.conn?.sendDataMessage(message)
     }
 
     public sendMessageForAll(message: WSMessage): void {
-        this._currentSender.conn?.send(formatMessageForWS(message));
-        this._currentReceiver.conn?.send(formatMessageForWS(message));
+        this._currentSender.conn?.sendDataMessage(message);
+        this._currentReceiver.conn?.sendDataMessage(message);
     }
 
-    private handlePong(msg: WSSignalMessage): void {
-        this._currentSender.handlePong(msg);
-    }
 
-    public processMessage(msg: WSMessage | WSSignalMessage): void {
-        console.log("MESAGGE", msg.type)
-        if (msg.msgType === 'signal') {
-            const message = msg as WSSignalMessage
-            switch (message.type) {
-                case EWebSocketEventType.Pong:
-                    this.handlePong(message);
-                    break;
-            }
-        } else  {
-            const message = msg as WSMessage
+
+    public processMessage(message: WSMessage): void {
+
+
             switch (message.type) {
                 case EWebSocketEventType.Connect:
                     this.handleConnect(message);
@@ -339,7 +332,7 @@ export class SessionController {
                     break;
             }
 
-        }
+
     }
 }
 

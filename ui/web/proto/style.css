@@ -3,17 +3,21 @@ body {
     min-height: 100vh;
     color: rgb(176, 179, 192);
 }
+
 .nav > ul {
     display: flex;
 }
+
 .nav > ul > li {
     list-style: none;
 }
+
 main {
     min-height: 100vh;
     margin: auto;
     width: 1920px;
 }
+
 .chat-container {
     min-height: 100vh;
     background-color: rgb(58, 59, 79);

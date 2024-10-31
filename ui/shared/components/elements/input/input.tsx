@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React, {FormEvent, InputHTMLAttributes} from "react";
+import React, {FormEvent} from "react";
 
 const StyledInput = styled.input`
     background-color: #2a2a5e; 
@@ -21,6 +21,7 @@ const StyledInput = styled.input`
         opacity: 0.7;
     }
 `;
+
 interface InputProps {
     value: string;
     type: any;
@@ -37,7 +38,8 @@ interface InputProps {
     readOnly?: boolean;
     autoComplete?: "on" | "off";
 }
-const Input: React.FC<InputProps> = ({ ...props }) => {
+
+const Input: React.FC<InputProps> = ({...props}) => {
     return (
         <StyledInput
             type={props.type}

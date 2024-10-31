@@ -1,7 +1,9 @@
-import { PayloadAction } from '@reduxjs/toolkit';
+import {PayloadAction} from '@reduxjs/toolkit';
+
 interface WSessiontate {
     wSession: string | null;
 }
+
 export declare const wSessionSlice: import("@reduxjs/toolkit").Slice<WSessiontate, {
     setWSession: (state: import("immer").WritableDraft<WSessiontate>, action: PayloadAction<any>) => void;
 }, "wSession", "wSession", import("@reduxjs/toolkit").SliceSelectors<WSessiontate>>;

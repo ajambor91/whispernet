@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 export interface SessionApiState {
     sessionToken: string | null;
@@ -24,5 +24,5 @@ export const createSessionSlice = createSlice({
     }
 });
 
-export const { setCreateSession } = createSessionSlice.actions;
+export const {setCreateSession} = createSessionSlice.actions;
 export default createSessionSlice.reducer;

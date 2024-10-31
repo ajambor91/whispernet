@@ -7,7 +7,7 @@ const useJoinChat = () => {
 
     const joinChat = async (wsToken: string) => {
         try {
-            const response: Response = await fetch(`/api/session/exists/${wsToken}`,{method: 'POST'});
+            const response: Response = await fetch(`/api/session/exists/${wsToken}`, {method: 'POST'});
             const data: any = await response.json();
             if (!response.ok) {
                 throw new Error('Failed to found existing chat');
@@ -20,7 +20,7 @@ const useJoinChat = () => {
             setLoading(false);
         }
     }
-    return { joinChat, response, loading, error };
+    return {joinChat, response, loading, error};
 
 }
 export default useJoinChat;

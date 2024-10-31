@@ -1,19 +1,20 @@
 
-
 .chatContainer {
-    padding-top: 100px;
-    position: relative;
-    height: 100%;
-    max-height: 100%;
-    width: 70%;
-    max-width: 1080px;
-    margin: auto;
-    .message-contaner {
-      &__wrapper {
+  padding-top: 100px;
+  position: relative;
+  height: 100%;
+  max-height: 100%;
+  width: 70%;
+  max-width: 1080px;
+  margin: auto;
 
-      }
+  .message-contaner {
+    &__wrapper {
+
+    }
 
   }
+
   &__input {
     left: 0;
     right: 0;

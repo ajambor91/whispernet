@@ -10,10 +10,11 @@ import {WSSignalMessage} from "../models/ws-message.model";
 import {decodeMessage, formatMessageForWS} from "../functions/helpers";
 import console from "console";
 import {SessionController} from "./session.controller";
+import {AppEvent} from "./base-event.class";
 
 export class Client implements IClient {
-    private readonly _pingIntervalDuration: number = 1000;
-    private readonly _timeLimit: number = 5000;
+    private readonly _pingIntervalDuration: number = 2000;
+    private readonly _timeLimit: number = 6000;
     private _peerRole: PeerRole;
     private _session: ISession;
     private _stage: EWebSocketEventType;
@@ -21,7 +22,7 @@ export class Client implements IClient {
     private _userId: string;
     private _userToken: string;
     private _pingInterval: NodeJS.Timeout | null = null;
-    private _conn: WebSocket | undefined;
+    private _conn: AppEvent | undefined;
     private _connectionStatus: EClientConnectionStatus = EClientConnectionStatus.NotConnected;
     private _callbacks!: IClientCallbacks | null;
 
@@ -35,10 +36,10 @@ export class Client implements IClient {
         this._conn = client.conn;
     }
 
-    public get conn(): WebSocket | undefined {
+    public get conn(): AppEvent | undefined {
         return this._conn;
     }
-    public set conn(connection: WebSocket | undefined) {
+    public set conn(connection: AppEvent | undefined) {
         this._conn = connection;
     }
 
@@ -100,35 +101,28 @@ export class Client implements IClient {
 
     public initClient(clientCallbacks: IClientCallbacks): void {
         this._callbacks = clientCallbacks;
-        this.sendPing();
+        this.startPing();
     }
 
+    private startPing(): void {
+        const sendPing = () => {
 
-
-    private sendPing(): void {
-            const wsMessage: WSSignalMessage = {
-                msgType: 'signal',
-                session: this._session,
-                type: EWebSocketEventType.Ping
-            }
-            this._conn?.send(formatMessageForWS(wsMessage));
+            this._conn?.sendPingMessage(this._session);
             this._pingInterval = setTimeout(() => {
                 this._connectionStatus = EClientConnectionStatus.DisconnectedFail;
                 this._conn?.close();
                 this._callbacks?.onDisconnectErr();
             }, this._timeLimit);
 
-
-
+            this._conn?.once('signal',  data=> {
+                if (data.type === EWebSocketEventType.Pong) {
+                    clearTimeout(this._pingInterval as NodeJS.Timeout);
+                    setTimeout(sendPing, this._pingIntervalDuration);
+                }
+            });
+        };
         if (!this._pingInterval) {
-            this.sendPing();
-        }
-    }
-
-    public handlePong(wsSignalMsg: WSSignalMessage): void {
-        if (wsSignalMsg.type === EWebSocketEventType.Pong) {
-            clearTimeout(this._pingInterval as NodeJS.Timeout);
-            setTimeout(this.sendPing, this._pingIntervalDuration);
+            sendPing();
         }
     }
 }

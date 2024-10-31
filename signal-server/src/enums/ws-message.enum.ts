@@ -27,6 +27,9 @@ export enum EWebSocketEventType  {
     Retry = 'retry',
     ReconnectSignal = 'reconnect-signal',
     Ping = 'ping',
-    Pong = 'pong'
+    Pong = 'pong',
+    Auth = 'auth',
+    Authorized = 'authorized',
+    Unauthorized = 'unauthorized'
 
 }

@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+
 interface StatusProps {
     isLoading: boolean;
     isConnected: boolean;
@@ -7,17 +8,17 @@ interface StatusProps {
 
 const Status: React.FC<StatusProps> = ({isLoading, isConnected, isJoined}) => {
     const [status, setStatus] = useState<string>("Started connection")
-    const getStatus = (): string  => {
+    const getStatus = (): string => {
         if (isJoined) {
             return "Connected with peer";
         } else if (isConnected) {
-                return "Connected with signal server, P2P session estabilishing"
+            return "Connected with signal server, P2P session estabilishing"
 
-        } else  if (isLoading) {
+        } else if (isLoading) {
             return 'Connecting to signal server'
         } else if (isConnected) {
             return "Connected with signal server, P2P session estabilishing"
-        } else  {
+        } else {
             return "Connected with peer"
         }
     }

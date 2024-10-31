@@ -21,3 +21,5 @@ export interface WSMessage {
 }
 
 export interface WSSignalMessage extends Pick<WSMessage, 'type' | 'session' | 'msgType'> {}
+
+export interface WSAuthMessage extends Pick<WSMessage, 'type' | 'msgType'>, Partial<Pick<WSMessage, 'session'>> {}

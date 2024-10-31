@@ -1,10 +1,10 @@
 import {ClientStatus} from "../enums/client-status.model";
 import {WsMessageEnum} from "../enums/ws-message.enum";
-import {PeerRole} from "../enums/peer-role.enum";
 
 interface Session {
     sessionToken: string;
 }
+
 export interface WSMessage {
     msgType: 'peer' | 'signal';
     type: WsMessageEnum;
@@ -21,4 +21,5 @@ export interface WSMessage {
     metadata?: any;
 }
 
-export interface WSSignalMessage extends Pick<WSMessage, 'type' | 'session' | 'msgType'> {}
+export interface WSSignalMessage extends Pick<WSMessage, 'type' | 'session' | 'msgType'> {
+}

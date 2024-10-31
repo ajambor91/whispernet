@@ -13,7 +13,7 @@ const kafkaConfig: KafkaConfig = {
         initialRetryTime: 300,
         retries: 10
     },
-    connectionTimeout: 3000
+    connectionTimeout: 3000,
 };
 export async function startKafka() {
     const kafka: Kafka = new Kafka(kafkaConfig)

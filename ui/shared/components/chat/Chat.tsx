@@ -7,10 +7,13 @@ import MessageInput from "../message-input/MessageInput";
 import {getConnectionsState, getWebRTCDataChannel, sendWebRTCMessage} from "../../singleton/webrtc.singleton";
 import {WebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
 import {SessionApiState} from "../../slices/createSession.slice";
+
 type MessageType = 'incoming' | 'reply'
+
 interface ChatComponentProps {
     sessionApiState: SessionApiState
 }
+
 const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
     const [messages, setMessages] = useState<WebrtcPeerMessage[]>([]);
     const connectionState = getConnectionsState();
@@ -18,7 +21,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
         if (content.sessionId !== sessionApiState.sessionToken) {
             throw new Error('Invalid session token!')
         }
-        setMessages(prevState =>  [
+        setMessages(prevState => [
             ...prevState,
             {
                 ...content,
@@ -28,7 +31,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
     }
 
     const stringfyWebRTCPeerMsg = (msg: WebrtcPeerMessage) => {
-      return JSON.stringify(msg);
+        return JSON.stringify(msg);
     }
 
     const parseWebRTCPeerMsg = (msg: string): WebrtcPeerMessage => {
@@ -44,7 +47,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
     }
     useEffect(() => {
         if (connectionState && connectionState.dataChannel) {
-            ( getWebRTCDataChannel() as RTCDataChannel).onmessage = (event) => {
+            (getWebRTCDataChannel() as RTCDataChannel).onmessage = (event) => {
                 const incommingMessage: WebrtcPeerMessage = parseWebRTCPeerMsg(event.data)
                 console.log(incommingMessage)
                 addMessage({
@@ -60,17 +63,17 @@ const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
                 <div className={styles.messageContaner}>
                     {messages.map(msg => (
                         <div key={msg.messageId} className={styles.messageContaner__wrapper}>
-                        <Message message={msg}/>
+                            <Message message={msg}/>
                         </div>
                     ))}
                 </div>
-            <div>
+                <div>
 
-            </div>
+                </div>
 
-            <div className={styles.chatContainer__input}>
-                <MessageInput sendMessage={sendMessage} />
-            </div>
+                <div className={styles.chatContainer__input}>
+                    <MessageInput sendMessage={sendMessage}/>
+                </div>
             </div>
 
         </div>

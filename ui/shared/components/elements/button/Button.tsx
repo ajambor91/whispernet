@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import React from "react";
 import '../../../styles/globals.scss'
+
 const StyledButton = styled.button`
     margin: 10px;
     padding: 10px 30px;
@@ -23,10 +24,12 @@ const StyledButton = styled.button`
         transform: translateY(0); /* Reset transformacji */
     }
 `;
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>{
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     className: 'primary' | 'secondary' | string;
 }
-const Button: React.FC<ButtonProps> = ({ children, className, ...props }) => {
+
+const Button: React.FC<ButtonProps> = ({children, className, ...props}) => {
     return (
         <StyledButton className={`button ${className}`} {...props}>
             {children}

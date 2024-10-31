@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 import path from "node:path";
 import {fileURLToPath} from "node:url";
+
 const nextConfig = {
     async rewrites() {
         return [
@@ -10,9 +11,9 @@ const nextConfig = {
             },
         ];
     },
-     webpack: (config) => {
+    webpack: (config) => {
         const __dirname = path.dirname(fileURLToPath(import.meta.url));
-        config.resolve.alias['@shared'] = path.resolve(__dirname,'..','shared');
+        config.resolve.alias['@shared'] = path.resolve(__dirname, '..', 'shared');
         return config;
     },
     sassOptions: {

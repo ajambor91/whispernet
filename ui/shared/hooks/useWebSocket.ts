@@ -1,71 +1,26 @@
-'use client'
-import {useEffect, useRef, useState} from "react";
-import {WSMessage, WSMessage} from "../models/ws-message.model";
-import {connectRTC} from "../webrtc/functions";
-import {WsMessageEnum} from "../enums/ws-message.enum";
+'use client';
+import { useEffect } from "react";
+import { WSMessage, WSSignalMessage } from "../models/ws-message.model";
+import { getRTCConnection } from "../singleton/rtc-connection.singleton";
+import { IRTCConnection } from "../interfaces/rtc-connection.model.interface";
+import {IAuth} from "../interfaces/auth.interface";
+import {getAuth} from "../singleton/auth.singleton";
+import {IPingPong} from "../interfaces/ping-pong.interface";
+import {getPingPong} from "../singleton/ping-pong.singleton";
 
 const useWebSocket = () => {
-    // const [message, setMessage] = useState<string>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isConnected, setIsConnected] = useState(false);
-    const [isJoined, setIsJoined] = useState<boolean>(false)
-    const socketRef = useRef<WebSocket>({} as WebSocket);
-    const actionForMessage = connectRTC()
-    const closeConnection = () => {
-        socketRef.current.close();
-    }
-    const decodeBinaryMessage = (msg: MessageEvent): Promise<WSMessage> => {
-        return new Promise((resolve, reject) => {
-            const blob: Blob = msg.data;
-            const fileReader: FileReader = new FileReader();
-            fileReader.onload = () => {
-                if (fileReader.result instanceof ArrayBuffer) {
-                    const arrBuffer: ArrayBuffer = fileReader.result;
-                    const byteArr: Uint8Array = new Uint8Array(arrBuffer);
-                    const decodedMessage = new TextDecoder().decode(byteArr);
-                    const WSMessage: WSMessage = JSON.parse(decodedMessage);
-                    resolve(WSMessage);
-                } else {
-                    reject(new Error("Niepoprawny format danych"));
-                }
-            };
-
-            fileReader.onerror = (error) => {
-                reject(error);
-            };
-            if (blob instanceof Blob) {
-                fileReader.readAsArrayBuffer(blob);
-
-            } else {
-                resolve(JSON.parse(msg.data))
-            }
-        });
+    const rtcConnection: IRTCConnection = getRTCConnection();
+    const pingPong: IPingPong = getPingPong();
+    const auth: IAuth = getAuth();
+    const sendMessage = (message: WSMessage | WSSignalMessage): void => {
+        auth.authorize(message as WSMessage)
     };
-    const sendMessage = (message: WSMessage): boolean | undefined=> {
-        if (message.type === WsMessageEnum.Ready) {
-            setIsJoined(true);
-            return true;
-        }
-        const ws: WebSocket = socketRef.current;
-        console.log("SEND MESSAGE", message)
-        actionForMessage(message, ws)
-    }
-
     useEffect(() => {
-        setIsLoading(true)
-        socketRef.current = new WebSocket('/api/signal');
-        socketRef.current.onopen = () => {
-            setIsConnected(true)
-        }
+        pingPong.handlePing();
+        rtcConnection.handleMessage();
+    }, [pingPong, rtcConnection]);
 
-        socketRef.current.onmessage = async (event: MessageEvent) => {
-            const message: WSMessage = await decodeBinaryMessage(event);
-            sendMessage(message);
-        }
+    return { sendMessage };
+};
 
-    },[]);
-
-
-    return {isLoading, isConnected,isJoined, sendMessage, closeConnection };
-}
 export default useWebSocket;

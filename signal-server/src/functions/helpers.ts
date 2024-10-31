@@ -1,14 +1,16 @@
 import {WSMessage, WSSignalMessage} from "../models/ws-message.model";
 import {IClient} from "../models/client.model";
+import {IEventMessage} from "../models/event-message.model";
 
 
-export const decodeMessage: (buffer: Buffer) => WSMessage | WSSignalMessage = (buffer: Buffer): WSMessage | WSSignalMessage => {
+export const decodeMessage: (buffer: Buffer) => IEventMessage = (buffer: Buffer): IEventMessage => {
     if (!(buffer instanceof Buffer)) {
         throw new Error("No message found");
     }
+    console.log('BUFFER STRING', buffer.toString())
     return parseForWSMsg(buffer.toString());
 };
-export const parseForWSMsg: (decodedMessage: string) => WSMessage = (decodeMessage:string): WSMessage => {
+export const parseForWSMsg: (decodedMessage: string) => IEventMessage = (decodeMessage:string): IEventMessage => {
     return JSON.parse(decodeMessage);
 }
 

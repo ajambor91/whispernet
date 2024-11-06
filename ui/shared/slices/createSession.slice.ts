@@ -1,28 +1,28 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {PeerRole} from "../enums/peer-role.enum";
+import {ISession} from "../models/ws-message.model";
 
-export interface SessionApiState {
-    sessionToken: string | null;
-    error: string | null;
-    loading: boolean;
+export interface IPeerState {
+    session: ISession | null;
+    peerRole: PeerRole | null;
+
 }
 
-const initialState: SessionApiState = {
-    sessionToken: null,
-    error: null,
-    loading: false
+const initialState: IPeerState = {
+    session: null,
+    peerRole: null
 }
 
-export const createSessionSlice = createSlice({
+export const createPeerStateSlice = createSlice({
     name: 'createChat',
     initialState,
     reducers: {
-        setCreateSession: (state, action: PayloadAction<SessionApiState>) => {
-            state.sessionToken = action.payload.sessionToken;
-            state.loading = action.payload.loading;
-            state.error = action.payload.error;
+        setCreatePeerState: (state, action: PayloadAction<IPeerState>) => {
+            state.session = action.payload.session;
+            state.peerRole = action.payload.peerRole;
         }
     }
 });
 
-export const {setCreateSession} = createSessionSlice.actions;
-export default createSessionSlice.reducer;
+export const {setCreatePeerState} = createPeerStateSlice.actions;
+export default createPeerStateSlice.reducer;

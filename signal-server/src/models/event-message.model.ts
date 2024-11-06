@@ -1,6 +1,10 @@
-import {WSAuthMessage, WSMessage, WSSignalMessage} from "./ws-message.model";
+import {
+    IAuthMessage,
+    IIncomingMessage,
+    IOutgoingMessage, ISignalMessage,
+} from "./ws-message.model";
 
 export interface IEventMessage {
     event: string;
-    data: WSMessage | WSSignalMessage | WSAuthMessage;
+    data: IIncomingMessage | IOutgoingMessage | IAuthMessage | ISignalMessage;
 }

@@ -1,8 +1,8 @@
 import {AppEvent} from "./app-event.singleton";
-import {WSMessage, WSSignalMessage} from "../models/ws-message.model";
-import {WsMessageEnum} from "../enums/ws-message.enum";
-import {ClientStatus} from "../enums/client-status.model";
+import {IAuthMessage, IOutgoingMessage, ISession} from "../models/ws-message.model";
 import {IAuth} from "../interfaces/auth.interface";
+import {EWebSocketEventType} from "../enums/ws-message.enum";
+import {EClientStatus} from "../enums/client-status.model";
 
 class Auth implements IAuth {
     private static _instance: Auth;
@@ -18,37 +18,35 @@ class Auth implements IAuth {
         return this._instance;
     }
 
-    public authorize(message: WSMessage): void {
-        this._appEvent.sendAuthMessage(message as WSMessage);
-
-        this._appEvent.once('auth', (data: WSSignalMessage) => {
-            console.log(data)
-            if (data.type === WsMessageEnum.Authorized) {
-                const msg: WSMessage = {
-                    msgType: 'peer',
-                    type: WsMessageEnum.Connect,
-                    remotePeerStatus: ClientStatus.Unknown,
-                    peerStatus: ClientStatus.Start,
-                    session: message.session
-                }
-                this._appEvent.sendWSMessage(msg)
-            }
-        })
+    public async authorize(session: ISession): Promise<void> {
+        await this.handleAuth(session)
+        console.log("INNNNNN")
+        this._appEvent.once('auth', (data: IAuthMessage) => this.startConnection(data))
     }
 
-    private handleAuth(message: WSMessage): Promise<boolean> {
+    private startConnection(data: IAuthMessage): void {
+        if (data.type === EWebSocketEventType.Authorized) {
+            this._appEvent.sendInitialMessage()
+        }
+    }
+
+    private async handleAuth(message: ISession): Promise<boolean | unknown> {
         console.log("waitForConnection", message)
+        const authMessage: IAuthMessage = {
+            session: message,
+            type: EWebSocketEventType.Auth
+        }
         return new Promise((resolve, reject) => {
             let interval: any
             if (this._appEvent && this._appEvent.readyState() === WebSocket.OPEN) {
-                this._appEvent.sendAuthMessage(message)
+                this._appEvent.sendAuthMessage(authMessage)
                 resolve(true)
             } else {
                 interval = setInterval(() => {
-                    console.log("waitForConnection socket", message)
+                    console.log("waitForConnection socket", authMessage)
 
                     if (this._appEvent && this._appEvent.readyState() === WebSocket.OPEN) {
-                        this._appEvent.sendAuthMessage(message)
+                        this._appEvent.sendAuthMessage(authMessage)
                         clearInterval(interval);
                         resolve(true)
                     }
@@ -66,6 +64,8 @@ class Auth implements IAuth {
         })
 
     }
+
+
 }
 
 export const getAuth = (): IAuth => Auth.getInstance();

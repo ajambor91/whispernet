@@ -1,26 +1,20 @@
 'use client';
-import { useEffect } from "react";
-import { WSMessage, WSSignalMessage } from "../models/ws-message.model";
-import { getRTCConnection } from "../singleton/rtc-connection.singleton";
-import { IRTCConnection } from "../interfaces/rtc-connection.model.interface";
-import {IAuth} from "../interfaces/auth.interface";
-import {getAuth} from "../singleton/auth.singleton";
-import {IPingPong} from "../interfaces/ping-pong.interface";
-import {getPingPong} from "../singleton/ping-pong.singleton";
+import {Peer} from "../singleton/peer";
+import {IPeerState} from "../slices/createSession.slice";
 
-const useWebSocket = () => {
-    const rtcConnection: IRTCConnection = getRTCConnection();
-    const pingPong: IPingPong = getPingPong();
-    const auth: IAuth = getAuth();
-    const sendMessage = (message: WSMessage | WSSignalMessage): void => {
-        auth.authorize(message as WSMessage)
-    };
-    useEffect(() => {
-        pingPong.handlePing();
-        rtcConnection.handleMessage();
-    }, [pingPong, rtcConnection]);
+const useWebSocket = (peerState: IPeerState) => {
+    // let peerRef = useRef<Peer | null>(null)
+    const peer: Peer = new Peer(peerState);
 
-    return { sendMessage };
+    // useEffect(() => {
+    //     if (peerState && peerState.session && peerState.peerRole) {
+    //         console.log("INNNNNNNNNNNNNNNNNNNNNNNN")
+    //         peerRef.current =
+    //         onStatus = peerRef.current.onStatus;
+    //     }
+    // }, []);
+
+    return peer.onStatus;
 };
 
 export default useWebSocket;

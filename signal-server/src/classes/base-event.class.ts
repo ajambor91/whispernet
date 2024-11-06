@@ -1,6 +1,6 @@
 import {WebSocket} from "ws";
 import {EventEmitter} from 'events'
-import {WSMessage, WSSignalMessage} from "../models/ws-message.model";
+import {IIncomingMessage, IOutgoingMessage} from "../models/ws-message.model";
 import {decodeMessage} from "../functions/helpers";
 import {IEventMessage} from "../models/event-message.model";
 import {ISession} from "../models/session.model";
@@ -13,9 +13,7 @@ export class AppEvent extends EventEmitter {
         this._ws = ws;
 
         this._ws.on('message', (message: Buffer) => {
-            console.log("message event", message)
             const { event, data } = decodeMessage(message)
-            console.log("event, data", event, data)
             this.emit(event, data);
         });
 
@@ -29,7 +27,6 @@ export class AppEvent extends EventEmitter {
         const message: IEventMessage = {
             event: 'signal',
             data: {
-                msgType: 'signal',
                 session: session,
                 type: EWebSocketEventType.Ping,
             }
@@ -37,11 +34,10 @@ export class AppEvent extends EventEmitter {
         this._ws.send(this.parseMsg(message))
     }
 
-    public sendAuthorizewMessage(session: ISession ): void {
+    public sendAuthorizeMessage(session: ISession ): void {
         const message: IEventMessage = {
             event: 'auth',
             data: {
-                msgType: 'signal',
                 session: session,
                 type: EWebSocketEventType.Authorized,
             }
@@ -49,22 +45,20 @@ export class AppEvent extends EventEmitter {
         this._ws.send(this.parseMsg(message))
     }
 
-    public sendUnauthorizewMessage(): void {
+    public sendUnauthorizeMessage(): void {
         const message: IEventMessage = {
             event: 'auth',
             data: {
-                msgType: 'signal',
                 type: EWebSocketEventType.Unauthorized,
             }
         }
         this._ws.send(this.parseMsg(message))
     }
-    public sendDataMessage(wsMsg: WSMessage): void {
+    public sendDataMessage(wsMsg: IOutgoingMessage): void {
         const msg: IEventMessage = {
             event: 'dataMessage',
             data: wsMsg
         }
-        console.log("BASE EVENT SEND", msg)
         this._ws.send(this.parseMsg(msg))
     }
     private parseMsg(data: IEventMessage): Buffer {

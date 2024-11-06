@@ -1,7 +1,8 @@
 import {useState} from "react";
+import {IPeerState} from "../slices/createSession.slice";
 
 const useJoinChat = () => {
-    const [response, setResponse] = useState<any>(null);
+    const [response, setResponse] = useState<IPeerState>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 

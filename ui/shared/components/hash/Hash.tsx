@@ -1,6 +1,6 @@
 import React from "react";
 import Indicator from "../indicator/Indicator";
-import {SessionApiState} from "../../slices/createSession.slice";
+import {IPeerState, SessionApiState} from "../../slices/createSession.slice";
 import Status from "../status/Status";
 import styles from "./Hash.module.scss"
 import Centered from "../centered/Centered";
@@ -12,16 +12,17 @@ import {faCopy} from "@fortawesome/free-solid-svg-icons/faCopy";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 interface HashProps {
-    sessionApiState: SessionApiState; // Typ dla sessionApiState, np. string
+    peerState: IPeerState; // Typ dla sessionApiState, np. string
     isLoading: boolean;
     isConnected: boolean;
     isJoined: boolean;
 }
 
-const Hash: React.FC<HashProps> = ({sessionApiState, isLoading, isConnected, isJoined}) => {
+const Hash: React.FC<HashProps> = ({peerState, isLoading, isConnected, isJoined}) => {
+    console.log(peerState)
     const handleCopy = () => {
-        if (!!sessionApiState.sessionToken) {
-            navigator.clipboard.writeText(sessionApiState.sessionToken).then(() => {
+        if (!!peerState.session) {
+            navigator.clipboard.writeText(peerState.session.sessionToken).then(() => {
 
             });
         }
@@ -32,7 +33,7 @@ const Hash: React.FC<HashProps> = ({sessionApiState, isLoading, isConnected, isJ
                 <SecondaryHeader className={styles.hash__header}>Waiting for peer...</SecondaryHeader>
                 <TertiaryHeader className={styles.hash__header}>Copy below hash:</TertiaryHeader>
                 <div className={styles.hash__inputWrapper}>
-                    <Input type="text" value={sessionApiState.sessionToken ?? ''} disabled={true}/>
+                    <Input type="text" value={peerState.session?.sessionToken ?? ''} disabled={true}/>
                     <Button className={styles.hash__inputWrapper__copyButton} onClick={handleCopy}><FontAwesomeIcon
                         style={{fontSize: '1.5rem'}} icon={faCopy}/></Button>
                 </div>

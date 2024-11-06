@@ -7,7 +7,8 @@ import {useDispatch} from "react-redux";
 import Centered from "../../../shared/components/centered/Centered";
 import Header from "../../../shared/components/header/Header";
 import ChatActions from "../../../shared/components/chat-actions/ChatActions";
-import {SessionApiState, setCreateSession} from "../../../shared/slices/createSession.slice";
+import {setCreateSession} from "../../dist/shared/slices/createSession.slice";
+import {setCreatePeerState} from "../../../shared/slices/createSession.slice";
 
 export default function Home() {
     const {createNewChat, response, error, loading} = useNewChat();
@@ -22,10 +23,9 @@ export default function Home() {
     }
 
     useEffect(() => {
-        dispatch(setCreateSession({
-            sessionToken: response ? response.sessionToken : null,
-            error: error,
-            loading: loading
+        dispatch(setCreatePeerState({
+            session: response ? response.session : null,
+            peerRole: response ? response.peerRole : null
         }));
 
         if (response && !error) {

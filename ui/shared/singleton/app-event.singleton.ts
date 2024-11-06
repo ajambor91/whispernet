@@ -1,7 +1,7 @@
 import {EventEmitter} from 'events'
-import {WSMessage, WSSignalMessage} from "../models/ws-message.model";
+import {IAuthMessage, IOutgoingMessage, ISignalMessage} from "../models/ws-message.model";
 import {IEventMessage} from "../models/event-message.model";
-import {WsMessageEnum} from "../enums/ws-message.enum";
+import {EWebSocketEventType} from "../enums/ws-message.enum";
 
 export class AppEvent extends EventEmitter {
     private static _instance: AppEvent;
@@ -31,20 +31,17 @@ export class AppEvent extends EventEmitter {
         this.sendMessage(message)
     }
 
-    public sendPong(msg: WSSignalMessage): void {
+    public sendPong(msg: ISignalMessage): void {
+
         const pongMessage: IEventMessage = {
             event: 'signal',
-            data: {
-                msgType: 'signal',
-                type: WsMessageEnum.Pong,
-                session: msg.session
-            }
+            data: msg
         }
         this.sendMessage(pongMessage);
 
     }
 
-    public sendAuthMessage(message: WSMessage): void {
+    public sendAuthMessage(message: IAuthMessage): void {
         const msg: IEventMessage = {
             event: 'auth',
             data: message
@@ -54,7 +51,7 @@ export class AppEvent extends EventEmitter {
 
     public readyState = () => this._ws.readyState;
 
-    public sendWSMessage(wsMsg: WSMessage): void {
+    public sendWSMessage(wsMsg: IOutgoingMessage): void {
         const msg: IEventMessage = {
             event: 'dataMessage',
             data: wsMsg
@@ -63,9 +60,22 @@ export class AppEvent extends EventEmitter {
 
     }
 
+    public sendInitialMessage(): void {
+        const msg: IEventMessage = {
+            event: 'initialMessage',
+            data: {
+                type: EWebSocketEventType.InitialMessage
+            }
+
+        }
+        this.sendMessage(msg)
+    }
+
     private sendMessage(message: IEventMessage) : void {
         try {
+            // this._ws.send(JSON.stringify(message))
             this._ws.send(this.parseMsg(message))
+
         } catch (e) {
             console.error('Cannot send message')
         }

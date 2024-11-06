@@ -1,9 +1,8 @@
-import { WSMessage, WSSignalMessage } from "../models/ws-message.model";
+import {IIncomingMessage, IOutgoingMessage} from "../models/ws-message.model";
 import { ConnectionStateModel } from "../models/connection-state.model";
-import { WsMessageEnum } from '../enums/ws-message.enum';
-import { ClientStatus } from "../enums/client-status.model";
+import { EWebSocketEventType } from '../enums/ws-message.enum';
+import { EClientStatus } from "../enums/client-status.model";
 import { PeerRole } from "../enums/peer-role.enum";
-import { IEventMessage } from "../models/event-message.model";
 import { AppEvent } from "./app-event.singleton";
 import { IRTCConnection } from "../interfaces/rtc-connection.model.interface";
 
@@ -14,6 +13,7 @@ class RTCConnection implements IRTCConnection {
     private iceServers: RTCIceServer[];
     private iceCandidatesQueue: RTCIceCandidate[] = [];
 
+
     private constructor() {
         this.state = {
             peerConnection: null,
@@ -22,7 +22,6 @@ class RTCConnection implements IRTCConnection {
             userId: null,
             stage: null
         };
-        this.iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
     }
 
     public static getInstance(): RTCConnection {
@@ -38,25 +37,23 @@ class RTCConnection implements IRTCConnection {
         });
     }
 
-    private createWSMessage(data: Partial<WSMessage>, session: any): WSMessage {
-        return <WSMessage>{ msgType: 'peer', session, ...data };
+    private createWSMessage(data: Partial<IOutgoingMessage>, session: any): IOutgoingMessage {
+        return <IOutgoingMessage>{session, ...data };
     }
 
-    private async handleAnswer(message: IEventMessage, socket: AppEvent): Promise<void> {
+    private async handleAnswer(message: IIncomingMessage, socket: AppEvent): Promise<void> {
         if (this.state.role !== PeerRole.Initiator) return;
 
         try {
-            if ("answer" in message.data) {
-                await this.state.peerConnection?.setRemoteDescription(new RTCSessionDescription(message.data.answer as RTCSessionDescriptionInit));
-            }
+            await this.state.peerConnection?.setRemoteDescription(new RTCSessionDescription(message.answer as RTCSessionDescriptionInit));
+            this.state.peerConnection.onicecandidate = (event) => this.handleIceCandidate(event, socket);
             this.state.dataChannel!.onopen = () => {
                 const openedMsg = this.createWSMessage(
                     {
-                        type: WsMessageEnum.PeerReady,
-                        peerStatus: ClientStatus.Prepare,
-                        remotePeerStatus: ClientStatus.Unknown
+                        type: EWebSocketEventType.PeerReady,
+                        peerStatus: EClientStatus.WebRTCInitialization,
                     },
-                    message.data.session
+                    message.session
                 );
                 socket.sendWSMessage(openedMsg);
             };
@@ -70,18 +67,17 @@ class RTCConnection implements IRTCConnection {
         }
     }
 
-    private async processOffer(message: WSMessage, socket: AppEvent): Promise<void> {
+    private async processOffer(message: IIncomingMessage, socket: AppEvent): Promise<void> {
         this.state.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
         await this.state.peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer as RTCSessionDescriptionInit));
         const answer = await this.state.peerConnection.createAnswer();
         await this.state.peerConnection.setLocalDescription(answer);
-
+        this.state.peerConnection.onicecandidate = (event) => this.handleIceCandidate(event, socket);
         const wsAnswer = this.createWSMessage(
             {
-                type: WsMessageEnum.Answer,
+                type: EWebSocketEventType.Answer,
                 answer: this.state.peerConnection.localDescription as RTCSessionDescriptionInit,
-                peerStatus: ClientStatus.Prepare,
-                remotePeerStatus: message.peerStatus
+                peerStatus: EClientStatus.WebRTCInitialization,
             },
             message.session
         );
@@ -91,71 +87,71 @@ class RTCConnection implements IRTCConnection {
     private handleIceCandidate(event: RTCPeerConnectionIceEvent, socket: AppEvent): void {
         if (event.candidate) {
             const iceCandidateMsg = this.createWSMessage(
-                { type: WsMessageEnum.Candidate, candidate: event.candidate },
+                { type: EWebSocketEventType.Candidate, candidate: event.candidate },
                 this.state.peerConnection!.localDescription!.sdp
             );
             socket.sendWSMessage(iceCandidateMsg);
         }
     }
 
-    private async handleOffer(message: WSMessage, socket: AppEvent): Promise<void> {
-        if (this.state.role === PeerRole.Joiner) {
-            await this.processOffer(message, socket);
-        }
+    private async handleOffer(message: IIncomingMessage, socket: AppEvent): Promise<void> {
+        const inerval =setInterval( async () => {
+            if (this.state.role === PeerRole.Joiner) {
+                await this.processOffer(message, socket);
+                clearInterval(inerval)
+            }
+        }, 200);
+
     }
 
-    private handleIceResponse(message: WSMessage, socket: AppEvent): void {
+    private handleIceResponse(message: IIncomingMessage, socket: AppEvent): void {
         const wsMessage = this.createWSMessage(
             {
-                type: WsMessageEnum.ICEAccepted,
-                peerStatus: ClientStatus.Prepare,
-                remotePeerStatus: message.remotePeerStatus
+                type: EWebSocketEventType.ICEAccepted,
+                peerStatus: EClientStatus.DataSignalling,
             },
             message.session
         );
         socket.sendWSMessage(wsMessage);
     }
 
-    private handleIceAccepted(message: WSMessage, socket: AppEvent): void {
+    private handleIceAccepted(message: IIncomingMessage, socket: AppEvent): void {
         const wsMessage = this.createWSMessage(
             {
-                type: WsMessageEnum.RoleRequest,
-                peerStatus: ClientStatus.Prepare,
-                remotePeerStatus: message.remotePeerStatus
+                type: EWebSocketEventType.RoleRequest,
+                peerStatus: EClientStatus.DataSignalling,
             },
             message.session
         );
         socket.sendWSMessage(wsMessage);
     }
 
-    private handleRoleResponse(message: WSMessage, socket: AppEvent): void {
+    private handleRoleResponse(message: IIncomingMessage, socket: AppEvent): void {
         this.state.role = message.metadata.role;
         const wsMessage = this.createWSMessage(
             {
-                type: WsMessageEnum.RoleAccepted,
-                peerStatus: ClientStatus.Prepare,
-                remotePeerStatus: message.remotePeerStatus
+                type: EWebSocketEventType.RoleAccepted,
+                peerStatus: EClientStatus.WebRTCInitialization,
             },
             message.session
         );
         socket.sendWSMessage(wsMessage);
     }
 
-    private async handlePrepareRTCResponse(message: WSMessage, socket: AppEvent): Promise<void> {
-        if (this.state.role === PeerRole.Initiator) {
-            this.state.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
-            this.state.peerConnection.onicecandidate = (event) => this.handleIceCandidate(event, socket);
+    private async handlePrepareRTCResponse(message: IIncomingMessage, socket: AppEvent): Promise<void> {
+        this.state.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
 
-            this.state.dataChannel = this.state.peerConnection.createDataChannel("chat");
+        this.state.dataChannel = this.state.peerConnection.createDataChannel("chat");
+        if (this.state.role === PeerRole.Initiator) {
+
             const offer = await this.state.peerConnection.createOffer();
             await this.state.peerConnection.setLocalDescription(offer);
 
             const wsOffer = this.createWSMessage(
                 {
-                    type: WsMessageEnum.Offer,
+                    type: EWebSocketEventType.Offer,
                     offer: this.state.peerConnection.localDescription as RTCSessionDescriptionInit,
-                    peerStatus: ClientStatus.Prepare,
-                    remotePeerStatus: message.peerStatus
+                    peerStatus: EClientStatus.WebRTCInitialization,
                 },
                 message.session
             );
@@ -163,46 +159,41 @@ class RTCConnection implements IRTCConnection {
         }
     }
 
-    private async waitForConnection(message: WSMessage, socket: AppEvent): Promise<boolean> {
-        const msg = this.createWSMessage(
-            { type: WsMessageEnum.Connect, remotePeerStatus: ClientStatus.Unknown, peerStatus: ClientStatus.Start },
-            message.session
-        );
-        socket.sendWSMessage(msg);
-    }
+    // private async waitForConnection(message: WSMessage, socket: AppEvent): Promise<boolean> {
+    //     const msg = this.createWSMessage(
+    //         { type: WsMessageEnum.Connect, remotePeerStatus: ClientStatus.Unknown, peerStatus: ClientStatus.Start },
+    //         message.session
+    //     );
+    //     socket.sendWSMessage(msg);
+    // }
 
-    private handlePing(msg: WSSignalMessage, socket: AppEvent): void {
-        const wsSignalMsg: WSSignalMessage = { msgType: 'signal', type: WsMessageEnum.Pong, session: msg.session };
-        socket.sendPong(wsSignalMsg);
-    }
-
-    private handleConnected(message: WSMessage, socket: AppEvent): void {
+    private handleConnected(message: IIncomingMessage, socket: AppEvent): void {
         this.state.userId = message.metadata.userId;
         const wsMessage = this.createWSMessage(
-            { type: WsMessageEnum.Start, peerStatus: ClientStatus.Prepare, remotePeerStatus: message.remotePeerStatus },
+            { type: EWebSocketEventType.Start, peerStatus: EClientStatus.Connected},
             message.session
         );
         socket.sendWSMessage(wsMessage);
     }
 
-    private handleInit(message: WSMessage, socket: AppEvent): void {
-        const wsMessage = this.createWSMessage(
+    private handleInit(message: IIncomingMessage, socket: AppEvent): void {
+        const wsMessage: IOutgoingMessage = this.createWSMessage(
             {
-                type: WsMessageEnum.InitAccepted,
-                peerStatus: ClientStatus.Init,
-                remotePeerStatus: message.remotePeerStatus
-            },
+                type: EWebSocketEventType.InitAccepted,
+                peerStatus: EClientStatus.Init,
+           },
             message.session
         );
         socket.sendWSMessage(wsMessage);
     }
 
-    private handleListen(message: WSMessage | WSSignalMessage, socket: AppEvent): void {
+    private handleListen(incommingMessage: IIncomingMessage, socket: AppEvent): void {
         this.state.dataChannel?.send('Listening...');
+        console.log("LISTENINGGGG")
     }
 
-    private handleCandidate(message: WSMessage): void {
-        const candidate = new RTCIceCandidate(message.candidate);
+    private handleCandidate(incommingMessage: IIncomingMessage): void {
+        const candidate = new RTCIceCandidate(incommingMessage.candidate);
         if (this.state.peerConnection?.remoteDescription && this.state.role !== PeerRole.Joiner) {
             try {
                 this.state.peerConnection.addIceCandidate(candidate);
@@ -214,86 +205,75 @@ class RTCConnection implements IRTCConnection {
         }
     }
 
-    private handleInitAccepted(message: WSMessage, socket: AppEvent): void {
-        const wsMessage: WSMessage = {
-            msgType: 'peer',
-            type: WsMessageEnum.ICERequest,
-            session: message.session,
-            peerStatus: ClientStatus.Prepare,
-            remotePeerStatus: message.peerStatus,
+    private handleInitAccepted(incommingMessage: IIncomingMessage, socket: AppEvent): void {
+        const wsMessage: IOutgoingMessage = {
+            type: EWebSocketEventType.ICERequest,
+            session: incommingMessage.session,
+            peerStatus: EClientStatus.DataSignalling,
         };
         socket.sendWSMessage(wsMessage);
     }
 
-    private handlePeerReady(message: WSMessage, socket: AppEvent): void {
-        const wsMessage: WSMessage = {
-            msgType: 'peer',
-            type: WsMessageEnum.Listen,
-            session: message.session,
-            peerStatus: ClientStatus.Unknown,
-            remotePeerStatus: ClientStatus.Prepare
+    private handlePeerReady(incommingMessage: IIncomingMessage, socket: AppEvent): void {
+        const wsMessage: IOutgoingMessage = {
+            type: EWebSocketEventType.Listen,
+            session: incommingMessage.session,
+            peerStatus: EClientStatus.WebRTCInitialization,
         };
         this.state.dataChannel.onmessage = (msg) => {
-            const wsMessage: WSMessage = {
-                msgType: 'peer',
-                type: WsMessageEnum.MsgReceived,
-                session: message.session,
-                peerStatus: ClientStatus.Unknown,
-                remotePeerStatus: ClientStatus.Prepare
+            const wsMessage: IOutgoingMessage = {
+                type: EWebSocketEventType.MsgReceived,
+                session: incommingMessage.session,
+                peerStatus: EClientStatus.WebRTCInitialization,
             };
             socket.sendWSMessage(wsMessage);
         };
+        console.log('HANDLE PEER READY')
         socket.sendWSMessage(wsMessage);
     }
 
-    private async actionForMessage(message: WSMessage, socket: AppEvent): Promise<void> {
-        if (!message || !socket) {
+    private async actionForMessage(incommingMessage: IIncomingMessage, socket: AppEvent): Promise<void> {
+        if (!incommingMessage || !socket) {
             console.error('No message or socket found');
             return;
         }
         try {
-            switch (message.type) {
-                case WsMessageEnum.Listen:
-                    this.handleListen(message, socket);
+            switch (incommingMessage.type) {
+                case EWebSocketEventType.Listen:
+                    this.handleListen(incommingMessage, socket);
                     break;
-                case WsMessageEnum.PeerReady:
-                    this.handlePeerReady(message, socket);
+                case EWebSocketEventType.PeerReady:
+                    this.handlePeerReady(incommingMessage, socket);
                     break;
-                case WsMessageEnum.Connected:
-                    this.handleConnected(message, socket);
+                case EWebSocketEventType.Connect:
+                    await this.handlePrepareRTCResponse(incommingMessage, socket);
                     break;
-                case WsMessageEnum.Init:
-                    this.handleInit(message, socket);
+                case EWebSocketEventType.Init:
+                    this.handleInitAccepted(incommingMessage, socket);
                     break;
-                case WsMessageEnum.InitAccepted:
-                    this.handleInitAccepted(message, socket);
+                case EWebSocketEventType.ICEResponse:
+                    this.handleIceResponse(incommingMessage, socket);
                     break;
-                case WsMessageEnum.ICEResponse:
-                    this.handleIceResponse(message, socket);
+                case EWebSocketEventType.ICEAccepted:
+                    this.handleIceAccepted(incommingMessage, socket);
                     break;
-                case WsMessageEnum.ICEAccepted:
-                    this.handleIceAccepted(message, socket);
+                case EWebSocketEventType.RoleResponse:
+                    this.handleRoleResponse(incommingMessage, socket);
                     break;
-                case WsMessageEnum.RoleResponse:
-                    this.handleRoleResponse(message, socket);
+                // case EWebSocketEventType.PrepareRTC:
+                //     await this.handlePrepareRTCResponse(incommingMessage, socket);
+                //     break;
+                case EWebSocketEventType.IncommingOffer:
+                    await this.handleOffer(incommingMessage, socket);
                     break;
-                case WsMessageEnum.PrepareRTC:
-                    await this.handlePrepareRTCResponse(message, socket);
+                case EWebSocketEventType.Answer:
+                    await this.handleAnswer(incommingMessage, socket);
                     break;
-                case WsMessageEnum.IncommingOffer:
-                    await this.handleOffer(message, socket);
-                    break;
-                case WsMessageEnum.Answer:
-                    await this.handleAnswer(message, socket);
-                    break;
-                case WsMessageEnum.Candidate:
-                    this.handleCandidate(message);
-                    break;
-                case WsMessageEnum.Ping:
-                    this.handlePing(message, socket);
+                case EWebSocketEventType.Candidate:
+                    this.handleCandidate(incommingMessage);
                     break;
                 default:
-                    console.warn(`Unhandled message type: ${message.type}`);
+                    console.warn(`Unhandled message type: ${incommingMessage.type}`);
                     break;
             }
         } catch (error) {

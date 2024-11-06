@@ -1,16 +1,13 @@
-import {ClientStatus} from "../enums/client-status.model";
-import {WsMessageEnum} from "../enums/ws-message.enum";
+import {EWebSocketEventType} from "../enums/ws-message.enum";
+import {EClientStatus} from "../enums/client-status.model";
 
-interface Session {
+export interface ISession {
     sessionToken: string;
 }
 
-export interface WSMessage {
-    msgType: 'peer' | 'signal';
-    type: WsMessageEnum;
-    peerStatus: ClientStatus;
-    remotePeerStatus: ClientStatus;
-    session: Session;
+interface IBaseMessage {
+    type: EWebSocketEventType;
+    session: ISession;
     candidate?: RTCIceCandidate;
     offer?: RTCSessionDescriptionInit;
     answer?: RTCSessionDescriptionInit;
@@ -20,6 +17,16 @@ export interface WSMessage {
     timestamp?: number;
     metadata?: any;
 }
+export interface IIncomingMessage extends IBaseMessage{
 
-export interface WSSignalMessage extends Pick<WSMessage, 'type' | 'session' | 'msgType'> {
 }
+
+
+export interface IOutgoingMessage extends  IBaseMessage{
+    peerStatus: EClientStatus;
+}
+
+export interface IInitialMessage extends Pick<IBaseMessage, 'type'> {}
+export interface ISignalMessage extends Pick<IBaseMessage, 'type' | 'session'> {}
+
+export interface IAuthMessage extends Pick<IBaseMessage, 'type' >, Partial<Pick<IBaseMessage, 'session'>> {}

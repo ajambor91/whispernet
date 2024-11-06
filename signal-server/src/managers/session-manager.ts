@@ -1,4 +1,5 @@
-import { SessionController} from "../classes/session.controller";
+// import { SessionController} from "../classes/session.controller";
+import {SessionController} from "./user-manager";
 
 
 export type SessionManager = { getSessions: () => SessionController[], getSession: (sessionToken: string) => SessionController | undefined, addSession: (sessionToken: string, sessionController: SessionController) => void }

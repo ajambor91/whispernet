@@ -36,11 +36,15 @@ public class SessionController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, String>> createSession(HttpServletResponse response) {
+    public ResponseEntity<Map<String, Object>> createSession(HttpServletResponse response) {
         try {
             Client client = sessionService.createClient();
             Cookie httpOnlyCookie = cookiesService.getCookie(client);
-            Map<String, String> responseBody = Map.of("sessionToken", client.getSession().getSessionToken());
+            Map<String, String> sessionMap = Map.of("sessionToken", client.getSession().getSessionToken());
+            Map<String, Object> responseBody = Map.of(
+                    "session", sessionMap,
+                    "peerRole", "initiator"
+            );
             response.addCookie(httpOnlyCookie);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
@@ -51,11 +55,15 @@ public class SessionController {
     }
 
     @PostMapping("/exists/{sessionToken}")
-    public ResponseEntity<Map<String, String>> createNextClientSession(HttpServletResponse response, @PathVariable String sessionToken) {
+    public ResponseEntity<Map<String, Object>> createNextClientSession(HttpServletResponse response, @PathVariable String sessionToken) {
         try {
             Client client = sessionService.createNextClientSession(sessionToken);
             Cookie httpOnlyCookie = cookiesService.getCookie(client);
-            Map<String, String> responseBody = Map.of("sessionToken", client.getSession().getSessionToken());
+            Map<String, String> sessionMap = Map.of("sessionToken", client.getSession().getSessionToken());
+            Map<String, Object> responseBody = Map.of(
+                    "session", sessionMap,
+                    "peerRole", "joiner"
+            );
 
             response.addCookie(httpOnlyCookie);
             return ResponseEntity.ok()

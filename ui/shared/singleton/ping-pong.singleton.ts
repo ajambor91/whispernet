@@ -1,7 +1,7 @@
 import {AppEvent} from "./app-event.singleton";
-import {WSSignalMessage} from "../models/ws-message.model";
-import {WsMessageEnum} from "../enums/ws-message.enum";
+import {ISignalMessage} from "../models/ws-message.model";
 import {IPingPong} from "../interfaces/ping-pong.interface";
+import {EWebSocketEventType} from "../enums/ws-message.enum";
 
 class PingPong implements IPingPong {
     private static _instance: PingPong;
@@ -22,11 +22,10 @@ class PingPong implements IPingPong {
         this._appEvent.on('signal', this.handlePingListener)
     }
 
-    private handlePingListener = (data: WSSignalMessage): void => {
-        if (data.type === WsMessageEnum.Ping) {
-            const msg: WSSignalMessage = {
-                msgType: 'signal',
-                type: WsMessageEnum.Pong,
+    private handlePingListener = (data: ISignalMessage): void => {
+        if (data.type === EWebSocketEventType.Ping) {
+            const msg: ISignalMessage = {
+                type: EWebSocketEventType.Pong,
                 session: data.session
             }
             this._appEvent.sendPong(msg)

@@ -1,4 +1,4 @@
-export enum WsMessageEnum {
+export enum EWebSocketEventType {
     Offer = 'offer',
     IncommingOffer = 'incomming_offer',
     Answer = 'answer',
@@ -27,6 +27,7 @@ export enum WsMessageEnum {
     Pong = 'pong',
     Auth = 'auth',
     Authorized = 'authorized',
+    InitialMessage = 'initial-message',
     Unauthorized = 'unauthorized'
 
 

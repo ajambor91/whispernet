@@ -1,13 +1,9 @@
 export enum EClientStatus {
-    Init = 'init',
-    SessionTokenCreated = 'session-token-created',
-    DisconnectedFail = 'disconnected-fail',
     NotConnected = 'not-connected',
-    Connected = 'connected',
+    Initializating = 'init',
     WaitingForPeer = 'waiting-for-peer',
-    Waiting = 'waiting',
-    Prepare = 'prepare',
-    Ready = 'ready',
-    Set = 'set',
-    Unknown = 'unknown'
+    Connected = 'connected',
+    DataSignalling = 'data-signalliing',
+    WebRTCInitialization = 'webrtc-initialization',
+    DisconnectedFail = 'disconnected-fail',
 }

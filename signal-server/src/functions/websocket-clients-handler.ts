@@ -1,56 +1,89 @@
 import WebSocket from "ws";
-import { IncomingMessage } from "http";
-import { getCookie } from "./check-client";
+import {IncomingMessage} from "http";
+import {getCookie} from "./check-client";
 import console from "console";
-import { getSessionManager, SessionManager} from "../managers/session-manager";
-import { SessionController} from "../classes/session.controller";
-
+import {getSessionManager, SessionManager} from "../managers/session-manager";
 import {AppEvent} from "../classes/base-event.class";
 import {AuthController} from "../classes/auth.controller";
+import {SessionController} from "../managers/user-manager";
+import {Peer} from "../classes/peer";
 
-export const websocketClientsHandler: (ws: WebSocket, req: IncomingMessage) => void = (ws: WebSocket, req: IncomingMessage): void => {
-    const sessionManager: SessionManager = getSessionManager;
-    const userToken: string = getCookie(req);
+export class WebSocketClientHandler {
+    private ws: WebSocket;
+    private req: IncomingMessage;
+    private sessionManager: SessionManager;
+    private isAuthorized: boolean = false;
+    private userToken: string;
+    private appEvent: AppEvent;
+    private currentPeer!: Peer;
+    private currentSession!: SessionController;
 
-    if (!userToken) {
-        console.error("Invalid user token");
-        ws.close();
-        return;
+    constructor(ws: WebSocket, req: IncomingMessage) {
+        this.ws = ws;
+        this.req = req;
+        this.sessionManager = getSessionManager;
+        this.userToken = getCookie(req);
+        this.appEvent = new AppEvent(ws);
+
+        if (!this.userToken) {
+            console.error("Invalid user token");
+            this.ws.close();
+            return;
+        }
+
+        this.initialize();
     }
 
-    const appEvent: AppEvent = new AppEvent(ws);
+    private initialize(): void {
+        this.appEvent.once('auth', (data) => this.handleAuth(data));
+        this.ws.on('close', () => this.handleClose());
+        this.ws.on('error', (error) => this.handleError(error));
+        this.appEvent.once('initialMessage', () => this.handleInitMessage())
+    }
 
-    appEvent.once('auth', (data) => {
+    private handleAuth(data: any): void {
         try {
-            const authController: AuthController = new AuthController(userToken, appEvent, data);
-            authController.authorize();
-
             const sessionToken: string = data.session.sessionToken;
-            const currentSession: SessionController | undefined = sessionManager.getSession(sessionToken);
+            const currentSession: SessionController | undefined = this.sessionManager.getSession(sessionToken);
 
             if (!currentSession) {
                 throw new Error("No session found");
             }
+            const currentPeer: Peer | undefined = currentSession.getUser(this.userToken);
 
-            currentSession.initNewConnection(userToken, appEvent);
-            currentSession.processMessage(data);
+            if (!currentPeer) {
+                throw new Error("No peer found");
+            }
 
-            appEvent.on('dataMessage', (data) => {
-                console.log('DATA MESSAGE', data)
-                currentSession.processMessage(data);
-            });
+            const authController: AuthController = new AuthController(this.userToken, currentPeer, data, this.appEvent);
+            authController.authorize();
+            this.isAuthorized = true;
+            this.currentPeer = currentPeer;
+            this.currentSession = currentSession;
 
-            ws.on('close', () => {
-                console.log("Connection closed for:", userToken);
-            });
 
-            ws.on('error', (error) => {
-                console.error("Web socket error:", error);
+            this.appEvent.on('dataMessage', (data) => {
             });
         } catch (e) {
             console.error("Authorization error:", e);
-            appEvent.sendUnauthorizewMessage();
-            ws.close();
         }
-    });
-};
+    }
+
+    private handleInitMessage(): void {
+        if (this.isAuthorized) {
+            this.currentSession.initializePeerConnection(this.currentPeer, this.appEvent)
+
+        }
+    }
+
+
+    private handleClose(): void {
+        console.log("Connection closed for:", this.userToken);
+    }
+
+    private handleError(error: Error): void {
+        console.error("WebSocket error:", error);
+    }
+}
+
+

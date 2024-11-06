@@ -4,11 +4,9 @@ import {ISession} from "./session.model";
 import {EClientStatus} from "../enums/client-status.enum";
 import {PeerRole} from "../enums/peer-role.enum";
 
-export interface WSMessage {
-    msgType: 'peer' | 'signal';
+
+interface IBaseMessage {
     type: EWebSocketEventType;
-    peerStatus: EClientStatus;
-    remotePeerStatus: EClientStatus;
     session: ISession;
     candidate?: WebRTCIceCandidate;
     offer?: WebRTCSessionDescription;
@@ -19,7 +17,16 @@ export interface WSMessage {
     timestamp?: number;
     metadata?: any;
 }
+export interface IIncomingMessage extends IBaseMessage{
+    peerStatus: EClientStatus;
 
-export interface WSSignalMessage extends Pick<WSMessage, 'type' | 'session' | 'msgType'> {}
+}
 
-export interface WSAuthMessage extends Pick<WSMessage, 'type' | 'msgType'>, Partial<Pick<WSMessage, 'session'>> {}
+export interface IOutgoingMessage extends  IBaseMessage{
+    peerRole?: PeerRole
+}
+
+
+export interface ISignalMessage extends Pick<IBaseMessage, 'type' | 'session'> {}
+
+export interface IAuthMessage extends Pick<IBaseMessage, 'type' >, Partial<Pick<IBaseMessage, 'session'>> {}

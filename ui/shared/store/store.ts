@@ -1,10 +1,10 @@
 import {configureStore} from '@reduxjs/toolkit';
-import sessionApiState from "../slices/createSession.slice";
+import peerState from "../slices/createSession.slice";
 import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 
 export const store = configureStore({
     reducer: {
-        sessionApiState: sessionApiState
+        peerState: peerState
     }
 })
 

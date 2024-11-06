@@ -1,23 +1,24 @@
 import {AppEvent} from "./base-event.class";
-import {WSAuthMessage} from "../models/ws-message.model";
-import {getUserManager, UserManager} from "../managers/user-manager";
-import {IClient} from "../models/client.model";
+import {IAuthMessage} from "../models/ws-message.model";
+
+import {Peer} from "./peer";
 
 export class AuthController {
-    private _userManager: UserManager = getUserManager;
-    private _userToken: string;
-    private _appEvent: AppEvent;
-    private _authMessage: WSAuthMessage;
-    public constructor(userToken: string, appEvent: AppEvent, authMessage: WSAuthMessage) {
+    private readonly _userToken: string;
+    private readonly _user: Peer;
+    private readonly _appEvent: AppEvent;
+    private readonly _authMessage: IAuthMessage;
+    public constructor(userToken: string, user: Peer, authMessage: IAuthMessage, appEvent: AppEvent) {
         this._appEvent = appEvent;
         this._userToken = userToken;
         this._authMessage = authMessage;
+        this._user = user;
     }
 
     public authorize(): void {
         try {
-            const user: IClient = this.checkUser();
-            this._appEvent.sendAuthorizewMessage(user.session);
+            this.checkUser();
+            this._appEvent.sendAuthorizeMessage(this._user.session);
         } catch (e) {
             this._appEvent.close();
             if (e instanceof Error) {
@@ -27,17 +28,21 @@ export class AuthController {
         }
     }
 
-    private checkUser(): IClient {
-        const user: IClient | undefined = this._userManager.getUser(this._userToken);
-        if (!user) {
-            throw new Error('User not authorized');
+    private checkUser(): boolean {
+        if (this._user.userToken !== this._userToken) {
+            this._appEvent.sendUnauthorizeMessage();
+            this._appEvent.close();
+            throw new Error('User token mismatch');
         }
-        if (this._authMessage.session && user.session.sessionToken !== this._authMessage.session.sessionToken) {
-            throw new Error('Invalid user session');
-        } else if (!this._authMessage.session) {
-            throw new Error('Session data missing in auth message');
+
+        if (this._user.session.sessionToken !== this._authMessage.session?.sessionToken) {
+            this._appEvent.sendUnauthorizeMessage();
+            this._appEvent.close();
+            throw new Error('Session token mismatch');
         }
-        return user;
+
+        return true;
     }
+
 
 }

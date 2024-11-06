@@ -1,9 +1,9 @@
 import {EachMessagePayload, Kafka, KafkaConfig, PartitionAssigners} from "kafkajs";
 
 import * as console from "console";
-import {getSessionManager, SessionManager, sessionMap} from "../managers/session-manager";
-import {SessionController} from "../classes/session.controller";
-import {IClient} from "../models/client.model";
+import {getSessionManager, SessionManager} from "../managers/session-manager";
+import { IInitialClient} from "../models/client.model";
+import { SessionController} from "../managers/user-manager";
 
 
 const kafkaConfig: KafkaConfig = {
@@ -25,17 +25,18 @@ export async function startKafka() {
             if (message.value instanceof Buffer) {
                 let sessionManager: SessionManager = getSessionManager;
                 const clientMsg: string = message.value.toString();
-                const client: IClient = JSON.parse(JSON.parse(clientMsg));
+                const client: IInitialClient = JSON.parse(JSON.parse(clientMsg));
                 if (!client || !client.userToken) {{
                     throw new Error('Invalid user')
                 }}
                 console.log("SESSION")
                 let currentSession: SessionController | undefined = sessionManager.getSession(client.session.sessionToken);
                 if (!currentSession) {
-                    currentSession = new SessionController(client.session);
+                    currentSession = new SessionController();
                     sessionManager.addSession(client.session.sessionToken, currentSession)
                 }
-                currentSession.addUser(client.userToken, client);
+                currentSession.addUser(client);
+
             }
 
         }

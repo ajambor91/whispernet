@@ -1,5 +1,5 @@
-import {WSMessage} from "../models/ws-message.model";
+import {IAuthMessage, ISession} from "../models/ws-message.model";
 
 export interface IAuth {
-    authorize: (message: WSMessage) => void
+    authorize: (session: ISession) => Promise<void>
 }

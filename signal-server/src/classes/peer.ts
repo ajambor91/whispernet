@@ -6,12 +6,12 @@ import {IClientCallbacks} from "../models/client-callbacks.model";
 import {EClientStatus} from "../enums/client-status.enum";
 import {EWebSocketEventType} from "../enums/ws-message.enum";
 import {AppEvent} from "./base-event.class";
-import {EventEmitter} from "events";
 import {IIncomingMessage, IOutgoingMessage} from "../models/ws-message.model";
 import {MessageQueue} from "./message-queue";
-import {IInternalMessage} from "../models/internal-message.model";
+import {EInternalMessageType} from "../enums/internal-message-type.enum";
+import {PeerEmitter} from "./peer-emitter.abstract";
 
-export class Peer extends EventEmitter {
+export class Peer extends PeerEmitter {
     private readonly _pingIntervalDuration: number = 2000;
     private readonly _timeLimit: number = 6000;
     private _peerRole: PeerRole;
@@ -22,7 +22,7 @@ export class Peer extends EventEmitter {
     private _pingInterval: NodeJS.Timeout | null = null;
     private _conn: AppEvent | undefined;
     private _connectionStatus: EClientConnectionStatus = EClientConnectionStatus.NotConnected;
-    private _callbacks!: IClientCallbacks | null;
+    private _callbacks: IClientCallbacks | null = null;
     private _partnerPeers: Map<string, Peer> = new Map<string, Peer>();
     private _messagesQueue: MessageQueue<IIncomingMessage> = new MessageQueue<IIncomingMessage>();
     public get userToken(): string {
@@ -67,20 +67,6 @@ export class Peer extends EventEmitter {
         this._dataMessageHandler();
     }
 
-
-
-    public emitStatus(internalMessage: IInternalMessage): void {
-        this.emit('clientMessage', internalMessage);
-    }
-
-    public onStatus(fn: (internalMessage: IInternalMessage) => void): void {
-        this.on('clientMessage', fn);
-    }
-
-    // private sendConnectedToOtherPeers(): void {
-    //     this.emit
-    // }
-
     private _createClient(ws: AppEvent): void {
         this._conn = ws;
         this._status = EClientStatus.Connected;
@@ -94,7 +80,7 @@ export class Peer extends EventEmitter {
             this._addPartnerIfAbsent(peer);
 
         }
-        this.emitStatus({status: 'added'})
+        this.emitStatus({status:EInternalMessageType.Added})
     }
 
     private _isSomeoneConnected(): boolean {
@@ -115,11 +101,11 @@ export class Peer extends EventEmitter {
 
         peer.onStatus(internalMessage => {
             console.log('LISTEN PEERS', internalMessage, this._peerRole, peer.peerRole)
-            if (internalMessage.status === 'added') {
-                    this.emitStatus({status: 'join'})
+            if (internalMessage.status ===EInternalMessageType.Added) {
+                    this.emitStatus({status: EInternalMessageType.Join})
 
             }
-            if (internalMessage.status === 'join' && !this._messagesQueue.isEmpty()) {
+            if (internalMessage.status ===EInternalMessageType.Join && !this._messagesQueue.isEmpty()) {
                 try {
                     this._sendQueuedMessages(peer);
 
@@ -128,7 +114,7 @@ export class Peer extends EventEmitter {
                 }
 
             }
-            if (internalMessage.status === 'data') {
+            if (internalMessage.status ===EInternalMessageType.Data) {
                 this._conn?.sendDataMessage(internalMessage.clientMessage as IOutgoingMessage);
             }
         });
@@ -145,10 +131,6 @@ export class Peer extends EventEmitter {
         }
     }
 
-    // private _noticeAllPartners(): void {
-    //     this.s
-    // }
-
     private _dataMessageHandler(): void {
         if (!this._conn) {
             console.error("No connection available for data messages");
@@ -156,11 +138,11 @@ export class Peer extends EventEmitter {
         }
 
         this._conn.on('dataMessage', (data: IIncomingMessage) => {
+            this._status = data.peerStatus;
             if (!this._isSomeoneConnected()) {
                 this._messagesQueue.enqueue(data)
             }
-            console.log("DATA MESSAGE")
-                this.emitStatus({status: 'data', clientMessage: data});
+                this.emitStatus({status: EInternalMessageType.Data, clientMessage: data});
 
             //TOOOOO
 

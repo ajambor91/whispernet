@@ -1,5 +1,33 @@
 version: '3'
 services:
+  loki:
+    build: 'loki'
+    container_name: loki
+    volumes:
+      - './loki/data:/data'
+    hostname: loki.whisper.net
+    networks:
+      - whispernet
+  grafana:
+    build: 'grafana'
+    hostname: grafana.whisper.net
+    container_name: grafana
+    volumes:
+      - './grafana/data:/var/lib/grafana'
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+  promtail:
+    build: 'promtail'
+    hostname: promtail.whisper.net
+    container_name: promtail
+    volumes:
+      - "./promtail/logs:/var/log"
+    networks:
+      - whispernet
+    depends_on:
+      - loki
   session:
     build: 'net.whisper.session'
     networks:

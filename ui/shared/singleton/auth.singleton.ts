@@ -1,26 +1,20 @@
 import {AppEvent} from "./app-event.singleton";
-import {IAuthMessage, IOutgoingMessage, ISession} from "../models/ws-message.model";
+import {IAuthMessage} from "../models/ws-message.model";
 import {IAuth} from "../interfaces/auth.interface";
 import {EWebSocketEventType} from "../enums/ws-message.enum";
-import {EClientStatus} from "../enums/client-status.model";
+import {EClientStatus} from "../enums/client-status.enum";
+import {Peer} from "./peer";
 
 class Auth implements IAuth {
-    private static _instance: Auth;
     private _appEvent: AppEvent = AppEvent.getInstance();
-
-    private constructor() {
+    private _peer: Peer;
+    public constructor(peer?: Peer) {
+        this._peer = peer;
     }
 
-    public static getInstance(): Auth {
-        if (!this._instance) {
-            this._instance = new Auth();
-        }
-        return this._instance;
-    }
 
-    public async authorize(session: ISession): Promise<void> {
-        await this.handleAuth(session)
-        console.log("INNNNNN")
+    public async authorize(): Promise<void> {
+        await this.handleAuth()
         this._appEvent.once('auth', (data: IAuthMessage) => this.startConnection(data))
     }
 
@@ -30,10 +24,9 @@ class Auth implements IAuth {
         }
     }
 
-    private async handleAuth(message: ISession): Promise<boolean | unknown> {
-        console.log("waitForConnection", message)
+    private async handleAuth(): Promise<boolean | unknown> {
         const authMessage: IAuthMessage = {
-            session: message,
+            session: this._peer.session,
             type: EWebSocketEventType.Auth
         }
         return new Promise((resolve, reject) => {
@@ -43,8 +36,6 @@ class Auth implements IAuth {
                 resolve(true)
             } else {
                 interval = setInterval(() => {
-                    console.log("waitForConnection socket", authMessage)
-
                     if (this._appEvent && this._appEvent.readyState() === WebSocket.OPEN) {
                         this._appEvent.sendAuthMessage(authMessage)
                         clearInterval(interval);
@@ -67,5 +58,13 @@ class Auth implements IAuth {
 
 
 }
-
-export const getAuth = (): IAuth => Auth.getInstance();
+let auth: IAuth;
+export const getAuth = (peer?: Peer): IAuth => {
+    if (!peer && !auth) {
+        throw new Error('No peer')
+    }
+    if (!auth) {
+        auth = new Auth(peer);
+    }
+    return auth;
+}

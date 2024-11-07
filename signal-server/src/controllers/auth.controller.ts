@@ -1,7 +1,7 @@
-import {AppEvent} from "./base-event.class";
+import {AppEvent} from "../classes/base-event.class";
 import {IAuthMessage} from "../models/ws-message.model";
 
-import {Peer} from "./peer";
+import {Peer} from "../classes/peer";
 
 export class AuthController {
     private readonly _userToken: string;

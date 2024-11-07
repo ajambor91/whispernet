@@ -1,4 +1,4 @@
-export interface RTCIceServer {
+export interface IRTCIceServer {
     urls: string | string[];
     username?: string;
     credential?: string;

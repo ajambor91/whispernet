@@ -11,4 +11,5 @@ export enum EClientStatus {
     DataSignalling = 'data-signalliing',
     WebRTCInitialization = 'webrtc-initialization',
     DisconnectedFail = 'disconnected-fail',
+    PeersConnected = 'peers-connected'
 }

@@ -3,7 +3,7 @@ import {EachMessagePayload, Kafka, KafkaConfig, PartitionAssigners} from "kafkaj
 import * as console from "console";
 import {getSessionManager, SessionManager} from "../managers/session-manager";
 import { IInitialClient} from "../models/client.model";
-import { SessionController} from "../managers/user-manager";
+import { SessionController} from "../controllers/session-controller";
 
 
 const kafkaConfig: KafkaConfig = {

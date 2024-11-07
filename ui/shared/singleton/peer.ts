@@ -1,6 +1,6 @@
 import {EventEmitter} from "events";
 import {AppEvent} from "./app-event.singleton";
-import {EClientStatus} from "../enums/client-status.model";
+import {EClientStatus} from "../enums/client-status.enum";
 import {IAuth} from "../interfaces/auth.interface";
 import {getAuth} from "./auth.singleton";
 import {IPingPong} from "../interfaces/ping-pong.interface";
@@ -12,16 +12,21 @@ import {EWebSocketEventType} from "../enums/ws-message.enum";
 import {IPeerState} from "../slices/createSession.slice";
 
 export class Peer extends EventEmitter {
-    private readonly _auth: IAuth = getAuth();
-    private readonly _ping: IPingPong = getPingPong();
-    private readonly _appEvent: AppEvent = AppEvent.getInstance();
+    private readonly _auth: IAuth;
+    private readonly _ping: IPingPong;
+    private readonly _appEvent: AppEvent;
     private readonly _session: ISession;
     private readonly _peerRole: PeerRole;
     private _status: EClientStatus = EClientStatus.NotConnected;
     private _rtcState!: ConnectionStateModel;
     private iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
 
+    public get session(): ISession {
+        return this._session;
+    }
+
     constructor(peerState: IPeerState) {
+        console.log('INNNNN')
         super();
         this._session = peerState.session;
         this._peerRole = peerState.peerRole
@@ -32,7 +37,16 @@ export class Peer extends EventEmitter {
             userId: null,
             stage: null
         }
-        this._initClient();
+        try {
+            this._appEvent = AppEvent.getInstance()
+            this._auth = getAuth(this)
+            this._ping = getPingPong()
+            this._initClient();
+        } catch (e) {
+            console.error(e);
+            throw new Error("Peer initialization failed due to missing dependencies.");
+        }
+
     }
 
     public onStatus = (fn: (data: string) => void): this => {
@@ -41,50 +55,52 @@ export class Peer extends EventEmitter {
     }
 
     private _setOwnStatus(status: EClientStatus): void {
-        this.emit('status', status)
+        this._status = status;
+        this.emit('status', this._status)
     }
 
     private async _initClient(): Promise<void> {
-        console.log('#### INIT CLIENT')
-        await this._auth.authorize(this._session)
-        this._setOwnStatus(EClientStatus.Connected)
-        // this._sendInitMessage();
+        this._setOwnStatus(EClientStatus.Initialization);
+        try {
+            await this._auth.authorize(this._session);
+            this._setOwnStatus(EClientStatus.Authorized);
+        } catch (e) {
+            this._setOwnStatus(EClientStatus.DisconnectedFail);
+            console.error('Authorization failed:', e);
+            throw e;
+        }
+        this._setOwnStatus(EClientStatus.Connected);
         this._handleMessage();
     }
-
-    // private _sendInitMessage(): void {
-    //     this._appEvent.sendInitialMessage();
-    // }
 
     private _handleMessage(): void {
         this._appEvent.on('dataMessage', (data) => this._processMessage(data))
     }
 
-    private async _processMessage(data: IIncomingMessage): void {
-        console.log("PEER DATA", data.type, this._peerRole)
+    private async _processMessage(data: IIncomingMessage): Promise<void> {
         if (this._peerRole === PeerRole.Initiator && data.type === EWebSocketEventType.Connect) {
-            await this._sendOffer()
-            this._setOwnStatus(EClientStatus.WebRTCInitialization)
+            this._setOwnStatus(EClientStatus.SendingOffer);
+            await this._sendOffer();
+            this._setOwnStatus(EClientStatus.WaitingForAnswer);
 
         } else if (this._peerRole === PeerRole.Joiner && data.type === EWebSocketEventType.Offer) {
+            this._setOwnStatus(EClientStatus.SendingAnswer);
             await this._handleOffer(data);
-            this._setOwnStatus(EClientStatus.DataSignalling)
+            this._setOwnStatus(EClientStatus.WaitingForAnswerAccepted);
 
         } else if (data.answer) {
-            this._handleAnswer(data)
-        }    else if (data.type === EWebSocketEventType.Candidate && data.candidate) {
+            await this._handleAnswer(data);
+            this._setOwnStatus(EClientStatus.SessionEstabilished);
+        } else if (data.type === EWebSocketEventType.Candidate && data.candidate) {
             await this._handleCandidate(data);
-            this._setOwnStatus(EClientStatus.Init)
-
+            this._setOwnStatus(EClientStatus.WebRTCInitialization);
         }
-
     }
 
     private async _sendOffer(): Promise<void> {
         this._rtcState.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
 
         this._rtcState.dataChannel = this._rtcState.peerConnection.createDataChannel("chat");
-        // if (this._rtcState.role === PeerRole.Initiator) {
 
             const offer = await this._rtcState.peerConnection.createOffer();
             await this._rtcState.peerConnection.setLocalDescription(offer);
@@ -100,12 +116,11 @@ export class Peer extends EventEmitter {
             // }
     }
 
-// Aktualizacja _handleIceCandidate, aby działała tylko z RTCPeerConnectionIceEvent
     private _handleIceCandidate(event: RTCPeerConnectionIceEvent): void {
         if (event.candidate) {
             const iceCandidateMsg: IOutgoingMessage = {
                 type: EWebSocketEventType.Candidate,
-                candidate: event.candidate,  // Konwertujemy na JSON, aby zachować struktury WebSocket
+                candidate: event.candidate,
                 session: this._session,
                 peerStatus: EClientStatus.WebRTCInitialization
             };
@@ -113,7 +128,6 @@ export class Peer extends EventEmitter {
         }
     }
 
-// Nowa implementacja _handleCandidate, aby akceptowała RTCIceCandidateInit
     private async _handleCandidate(data: IIncomingMessage): Promise<void> {
         if (this._rtcState.peerConnection && data.candidate) {
             try {
@@ -130,17 +144,13 @@ export class Peer extends EventEmitter {
                 this._rtcState.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
                 this._rtcState.peerConnection.onicecandidate = (event) => this._handleIceCandidate(event);
             }
+            this._setOwnStatus(EClientStatus.WebRTCInitialization);
 
-            console.log("HANDLE OFFER AFTER CREATED RTC");
-
-            // Ustawiamy zdalny opis z otrzymanej oferty
             await this._rtcState.peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer as RTCSessionDescriptionInit));
 
-            // Tworzymy odpowiedź (Answer) i ustawiamy ją jako lokalny opis
             const answer = await this._rtcState.peerConnection.createAnswer();
             await this._rtcState.peerConnection.setLocalDescription(answer);
 
-            // Wysyłamy odpowiedź do inicjatora
             const answerMsg: IOutgoingMessage = {
                 type: EWebSocketEventType.Answer,
                 answer: answer,
@@ -149,13 +159,13 @@ export class Peer extends EventEmitter {
             };
             this._appEvent.sendWSMessage(answerMsg);
 
-            // Obsługujemy otwarcie kanału danych
             this._rtcState.peerConnection.ondatachannel = (event) => {
                 this._rtcState.dataChannel = event.channel;
                 this._setupDataChannel();
+                this._setOwnStatus(EClientStatus.DataSignalling);
             };
-
         } catch (error) {
+            this._setOwnStatus(EClientStatus.DisconnectedFail);
             console.error('Error setting remote description or creating answer:', error);
         }
     }
@@ -173,7 +183,6 @@ export class Peer extends EventEmitter {
                 this._appEvent.sendWSMessage(openedMsg);
             };
 
-            // Obsługujemy otwarcie kanału danych i nasłuchujemy wiadomości
             this._setupDataChannel();
 
             this._rtcState.peerConnection.onconnectionstatechange = () => {
@@ -186,7 +195,6 @@ export class Peer extends EventEmitter {
         }
     }
 
-// Ustawia nasłuchiwanie na kanał danych i wysyła wiadomość po otwarciu kanału
     private _setupDataChannel(): void {
         if (!this._rtcState.dataChannel) return;
 
@@ -197,6 +205,7 @@ export class Peer extends EventEmitter {
 
         this._rtcState.dataChannel.onmessage = (event) => {
             console.log('Received message:', event.data);
+            this._setOwnStatus(EClientStatus.PeersConnected)
         };
 
         this._rtcState.dataChannel.onclose = () => {

@@ -1,25 +1,23 @@
-"use client"
-
-import useNewChat from "../../../shared/hooks/useNewChat";
+import useNewChat from "../../../../shared/hooks/useNewChat";
 import React, {useEffect} from "react";
-import {useRouter} from "next/navigation";
 import {useDispatch} from "react-redux";
-import Centered from "../../../shared/components/centered/Centered";
-import Header from "../../../shared/components/header/Header";
-import ChatActions from "../../../shared/components/chat-actions/ChatActions";
-import {setCreateSession} from "../../dist/shared/slices/createSession.slice";
-import {setCreatePeerState} from "../../../shared/slices/createSession.slice";
+import Centered from "../../../../shared/components/centered/Centered";
+import Header from "../../../../shared/components/header/Header";
+import ChatActions from "../../../../shared/components/chat-actions/ChatActions";
+import {setCreateSession} from "../../../dist/shared/slices/createSession.slice";
+import {IPeerState, setCreatePeerState} from "../../../../shared/slices/createSession.slice";
+import {useNavigate} from "react-router-dom";
 
 export default function Home() {
     const {createNewChat, response, error, loading} = useNewChat();
-    const router = useRouter();
+    const router = useNavigate();
     const dispatch = useDispatch();
     const goToWaitingPage = () => {
-        router.push('/waiting');
+        router('/waiting');
     }
 
     const goToJoiningPage = () => {
-        router.push('/join');
+        router('/join');
     }
 
     useEffect(() => {
@@ -42,7 +40,7 @@ export default function Home() {
             sessionToken: null,
             error: null,
             loading: true
-        } as SessionApiState));
+        } as IPeerState));
         await createNewChat();
     };
 

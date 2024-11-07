@@ -3,20 +3,20 @@
 import React, {useEffect} from "react";
 import useJoinChat from "../../../../shared/hooks/useJoinChat";
 import JoinChat from "../../../../shared/components/join-chat/JoinChat";
-import {useRouter} from "next/navigation";
 import {useDispatch} from "react-redux";
 import {
     IPeerState,
     setCreatePeerState,
 } from "../../../../shared/slices/createSession.slice";
 import Centered from "../../../../shared/components/centered/Centered";
+import {useNavigate} from "react-router-dom";
 
 const ChatJoining: React.FC = () => {
-    const router = useRouter();
+    const router = useNavigate();
     const {joinChat, response} = useJoinChat();
     const dispatch = useDispatch();
     const navigateToWaiting = () => {
-        router.push('/waiting-join');
+        router('/waiting-join');
 
     }
     useEffect(() => {

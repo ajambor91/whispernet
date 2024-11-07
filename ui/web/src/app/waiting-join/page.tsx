@@ -1,4 +1,3 @@
-'use client'
 import React, {useEffect, useState} from 'react';
 import {useAppSelector} from "../../../../shared/store/store";
 import useWebSocket from "../../../../shared/hooks/useWebSocket";
@@ -8,7 +7,7 @@ import Indicator from "../../../../shared/components/indicator/Indicator";
 import Centered from "../../../../shared/components/centered/Centered";
 
 
-const ChatWaiting: React.FC = () => {
+const ChatWaitingJoin: React.FC = () => {
     const [status, setStatus] = useState<string>("Connecting")
     const peerState: IPeerState = useAppSelector(state => state.peerState);
     const onStatus = useWebSocket(peerState);
@@ -29,4 +28,4 @@ const ChatWaiting: React.FC = () => {
         </section>
     )
 }
-export default ChatWaiting;
+export default ChatWaitingJoin;

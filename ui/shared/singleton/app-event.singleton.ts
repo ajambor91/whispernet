@@ -1,7 +1,8 @@
-import {EventEmitter} from 'events'
+import {EventEmitter} from 'eventemitter3'
 import {IAuthMessage, IOutgoingMessage, ISignalMessage} from "../models/ws-message.model";
 import {IEventMessage} from "../models/event-message.model";
 import {EWebSocketEventType} from "../enums/ws-message.enum";
+import {Buffer} from "buffer";
 
 export class AppEvent extends EventEmitter {
     private static _instance: AppEvent;
@@ -77,7 +78,7 @@ export class AppEvent extends EventEmitter {
             this._ws.send(this.parseMsg(message))
 
         } catch (e) {
-            console.error('Cannot send message')
+            console.error('Cannot send message', e)
         }
 
     }

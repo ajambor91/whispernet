@@ -1,4 +1,4 @@
-import {EventEmitter} from "events";
+import {EventEmitter} from "eventemitter3";
 import {AppEvent} from "./app-event.singleton";
 import {EClientStatus} from "../enums/client-status.enum";
 import {IAuth} from "../interfaces/auth.interface";

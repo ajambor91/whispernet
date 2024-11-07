@@ -1,5 +1,5 @@
 import {EWebSocketEventType} from "../enums/ws-message.enum";
-import {EClientStatus} from "../enums/client-status.model";
+import {EClientStatus} from "../enums/client-status.enum";
 
 export interface ISession {
     sessionToken: string;

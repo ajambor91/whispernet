@@ -13,12 +13,10 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 interface HashProps {
     peerState: IPeerState; // Typ dla sessionApiState, np. string
-    isLoading: boolean;
-    isConnected: boolean;
-    isJoined: boolean;
+    sessionStatus: string
 }
 
-const Hash: React.FC<HashProps> = ({peerState, isLoading, isConnected, isJoined}) => {
+const Hash: React.FC<HashProps> = ({peerState, sessionStatus}) => {
     console.log(peerState)
     const handleCopy = () => {
         if (!!peerState.session) {
@@ -38,7 +36,7 @@ const Hash: React.FC<HashProps> = ({peerState, isLoading, isConnected, isJoined}
                         style={{fontSize: '1.5rem'}} icon={faCopy}/></Button>
                 </div>
                 <Indicator/>
-                <Status isLoading={isLoading} isConnected={isConnected} isJoined={isJoined}/>
+                <Status sessionStatus={sessionStatus}/>
             </Centered>
 
         </div>

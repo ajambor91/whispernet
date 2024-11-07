@@ -1,14 +1,14 @@
 import WebSocket from "ws";
 import {IncomingMessage} from "http";
-import {getCookie} from "./check-client";
 import console from "console";
 import {getSessionManager, SessionManager} from "../managers/session-manager";
 import {AppEvent} from "../classes/base-event.class";
-import {AuthController} from "../classes/auth.controller";
-import {SessionController} from "../managers/user-manager";
+import {AuthController} from "./auth.controller";
+import {SessionController} from "./session-controller";
 import {Peer} from "../classes/peer";
+import {getCookie} from "../functions/helpers";
 
-export class WebSocketClientHandler {
+export class WebSocketConnectionController {
     private ws: WebSocket;
     private req: IncomingMessage;
     private sessionManager: SessionManager;

@@ -1,30 +1,17 @@
 import React, {useEffect, useState} from "react";
 
 interface StatusProps {
-    isLoading: boolean;
-    isConnected: boolean;
-    isJoined: boolean;
+    sessionStatus: string;
 }
 
-const Status: React.FC<StatusProps> = ({isLoading, isConnected, isJoined}) => {
+const Status: React.FC<StatusProps> = ({sessionStatus}) => {
     const [status, setStatus] = useState<string>("Started connection")
     const getStatus = (): string => {
-        if (isJoined) {
-            return "Connected with peer";
-        } else if (isConnected) {
-            return "Connected with signal server, P2P session estabilishing"
-
-        } else if (isLoading) {
-            return 'Connecting to signal server'
-        } else if (isConnected) {
-            return "Connected with signal server, P2P session estabilishing"
-        } else {
-            return "Connected with peer"
-        }
+      return sessionStatus;
     }
     useEffect(() => {
         setStatus(getStatus);
-    }, [isLoading, isConnected, isJoined]);
+    }, [status]);
     return (
         <div>
             <p>

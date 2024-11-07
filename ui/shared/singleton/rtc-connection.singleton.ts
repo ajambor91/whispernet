@@ -1,7 +1,7 @@
 import {IIncomingMessage, IOutgoingMessage} from "../models/ws-message.model";
 import { ConnectionStateModel } from "../models/connection-state.model";
 import { EWebSocketEventType } from '../enums/ws-message.enum';
-import { EClientStatus } from "../enums/client-status.model";
+import { EClientStatus } from "../enums/client-status.enum";
 import { PeerRole } from "../enums/peer-role.enum";
 import { AppEvent } from "./app-event.singleton";
 import { IRTCConnection } from "../interfaces/rtc-connection.model.interface";

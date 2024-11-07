@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import {IncomingMessage} from 'http';
-import {WebSocketClientHandler} from "./websocket-clients-handler";
+import {WebSocketConnectionController} from "../controllers/web-socker-connection.controller";
 
 export const wsConnection = (): void => {
     const socket: WebSocket.Server = new WebSocket.Server({ port: 3000 });
@@ -9,7 +9,7 @@ export const wsConnection = (): void => {
     socket.on('connection', (ws: WebSocket, req: IncomingMessage) => {
         try {
             console.log("CLIENT CONNECTED")
-            new WebSocketClientHandler(ws, req)
+            new WebSocketConnectionController(ws, req)
         } catch (e: unknown) {
             if (e instanceof Error) {
                 console.error("Error establishing WebSocket connection:", e.message);

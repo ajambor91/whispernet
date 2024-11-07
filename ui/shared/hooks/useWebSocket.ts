@@ -1,20 +1,18 @@
 'use client';
 import {Peer} from "../singleton/peer";
 import {IPeerState} from "../slices/createSession.slice";
+import {useEffect, useState} from "react";
 
 const useWebSocket = (peerState: IPeerState) => {
-    // let peerRef = useRef<Peer | null>(null)
-    const peer: Peer = new Peer(peerState);
+    const [onStatus, setOnStatus] = useState<(fn: (data: string) => void) => void>();
+    useEffect(() => {
+        if (peerState && peerState.session && peerState.peerRole) {
+            const peer = new Peer(peerState)
+            setOnStatus(() => peer.onStatus)
+        }
+    }, []);
 
-    // useEffect(() => {
-    //     if (peerState && peerState.session && peerState.peerRole) {
-    //         console.log("INNNNNNNNNNNNNNNNNNNNNNNN")
-    //         peerRef.current =
-    //         onStatus = peerRef.current.onStatus;
-    //     }
-    // }, []);
-
-    return peer.onStatus;
+    return onStatus;
 };
 
 export default useWebSocket;

@@ -18,6 +18,8 @@ services:
       - "3000:3000"
     depends_on:
       - loki
+    networks:
+      - whispernet
   promtail:
     build: 'promtail'
     hostname: promtail.whisper.net

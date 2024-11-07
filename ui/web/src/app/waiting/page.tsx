@@ -1,4 +1,3 @@
-'use client'
 import React, {useEffect, useState} from 'react';
 import {useAppSelector} from "../../../../shared/store/store";
 import useWebSocket from "../../../../shared/hooks/useWebSocket";

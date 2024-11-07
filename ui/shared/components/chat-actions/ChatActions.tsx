@@ -3,6 +3,7 @@
 import React from "react";
 
 import styles from './ChatActions.module.scss';
+import Button from "../elements/button/Button";
 
 interface ChatActionsProps {
     onChatCreate?: () => void;
@@ -13,12 +14,12 @@ interface ChatActionsProps {
 const ChatActions: React.FC<ChatActionsProps> = ({onChatCreate, onChatJoin, loading}) => {
     return (
         <div className={styles.buttonsContainer}>
-            <button className={styles.buttonsContainer__button} onClick={onChatCreate} disabled={loading}>
+            <Button className="button-primary" onClick={onChatCreate} disabled={loading}>
                 {loading ? 'Creating...' : 'New Chat'}
-            </button>
-            <button className={styles.buttonsContainer__button} onClick={onChatJoin} disabled={loading}>
+            </Button>
+            <Button className="button-primary" onClick={onChatJoin} disabled={loading}>
                 {loading ? 'Creating...' : 'Join'}
-            </button>
+            </Button>
         </div>
     );
 };

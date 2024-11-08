@@ -1,4 +1,4 @@
-import { Peer } from "../singleton/peer";
+import { Peer } from "../webrtc/peer";
 import { IPeerState } from "../slices/createSession.slice";
 import { useEffect, useRef, useCallback } from "react";
 

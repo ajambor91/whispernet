@@ -1,18 +1,23 @@
 import WebSocket from 'ws';
 import {IncomingMessage} from 'http';
 import {WebSocketConnectionController} from "../controllers/web-socker-connection.controller";
+import {logError, logInfo} from "../error-logger/error-looger";
 
 export const wsConnection = (): void => {
     const socket: WebSocket.Server = new WebSocket.Server({ port: 3000 });
-    console.log("WEB SOCKET SERVER INITIALIZED")
+    logInfo({data: "WebSocket server initialized"})
 
     socket.on('connection', (ws: WebSocket, req: IncomingMessage) => {
         try {
-            console.log("CLIENT CONNECTED")
+            logInfo({data: "New client connected"})
             new WebSocketConnectionController(ws, req)
         } catch (e: unknown) {
             if (e instanceof Error) {
-                console.error("Error establishing WebSocket connection:", e.message);
+                logError({
+                    data: "Error establishing WebSocket connection",
+                    message: e.message,
+                    stack: e.stack
+                })
             }
         }
     });

@@ -2,7 +2,7 @@ import {EventEmitter} from "eventemitter3";
 import {AppEvent} from "./app-event.singleton";
 import {EClientStatus} from "../enums/client-status.enum";
 import {IAuth} from "../interfaces/auth.interface";
-import {getAuth} from "./auth.singleton";
+import {getAuth} from "./auth";
 import {IPingPong} from "../interfaces/ping-pong.interface";
 import {getPingPong} from "./ping-pong.singleton";
 import {IIncomingMessage, IOutgoingMessage, ISession} from "../models/ws-message.model";

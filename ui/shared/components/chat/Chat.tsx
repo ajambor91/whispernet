@@ -4,21 +4,22 @@ import styles from './Chat.module.scss'
 import React, {useEffect, useState} from "react";
 import Message from "../message/Message";
 import MessageInput from "../message-input/MessageInput";
-import {getConnectionsState, getWebRTCDataChannel, sendWebRTCMessage} from "../../webrtc/webrtc.webrtc";
+// import {getConnectionsState, getWebRTCDataChannel, sendWebRTCMessage} from "../../webrtc/webrtc.webrtc";
 import {WebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
-import {SessionApiState} from "../../slices/createSession.slice";
+import {IPeerState} from "../../slices/createSession.slice";
+import {onMessage, sendWebRTCMessage} from "../../webrtc/peer";
 
 type MessageType = 'incoming' | 'reply'
 
 interface ChatComponentProps {
-    sessionApiState: SessionApiState
+    peerState: IPeerState
 }
 
-const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
+const ChatComponent: React.FC<ChatComponentProps> = ({peerState}) => {
     const [messages, setMessages] = useState<WebrtcPeerMessage[]>([]);
-    const connectionState = getConnectionsState();
+    // const connectionState = getConnectionsState();
     const addMessage = (content: WebrtcPeerMessage) => {
-        if (content.sessionId !== sessionApiState.sessionToken) {
+        if (content.sessionId !== peerState.session.sessionToken) {
             throw new Error('Invalid session token!')
         }
         setMessages(prevState => [
@@ -38,25 +39,23 @@ const ChatComponent: React.FC<ChatComponentProps> = ({sessionApiState}) => {
         return JSON.parse(msg);
     }
     const sendMessage = (content: WebrtcPeerMessage) => {
-        sendWebRTCMessage(stringfyWebRTCPeerMsg({...content, sessionId: sessionApiState.sessionToken as string}))
+        sendWebRTCMessage(stringfyWebRTCPeerMsg({...content, sessionId: peerState.session.sessionToken as string}))
         addMessage({
             ...content,
             type: 'reply',
-            sessionId: sessionApiState.sessionToken as string
+            sessionId: peerState.session.sessionToken as string
         })
     }
     useEffect(() => {
-        if (connectionState && connectionState.dataChannel) {
-            (getWebRTCDataChannel() as RTCDataChannel).onmessage = (event) => {
-                const incommingMessage: WebrtcPeerMessage = parseWebRTCPeerMsg(event.data)
+            onMessage((event) => {
+                const incommingMessage: WebrtcPeerMessage = parseWebRTCPeerMsg(event)
                 console.log(incommingMessage)
                 addMessage({
                     ...incommingMessage,
                     type: 'incoming'
                 })
-            }
-        }
-    }, [connectionState]);
+        })
+    }, []);
     return (
         <div className="full-screen relative">
             <div className={styles.chatContainer}>

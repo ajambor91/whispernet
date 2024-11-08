@@ -5,13 +5,16 @@ import {IAuth} from "../interfaces/auth.interface";
 import {getAuth} from "./auth";
 import {IPingPong} from "../interfaces/ping-pong.interface";
 import {getPingPong} from "./ping-pong.singleton";
-import {IIncomingMessage, IOutgoingMessage, ISession} from "../models/ws-message.model";
+import {IIncomingMessage, IInitialWebRTCMessage, IOutgoingMessage, ISession} from "../models/ws-message.model";
 import {ConnectionStateModel} from "../models/connection-state.model";
 import {PeerRole} from "../enums/peer-role.enum";
 import {EWebSocketEventType} from "../enums/ws-message.enum";
 import {IPeerState} from "../slices/createSession.slice";
+import {logError, logInfo, logWarning} from "../error-logger/web";
+import {IPeer} from "../models/peer.model";
 
-export class Peer extends EventEmitter {
+ class Peer extends EventEmitter implements IPeer{
+    private static _instance: Peer;
     private readonly _auth: IAuth;
     private readonly _ping: IPingPong;
     private readonly _appEvent: AppEvent;
@@ -26,7 +29,6 @@ export class Peer extends EventEmitter {
     }
 
     constructor(peerState: IPeerState) {
-        console.log('INNNNN')
         super();
         this._session = peerState.session;
         this._peerRole = peerState.peerRole
@@ -49,14 +51,41 @@ export class Peer extends EventEmitter {
 
     }
 
+    public static getInstance(peerState?: IPeerState): IPeer {
+        if(!this._instance && !peerState) {
+            throw new Error("Failed to initialize peer - no peer state")
+        }
+        if (!this._instance) {
+            this._instance = new Peer(peerState)
+        }
+        return this._instance;
+    }
+
     public onStatus = (fn: (data: string) => void): this => {
         this.on('status', fn)
         return this;
     }
 
+     public onWebRTCMessage = (fn: (data: string) => void): this => {
+         if (!this.listeners('webRTCMessage').includes(fn)) {
+             this.on('webRTCMessage', fn);
+         } else {
+             logWarning({message: "Duplicate event listeners on webRTCMessage"})
+         }
+         return this;
+     }
+
+     public sendWebRTCMessage(message: string): void {
+        this._rtcState.dataChannel.send(message)
+     }
+
     private _setOwnStatus(status: EClientStatus): void {
         this._status = status;
         this.emit('status', this._status)
+    }
+
+    private _onMessage(data: string): void {
+        this.emit('webRTCMessage',data)
     }
 
     private async _initClient(): Promise<void> {
@@ -195,17 +224,40 @@ export class Peer extends EventEmitter {
         }
     }
 
+    private _sendInitializationWebRTCMessage(): void {
+        const webRTCInitMessage: IInitialWebRTCMessage = {
+            type: EWebSocketEventType.WebRTCInitializationMessage
+        }
+        this._rtcState.dataChannel.send(JSON.stringify(webRTCInitMessage))
+    }
+
+    private _handleInitializationWebRTCMessage(message: string): void {
+        logInfo({message: 'WebRTC initalization message handled'})
+        try {
+            if (!message) {
+                throw new Error("No message found")
+            }
+            const webRTCInitizalizationMessage: IInitialWebRTCMessage = JSON.parse(message);
+            if (webRTCInitizalizationMessage.type === EWebSocketEventType.WebRTCInitializationMessage) {
+                this._setOwnStatus(EClientStatus.WebRTCInitialization)
+            }
+        } catch (e) {
+            logError({message: e.message, error: e})
+        }
+
+    }
+
     private _setupDataChannel(): void {
         if (!this._rtcState.dataChannel) return;
 
         this._rtcState.dataChannel.onopen = () => {
             console.log('Data channel is open');
-            this._rtcState.dataChannel.send('Hello Peer!');
+            this._sendInitializationWebRTCMessage()
         };
 
         this._rtcState.dataChannel.onmessage = (event) => {
-            console.log('Received message:', event.data);
-            this._setOwnStatus(EClientStatus.PeersConnected)
+            this._handleInitializationWebRTCMessage(event.data)
+            this._onMessage(event.data)
         };
 
         this._rtcState.dataChannel.onclose = () => {
@@ -216,3 +268,37 @@ export class Peer extends EventEmitter {
 
 }
 
+
+
+export const initializePeer = (peerState: IPeerState): IPeer  => {
+     try {
+         return  Peer.getInstance(peerState)
+     } catch (e) {
+         logError(e)
+     }
+}
+
+export const getPeer = (): IPeer => {
+     try {
+         return Peer.getInstance()
+     } catch (e) {
+         logError(e)
+     }
+}
+
+export const getOnPeerStatus = () => {
+     try {
+         return Peer.getInstance().onStatus;
+
+     } catch (e) {
+         throw logError(e)
+     }
+}
+
+export const sendWebRTCMessage = (data: string): void => {
+     Peer.getInstance().sendWebRTCMessage(data)
+}
+
+export const onMessage = (fn: (data: string) => void): void  => {
+     Peer.getInstance().onWebRTCMessage(fn)
+}

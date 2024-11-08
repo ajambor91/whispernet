@@ -1,23 +1,31 @@
 'use client'
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import ChatComponent from "../../../../shared/components/chat/Chat";
-import {SessionApiState} from "../../../../shared/slices/createSession.slice";
-import {useAppSelector} from "../../../../shared/store/store";
-import {useRouter} from "next/navigation";
-import '../../../../shared/styles/globals.scss'
+import { IPeerState } from "../../../../shared/slices/createSession.slice";
+import { useAppSelector } from "../../../../shared/store/store";
+import '../../../../shared/styles/globals.scss';
+import { useNavigate } from "react-router-dom";
+import TertiaryHeader from "../../../../shared/components/elements/tertiary-header/TertiaryHeader";
 
 const Chat: React.FC = () => {
-    const sessionApiState: SessionApiState = useAppSelector(state => state.sessionApiState);
-    const router = useRouter();
+    const peerState: IPeerState = useAppSelector(state => state?.peerState);
+    const router = useNavigate();
+
     useEffect(() => {
-        if (!sessionApiState || !sessionApiState.sessionToken) {
-            router.push('/')
+        if (!peerState || !peerState.session?.sessionToken) {
+            router('/');
         }
-    }, [sessionApiState.sessionToken]);
+    }, [peerState, router]);
+
     return (
-        <div className="full-screen">
-            <ChatComponent sessionApiState={sessionApiState}/>
-        </div>
-    )
+        peerState.session?.sessionToken ? (
+            <div className="full-screen">
+                <ChatComponent peerState={peerState} />
+            </div>
+        ) : (
+            <TertiaryHeader />
+        )
+    );
 }
-export default Chat
+
+export default Chat;

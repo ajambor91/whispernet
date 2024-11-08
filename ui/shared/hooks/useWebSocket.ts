@@ -1,9 +1,10 @@
-import { Peer } from "../webrtc/peer";
 import { IPeerState } from "../slices/createSession.slice";
 import { useEffect, useRef, useCallback } from "react";
+import {IPeer} from "../models/peer.model";
+import {initializePeer} from "../webrtc/peer";
 
 const useWebSocket = (peerState: IPeerState) => {
-    const peerRef = useRef<Peer | null>(null);
+    const peerRef = useRef<IPeer | null>(null);
 
     const setOnStatus = useCallback(
         (callback: (data: string) => void) => {
@@ -16,7 +17,7 @@ const useWebSocket = (peerState: IPeerState) => {
 
     useEffect(() => {
         if (!peerRef.current && peerState?.session && peerState?.peerRole) {
-            peerRef.current = new Peer(peerState);
+            peerRef.current = initializePeer(peerState);
         }
 
     }, [peerState]);

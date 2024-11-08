@@ -6,6 +6,7 @@ import Hash from "../../../../shared/components/hash/Hash";
 import { logInfo } from "../../../../shared/error-logger/web";
 import {EClientStatus} from "../../../../shared/enums/client-status.enum";
 import {useNavigate} from "react-router-dom";
+import TertiaryHeader from "../../../../shared/components/elements/tertiary-header/TertiaryHeader";
 
 const ChatWaiting: React.FC = () => {
     const [status, setStatus] = useState<string>("Connecting");
@@ -35,11 +36,22 @@ const ChatWaiting: React.FC = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (!peerState) {
+            router("/")
+        }
+    }, [peerState, router]);
     return (
-        <section className="full-screen">
-            <Hash peerState={peerState} sessionStatus={status} />
-            <h1>STATUS {status}</h1>
-        </section>
+        peerState.session?.sessionToken ? (
+            <section className="full-screen">
+
+                <Hash peerState={peerState} sessionStatus={status}/>
+                <h1>STATUS {status}</h1>
+            </section>
+        ) : (<TertiaryHeader>
+            Redirecting
+        </TertiaryHeader>)
+
     );
 }
 

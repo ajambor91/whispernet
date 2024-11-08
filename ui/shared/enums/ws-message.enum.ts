@@ -28,7 +28,8 @@ export enum EWebSocketEventType {
     Auth = 'auth',
     Authorized = 'authorized',
     InitialMessage = 'initial-message',
-    Unauthorized = 'unauthorized'
+    Unauthorized = 'unauthorized',
+    WebRTCInitializationMessage = 'web-rtc-initialization-message'
 
 
 }

@@ -6,12 +6,14 @@ import Status from "../../../../shared/components/status/Status";
 import Indicator from "../../../../shared/components/indicator/Indicator";
 import Centered from "../../../../shared/components/centered/Centered";
 import { logInfo } from "../../../../shared/error-logger/web";
+import {EClientStatus} from "../../../../shared/enums/client-status.enum";
+import {useNavigate} from "react-router-dom";
 
 const ChatWaitingJoin: React.FC = () => {
     const [status, setStatus] = useState<string>("Connecting");
     const peerState: IPeerState = useAppSelector(state => state.peerState);
     const onStatus = useWebSocket(peerState);
-
+    const router = useNavigate();
     useEffect(() => {
         logInfo({ message: "ChatWaitingJoin component mounted" });
 
@@ -19,7 +21,13 @@ const ChatWaitingJoin: React.FC = () => {
             logInfo({ message: "WebSocket status listener initialized" });
             onStatus(data => {
                 logInfo({ message: "Status updated", newStatus: data });
+
                 setStatus(data);
+                if (data === EClientStatus.WebRTCInitialization) {
+                    setTimeout(() => {
+                        router('/chat')
+                    }, 200)
+                }
             });
         } else {
             logInfo({ message: "No WebSocket listener available" });

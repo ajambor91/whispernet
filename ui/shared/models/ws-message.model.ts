@@ -30,3 +30,5 @@ export interface IInitialMessage extends Pick<IBaseMessage, 'type'> {}
 export interface ISignalMessage extends Pick<IBaseMessage, 'type' | 'session'> {}
 
 export interface IAuthMessage extends Pick<IBaseMessage, 'type' >, Partial<Pick<IBaseMessage, 'session'>> {}
+
+export interface IInitialWebRTCMessage extends  Pick<IBaseMessage, 'type'> {}

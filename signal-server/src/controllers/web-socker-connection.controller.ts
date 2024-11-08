@@ -1,12 +1,12 @@
 import WebSocket from "ws";
-import {IncomingMessage} from "http";
-import console from "console";
-import {getSessionManager, SessionManager} from "../managers/session-manager";
-import {AppEvent} from "../classes/base-event.class";
-import {AuthController} from "./auth.controller";
-import {SessionController} from "./session-controller";
-import {Peer} from "../classes/peer";
-import {getCookie} from "../functions/helpers";
+import { IncomingMessage } from "http";
+import { getSessionManager, SessionManager } from "../managers/session-manager";
+import { AppEvent } from "../classes/base-event.class";
+import { AuthController } from "./auth.controller";
+import { SessionController } from "./session-controller";
+import { Peer } from "../classes/peer";
+import { getCookie } from "../functions/helpers";
+import { logWarning, logError, logInfo } from "../error-logger/error-looger";
 
 export class WebSocketConnectionController {
     private ws: WebSocket;
@@ -26,19 +26,21 @@ export class WebSocketConnectionController {
         this.appEvent = new AppEvent(ws);
 
         if (!this.userToken) {
-            console.error("Invalid user token");
+            logError({ event: "InvalidUserToken", message: "Invalid user token, closing connection" });
             this.ws.close();
             return;
         }
 
+        logInfo({ event: "WebSocketConnection", message: "New WebSocket connection", userToken: this.userToken });
         this.initialize();
     }
 
     private initialize(): void {
+        logInfo({ event: "InitializeWebSocket", message: "Initializing WebSocket connection", userToken: this.userToken });
         this.appEvent.once('auth', (data) => this.handleAuth(data));
         this.ws.on('close', () => this.handleClose());
         this.ws.on('error', (error) => this.handleError(error));
-        this.appEvent.once('initialMessage', () => this.handleInitMessage())
+        this.appEvent.once('initialMessage', () => this.handleInitMessage());
     }
 
     private handleAuth(data: any): void {
@@ -49,6 +51,7 @@ export class WebSocketConnectionController {
             if (!currentSession) {
                 throw new Error("No session found");
             }
+
             const currentPeer: Peer | undefined = currentSession.getUser(this.userToken);
 
             if (!currentPeer) {
@@ -57,33 +60,35 @@ export class WebSocketConnectionController {
 
             const authController: AuthController = new AuthController(this.userToken, currentPeer, data, this.appEvent);
             authController.authorize();
+
             this.isAuthorized = true;
             this.currentPeer = currentPeer;
             this.currentSession = currentSession;
 
+            logInfo({ event: "HandleAuth", message: "User authorized", userToken: this.userToken });
 
             this.appEvent.on('dataMessage', (data) => {
+                logInfo({ event: "DataMessageReceived", message: "Data message received", userToken: this.userToken, data });
             });
         } catch (e) {
-            console.error("Authorization error:", e);
+            logError({ event: "AuthorizationError", message: "Authorization error", error: e, userToken: this.userToken });
         }
     }
 
     private handleInitMessage(): void {
         if (this.isAuthorized) {
-            this.currentSession.initializePeerConnection(this.currentPeer, this.appEvent)
-
+            logInfo({ event: "HandleInitMessage", message: "Handling initial message for authorized user", userToken: this.userToken });
+            this.currentSession.initializePeerConnection(this.currentPeer, this.appEvent);
+        } else {
+            logWarning({ event: "UnauthorizedInitMessage", message: "Initial message received for unauthorized user", userToken: this.userToken });
         }
     }
 
-
     private handleClose(): void {
-        console.log("Connection closed for:", this.userToken);
+        logInfo({ event: "ConnectionClosed", message: "WebSocket connection closed", userToken: this.userToken });
     }
 
     private handleError(error: Error): void {
-        console.error("WebSocket error:", error);
+        logError({ event: "WebSocketError", message: "WebSocket error occurred", error, userToken: this.userToken });
     }
 }
-
-

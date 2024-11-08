@@ -4,6 +4,7 @@ import * as console from "console";
 import {getSessionManager, SessionManager} from "../managers/session-manager";
 import { IInitialClient} from "../models/client.model";
 import { SessionController} from "../controllers/session-controller";
+import {logError, logInfo} from "../error-logger/error-looger";
 
 
 const kafkaConfig: KafkaConfig = {
@@ -27,13 +28,16 @@ export async function startKafka() {
                 const clientMsg: string = message.value.toString();
                 const client: IInitialClient = JSON.parse(JSON.parse(clientMsg));
                 if (!client || !client.userToken) {{
-                    throw new Error('Invalid user')
+                    console.error('Invalid user')
+                    logError({data: 'Invalid user'});
+                    return;
                 }}
-                console.log("SESSION")
+                logInfo({data: 'Get session data'})
                 let currentSession: SessionController | undefined = sessionManager.getSession(client.session.sessionToken);
                 if (!currentSession) {
                     currentSession = new SessionController();
                     sessionManager.addSession(client.session.sessionToken, currentSession)
+                    logInfo({data: 'New session created'})
                 }
                 currentSession.addUser(client);
 

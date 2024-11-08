@@ -4,7 +4,7 @@ import styles from './Chat.module.scss'
 import React, {useEffect, useState} from "react";
 import Message from "../message/Message";
 import MessageInput from "../message-input/MessageInput";
-import {getConnectionsState, getWebRTCDataChannel, sendWebRTCMessage} from "../../singleton/webrtc.singleton";
+import {getConnectionsState, getWebRTCDataChannel, sendWebRTCMessage} from "../../webrtc/webrtc.webrtc";
 import {WebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
 import {SessionApiState} from "../../slices/createSession.slice";
 

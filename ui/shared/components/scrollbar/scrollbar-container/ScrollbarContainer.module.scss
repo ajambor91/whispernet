@@ -1,27 +1,33 @@
 .scrollbarContainer {
   position: relative;
   height: 100%;
-  width: 100%;
+  width: calc(100% + 100px);
   overflow: hidden;
 
   &__scrollbar {
+    cursor: pointer;
     position: absolute;
-    right: 0;
-    width: 15px;
-    height: 15px;
-    border-radius: 100%;
-    top: 0;
-    background-color: red;
-    //transform: translateY(1021px);
+    right: 30px;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background-color: #FF6347;
+    transition: transform 0.1s ease, opacity 0.2s ease;
+    box-shadow: 0 0 10px rgba(255, 99, 71, 0.6), 0 0 20px rgba(255, 99, 71, 0.3); /* Miękki, rozmyty cień */
+
+    &:hover {
+      opacity: 1; // Kulka staje się bardziej widoczna przy najechaniu myszą
+    }
   }
   &__content {
+    width: calc(100% - 100px);
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
     top: 0;
     overflow-y: scroll;
-
+    transition: transform 0.2s ease-out;
     scrollbar-width: none;
     &::-webkit-scrollbar {
       display: none;

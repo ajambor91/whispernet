@@ -1,0 +1,31 @@
+.scrollbarContainer {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+
+  &__scrollbar {
+    position: absolute;
+    right: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 100%;
+    top: 0;
+    background-color: red;
+    //transform: translateY(1021px);
+  }
+  &__content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    overflow-y: scroll;
+
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+}

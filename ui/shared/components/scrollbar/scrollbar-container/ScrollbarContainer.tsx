@@ -13,6 +13,7 @@ export const ScrollbarContainer: React.FC<IScrollbarContainerProps> = ({ childre
     const [startY, setStartY] = useState<number | null>(null);
     const [scrollTopStart, setScrollTopStart] = useState<number>(0);
     useEffect(() => {
+        console.log("SCROLL TO")
         scrollableContent.current?.scrollTo({
             top: scrollableContent.current.scrollHeight,
             behavior: "smooth", // lub "auto", jeśli nie chcesz płynnego przewijania
@@ -22,6 +23,7 @@ export const ScrollbarContainer: React.FC<IScrollbarContainerProps> = ({ childre
     }, [children,messageInputHeight]);
     // Funkcja inicjalizująca przeciąganie
     const startDrag = (e: React.MouseEvent) => {
+        console.log("START DRAGGING")
         isDraggedRef.current = true; // Zmieniamy isDraggedRef zamiast stanu
         setStartY(e.clientY);
         setScrollTopStart(scrollableContent.current?.scrollTop || 0);
@@ -53,12 +55,39 @@ export const ScrollbarContainer: React.FC<IScrollbarContainerProps> = ({ childre
 
             // Aktualizacja pozycji przewijalnej treści
             scrollableContent.current.scrollTop = scrollTopStart + scrollAmount;
+            const scrollBallHeight = visibleHeight - 50; // Zakres ruchu kulki (8px kulka + margines)
 
             // Obliczenie i ustawienie pozycji kulki (skala przewiniętego obszaru)
             const scrollRatio = scrollableContent.current.scrollTop / (contentHeight - visibleHeight);
             scrollbar.current.style.transform = `translateY(${scrollRatio * (scrollbarHeight - scrollbar.current.clientHeight)}px)`;
         }
     };
+    const handleScrollableScroll = (event: Event) => {
+        event.preventDefault();
+        console.log(event)
+    };
+    const handleWheel = (event: WheelEvent) => {
+        event.preventDefault(); // Blokujemy domyślne przewijanie
+
+        const contentHeight = scrollableContent.current.scrollHeight; // Pełna wysokość przewijalnej treści
+        const visibleHeight = scrollableContent.current.clientHeight; // Wysokość widocznego obszaru
+        const maxScrollableHeight = contentHeight - visibleHeight; // Maksymalna odległość przewijania
+        const scrollRatio = maxScrollableHeight / 1000; // Przykładowa wartość bazowa do ustalenia szybkości
+        const scrollAmount = event.deltaY * scrollRatio;
+        scrollableContent.current.scrollTop += scrollAmount;
+        const scrollbarHeight = scrollbar.current.parentNode.clientHeight;
+        const thumbPosition = (scrollableContent.current.scrollTop / maxScrollableHeight) * (scrollbarHeight - scrollbar.current.clientHeight);
+        scrollbar.current.style.transform = `translateY(${thumbPosition}px)`;
+    };
+
+
+    useEffect(() => {
+        const scrollableElement = scrollableContent.current;
+        if (scrollableElement) {
+            window.addEventListener('wheel', handleWheel, { passive: false });
+            return () => window.removeEventListener('wheel', handleWheel);
+        }
+    }, []);
 
     return (
         <div className={styles.scrollbarContainer}>

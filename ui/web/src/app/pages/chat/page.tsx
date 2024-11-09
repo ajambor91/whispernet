@@ -1,17 +1,18 @@
 'use client'
 import React, { useEffect } from "react";
-import ChatComponent from "../../../../shared/components/chat/Chat";
-import { IPeerState } from "../../../../shared/slices/createSession.slice";
-import { useAppSelector } from "../../../../shared/store/store";
-import '../../../../shared/styles/globals.scss';
+import ChatComponent from "../../../../../shared/components/chat/Chat";
+import { IPeerState } from "../../../../../shared/slices/createSession.slice";
+import { useAppSelector } from "../../../../../shared/store/store";
+import '../../../../../shared/styles/globals.scss';
 import { useNavigate } from "react-router-dom";
-import TertiaryHeader from "../../../../shared/components/elements/tertiary-header/TertiaryHeader";
+import TertiaryHeader from "../../../../../shared/components/elements/tertiary-header/TertiaryHeader";
 
 const Chat: React.FC = () => {
     const peerState: IPeerState = useAppSelector(state => state?.peerState);
     const router = useNavigate();
 
     useEffect(() => {
+        console.log("$CHAT")
         if (!peerState || !peerState.session?.sessionToken) {
             router('/');
         }

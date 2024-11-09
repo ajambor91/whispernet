@@ -1,6 +1,6 @@
 import { IPeerState } from "../slices/createSession.slice";
 import { useEffect, useRef, useCallback } from "react";
-import {IPeer} from "../models/peer.model";
+import {IPeer} from "../interfaces/peer.interface";
 import {initializePeer} from "../webrtc/peer";
 
 const useWebSocket = (peerState: IPeerState) => {

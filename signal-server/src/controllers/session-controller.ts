@@ -3,6 +3,7 @@ import { Peer } from "../classes/peer";
 import { EWebSocketEventType } from "../enums/ws-message.enum";
 import { AppEvent } from "../classes/base-event.class";
 import { logWarning, logError, logInfo } from "../error-logger/error-looger";
+import {ISession} from "../models/session.model";
 
 type PeerState = {
     client: Peer;
@@ -12,7 +13,15 @@ type PeerState = {
 
 export class SessionController {
     private clientMap: Map<string, PeerState> = new Map();
+    private _session: ISession;
 
+    constructor(session: ISession) {
+        this._session = session;
+    }
+
+    public get session(): ISession {
+        return this._session;
+    }
     public initializePeerConnection(peer: Peer, appEvent: AppEvent): void {
         try {
             logInfo({ event: "InitializePeerConnection", message: "Initializing peer connection", userToken: peer.userToken });
@@ -21,6 +30,22 @@ export class SessionController {
                 session: peer.session,
                 type: EWebSocketEventType.Connect
             });
+            const existingClients: Peer[] = this.getUsersSkipped(peer.userToken) as Peer[];
+            peer.addPartner(existingClients);
+            existingClients.forEach(existingClient => {
+                existingClient.addPartner(peer);
+            });
+        } catch (e) {
+            logError({ event: "InitializePeerConnectionError", message: "Error initializing peer connection", error: e });
+        }
+    }
+
+    public closePeerConnection(peer: Peer, appEvent: AppEvent): void {
+        try {
+            logInfo({ event: "InitializePeerConnection", message: "Initializing peer connection", userToken: peer.userToken });
+            appEvent.close();
+            peer.initClient(appEvent);
+
             const existingClients: Peer[] = this.getUsersSkipped(peer.userToken) as Peer[];
             peer.addPartner(existingClients);
             existingClients.forEach(existingClient => {

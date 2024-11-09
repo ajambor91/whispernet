@@ -1,11 +1,11 @@
-import {WebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
+import {IWebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
 import styles from './Message.module.scss';
 
-interface MessageProps {
-    message: WebrtcPeerMessage;
+interface IMessageProps {
+    message: IWebrtcPeerMessage;
 }
 
-const Message: React.FC<MessageProps> = ({message}) => {
+const Message: React.FC<IMessageProps> = ({message}) => {
     return (
         <div className={`${styles.messageContainer} ${
             message.type === 'incoming'

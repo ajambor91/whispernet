@@ -1,4 +1,4 @@
-export enum EWebSocketEventType  {
+export enum EWebSocketEventType {
     Offer = 'offer',
     IncommingOffer = 'incomming_offer',
     Answer = 'answer',
@@ -12,8 +12,8 @@ export enum EWebSocketEventType  {
     ICEResponse = 'ice',
     ICEAccepted = 'ice-accepted',
     RoleRequest = 'role-request',
-    RoleResponse = 'role-response',
     RoleAccepted = 'role-accepted',
+    RoleResponse = 'role-response',
     PrepareRTC = 'prepare-rtc',
     Ready = 'ready',
     Start = 'start',
@@ -23,13 +23,14 @@ export enum EWebSocketEventType  {
     PeerJoin = 'peer-join',
     Listen = 'listen',
     MsgReceived = 'msg-received',
-    ConnectionClose = 'connection-close',
-    Retry = 'retry',
-    ReconnectSignal = 'reconnect-signal',
     Ping = 'ping',
     Pong = 'pong',
     Auth = 'auth',
     Authorized = 'authorized',
-    Unauthorized = 'unauthorized'
+    GoodMorningMessage = 'good-morning-message',
+    GoodByeMessage = 'good-bye-message',
+    Unauthorized = 'unauthorized',
+    WebRTCInitializationMessage = 'web-rtc-initialization-message'
+
 
 }

@@ -14,7 +14,7 @@ export const parseForWSMsg: (decodedMessage: string) => IEventMessage = (decodeM
 
 export const formatMessageForWS: (message: WSMessage | WSSignalMessage) => Buffer = (message: WSMessage | WSSignalMessage) => {
     if (!message) {
-        throw new Error("Message object is required to send.");
+        throw new Error("message object is required to send.");
     }
     return Buffer.from(JSON.stringify(message));
 };

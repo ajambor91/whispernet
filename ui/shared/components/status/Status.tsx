@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
 
-interface StatusProps {
+interface IStatusProps {
     sessionStatus: string;
 }
 
-const Status: React.FC<StatusProps> = ({sessionStatus}) => {
+const Status: React.FC<IStatusProps> = ({sessionStatus}) => {
     const [status, setStatus] = useState<string>("Started connection")
     const getStatus = (): string => {
       return sessionStatus;

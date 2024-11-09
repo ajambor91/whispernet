@@ -17,6 +17,7 @@ export class WebSocketConnectionController {
     private appEvent: AppEvent;
     private currentPeer!: Peer;
     private currentSession!: SessionController;
+    private sessionToken!: string;
 
     constructor(ws: WebSocket, req: IncomingMessage) {
         this.ws = ws;
@@ -40,7 +41,8 @@ export class WebSocketConnectionController {
         this.appEvent.once('auth', (data) => this.handleAuth(data));
         this.ws.on('close', () => this.handleClose());
         this.ws.on('error', (error) => this.handleError(error));
-        this.appEvent.once('initialMessage', () => this.handleInitMessage());
+        this.appEvent.once('goodMorning', () => this.handleGoodMorningMessage());
+        this.appEvent.once('goodBye', () => this.handleGoodByeMessage())
     }
 
     private handleAuth(data: any): void {
@@ -75,13 +77,20 @@ export class WebSocketConnectionController {
         }
     }
 
-    private handleInitMessage(): void {
+    private handleGoodMorningMessage(): void {
         if (this.isAuthorized) {
-            logInfo({ event: "HandleInitMessage", message: "Handling initial message for authorized user", userToken: this.userToken });
+            logInfo({ event: "HandleGoodMorningMessage", message: "Handling initial message for authorized user", userToken: this.userToken });
             this.currentSession.initializePeerConnection(this.currentPeer, this.appEvent);
         } else {
-            logWarning({ event: "UnauthorizedInitMessage", message: "Initial message received for unauthorized user", userToken: this.userToken });
+            logWarning({ event: "UnauthorizedHandleGoodMorningMessage", message: "Initial message received for unauthorized user", userToken: this.userToken });
         }
+    }
+
+    private handleGoodByeMessage(): void {
+            logInfo({ event: "HandleGoodByeMessage", message: "Handling initial message for authorized user", userToken: this.userToken });
+            this.currentSession.removeUser(this.currentPeer.userToken);
+            this.appEvent.close();
+            this.destroy();
     }
 
     private handleClose(): void {
@@ -90,5 +99,13 @@ export class WebSocketConnectionController {
 
     private handleError(error: Error): void {
         logError({ event: "WebSocketError", message: "WebSocket error occurred", error, userToken: this.userToken });
+    }
+
+    //TODO added destroy session
+    private destroy(): void {
+        if (this.currentSession.getUsers().length === 0) {
+            this.sessionManager.removeSession(this.currentSession.session.sessionToken)
+
+        }
     }
 }

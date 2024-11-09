@@ -2,13 +2,12 @@ import {AppEvent} from "./app-event.singleton";
 import {IAuthMessage} from "../models/ws-message.model";
 import {IAuth} from "../interfaces/auth.interface";
 import {EWebSocketEventType} from "../enums/ws-message.enum";
-import {EClientStatus} from "../enums/client-status.enum";
-import {Peer} from "./peer";
+import {IPeer} from "../interfaces/peer.interface";
 
 class Auth implements IAuth {
     private _appEvent: AppEvent = AppEvent.getInstance();
-    private _peer: Peer;
-    public constructor(peer?: Peer) {
+    private _peer: IPeer;
+    public constructor(peer?: IPeer) {
         this._peer = peer;
     }
 
@@ -20,7 +19,7 @@ class Auth implements IAuth {
 
     private startConnection(data: IAuthMessage): void {
         if (data.type === EWebSocketEventType.Authorized) {
-            this._appEvent.sendInitialMessage()
+            this._appEvent.sendGoodMorningMessage()
         }
     }
 
@@ -59,7 +58,7 @@ class Auth implements IAuth {
 
 }
 let auth: IAuth;
-export const getAuth = (peer?: Peer): IAuth => {
+export const getAuth = (peer?: IPeer): IAuth => {
     if (!peer && !auth) {
         throw new Error('No peer')
     }

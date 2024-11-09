@@ -1,25 +1,23 @@
 import {useRef} from "react";
 import styles from './MessageInput.module.scss'
-import {WebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
+import {IWebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCircleUp} from "@fortawesome/free-solid-svg-icons/faCircleUp";
 
-interface MessageInput {
-    sendMessage: (msg: WebrtcPeerMessage) => void;
+interface IMessageInput {
+    sendMessage: (msg: IWebrtcPeerMessage) => void;
     setMessageInput: (height: number) => void;
 }
 
-const MessageInput: React.FC<MessageInput> = ({sendMessage, setMessageInput}) => {
+const MessageInput: React.FC<IMessageInput> = ({sendMessage, setMessageInput}) => {
     const messageRef = useRef<HTMLDivElement>(null);
 
     const handleInput = () => {
 
         const input = messageRef.current as HTMLDivElement;
-        input.style.height = 'auto'; // Resetuj wysokość
+        input.style.height = 'auto';
         input.style.overflowY = 'hidden';
-        input.style.height = `${input.scrollHeight}px`; // Ustaw wysokość na podstawie treści
-        console.log(input.style.height.match(/[0-9]*/))
-        console.log(input.style.height)
+        input.style.height = `${input.scrollHeight}px`;
         const heightMatch = input.style.height.match(/[0-9]*/);
         const height: number = +heightMatch[0];
         setMessageInput(height)
@@ -32,12 +30,11 @@ const MessageInput: React.FC<MessageInput> = ({sendMessage, setMessageInput}) =>
     };
     const passMessage = () => {
         const messageElement: HTMLDivElement = messageRef.current as HTMLDivElement;
-        const msg: WebrtcPeerMessage = {
+        const msg: IWebrtcPeerMessage = {
             type: undefined,
             sessionId: '',
             content: messageElement.innerHTML
         }
-        console.log('DSSFDDSF')
         sendMessage(msg)
         messageElement.focus();
         messageElement.innerHTML = '';

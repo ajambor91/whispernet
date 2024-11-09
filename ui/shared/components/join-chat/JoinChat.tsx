@@ -1,18 +1,18 @@
 import styles from './JoinChat.module.scss';
 import React, {useState} from "react";
 import Button from "../elements/button/Button";
-import Input from "../elements/input/input";
+import Input from "../elements/input/Input";
 import InlineDiv from "../elements/inline-div/InlineDiv";
 import SecondaryHeader from "../elements/secondary-header/SecondaryHeader";
 import TertiaryHeader from "../elements/tertiary-header/TertiaryHeader";
 import {faCopy} from "@fortawesome/free-solid-svg-icons/faCopy";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-interface ChatJoiningProps {
+interface IChatJoiningProps {
     onChatSubmit?: (hash: string) => void;
 }
 
-const JoinChat: React.FC<ChatJoiningProps> = ({onChatSubmit}) => {
+const JoinChat: React.FC<IChatJoiningProps> = ({onChatSubmit}) => {
     const [hash, setHash] = useState('');
     const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
         if (!!e && !!onChatSubmit) {

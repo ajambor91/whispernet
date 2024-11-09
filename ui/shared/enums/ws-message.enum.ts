@@ -27,7 +27,8 @@ export enum EWebSocketEventType {
     Pong = 'pong',
     Auth = 'auth',
     Authorized = 'authorized',
-    InitialMessage = 'initial-message',
+    GoodMorningMessage = 'good-morning-message',
+    GoodByeMessage = 'good-bye-message',
     Unauthorized = 'unauthorized',
     WebRTCInitializationMessage = 'web-rtc-initialization-message'
 

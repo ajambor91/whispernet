@@ -26,7 +26,10 @@ export interface IOutgoingMessage extends  IBaseMessage{
     peerStatus: EClientStatus;
 }
 
-export interface IInitialMessage extends Pick<IBaseMessage, 'type'> {}
+export interface IGoodMorningMessage extends Pick<IBaseMessage, 'type'> {}
+
+export interface IGoodByeMessage extends Pick<IBaseMessage, 'type'> {}
+
 export interface ISignalMessage extends Pick<IBaseMessage, 'type' | 'session'> {}
 
 export interface IAuthMessage extends Pick<IBaseMessage, 'type' >, Partial<Pick<IBaseMessage, 'session'>> {}

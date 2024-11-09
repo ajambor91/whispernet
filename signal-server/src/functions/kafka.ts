@@ -35,7 +35,7 @@ export async function startKafka() {
                 logInfo({data: 'Get session data'})
                 let currentSession: SessionController | undefined = sessionManager.getSession(client.session.sessionToken);
                 if (!currentSession) {
-                    currentSession = new SessionController();
+                    currentSession = new SessionController(client.session);
                     sessionManager.addSession(client.session.sessionToken, currentSession)
                     logInfo({data: 'New session created'})
                 }

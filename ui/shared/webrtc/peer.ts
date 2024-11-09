@@ -11,7 +11,7 @@ import {PeerRole} from "../enums/peer-role.enum";
 import {EWebSocketEventType} from "../enums/ws-message.enum";
 import {IPeerState} from "../slices/createSession.slice";
 import {logError, logInfo, logWarning} from "../error-logger/web";
-import {IPeer} from "../models/peer.model";
+import {IPeer} from "../interfaces/peer.interface";
 
  class Peer extends EventEmitter implements IPeer{
     private static _instance: Peer;
@@ -239,7 +239,8 @@ import {IPeer} from "../models/peer.model";
             }
             const webRTCInitizalizationMessage: IInitialWebRTCMessage = JSON.parse(message);
             if (webRTCInitizalizationMessage.type === EWebSocketEventType.WebRTCInitializationMessage) {
-                this._setOwnStatus(EClientStatus.WebRTCInitialization)
+                this._setOwnStatus(EClientStatus.PeersConnected)
+                this._appEvent.sendGoodByeMessage();
             }
         } catch (e) {
             logError({message: e.message, error: e})
@@ -251,7 +252,6 @@ import {IPeer} from "../models/peer.model";
         if (!this._rtcState.dataChannel) return;
 
         this._rtcState.dataChannel.onopen = () => {
-            console.log('Data channel is open');
             this._sendInitializationWebRTCMessage()
         };
 

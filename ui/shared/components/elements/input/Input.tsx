@@ -22,7 +22,7 @@ const StyledInput = styled.input`
     }
 `;
 
-interface InputProps {
+interface IInputProps {
     value: string;
     type: any;
     onChange?: (event: FormEvent<any>) => void;
@@ -39,7 +39,7 @@ interface InputProps {
     autoComplete?: "on" | "off";
 }
 
-const Input: React.FC<InputProps> = ({...props}) => {
+const Input: React.FC<IInputProps> = ({...props}) => {
     return (
         <StyledInput
             type={props.type}

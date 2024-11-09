@@ -1,23 +1,22 @@
 import React from "react";
 import Indicator from "../indicator/Indicator";
-import {IPeerState, SessionApiState} from "../../slices/createSession.slice";
+import {IPeerState} from "../../slices/createSession.slice";
 import Status from "../status/Status";
 import styles from "./Hash.module.scss"
-import Centered from "../centered/Centered";
-import Input from "../elements/input/input";
+import Centered from "../elements/centered/Centered";
+import Input from "../elements/input/Input";
 import Button from "../elements/button/Button";
 import SecondaryHeader from "../elements/secondary-header/SecondaryHeader";
 import TertiaryHeader from "../elements/tertiary-header/TertiaryHeader";
 import {faCopy} from "@fortawesome/free-solid-svg-icons/faCopy";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-interface HashProps {
-    peerState: IPeerState; // Typ dla sessionApiState, np. string
+interface IHashProps {
+    peerState: IPeerState;
     sessionStatus: string
 }
 
-const Hash: React.FC<HashProps> = ({peerState, sessionStatus}) => {
-    console.log(peerState)
+const Hash: React.FC<IHashProps> = ({peerState, sessionStatus}) => {
     const handleCopy = () => {
         if (!!peerState.session) {
             navigator.clipboard.writeText(peerState.session.sessionToken).then(() => {

@@ -1,16 +1,14 @@
-'use client'
-
 import React, { useEffect } from "react";
-import useJoinChat from "../../../../shared/hooks/useJoinChat";
-import JoinChat from "../../../../shared/components/join-chat/JoinChat";
+import useJoinChat from "../../../../../shared/hooks/useJoinChat";
+import JoinChat from "../../../../../shared/components/join-chat/JoinChat";
 import { useDispatch } from "react-redux";
 import {
     IPeerState,
     setCreatePeerState,
-} from "../../../../shared/slices/createSession.slice";
-import Centered from "../../../../shared/components/centered/Centered";
+} from "../../../../../shared/slices/createSession.slice";
+import Centered from "../../../../../shared/components/elements/centered/Centered";
 import { useNavigate } from "react-router-dom";
-import { logInfo, logError } from "../../../../shared/error-logger/web";
+import { logInfo, logError } from "../../../../../shared/error-logger/web";
 
 const ChatJoining: React.FC = () => {
     const router = useNavigate();

@@ -5,10 +5,10 @@ const StyledDiv = styled.div`
     display: inline-block;
 `;
 
-interface InlineDivProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IInlineDivProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
-const InlineDiv: React.FC<InlineDivProps> = ({children}) => {
+const InlineDiv: React.FC<IInlineDivProps> = ({children}) => {
     return (
         <StyledDiv>
             {children}

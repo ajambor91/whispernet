@@ -61,11 +61,24 @@ export class AppEvent extends EventEmitter {
 
     }
 
-    public sendInitialMessage(): void {
+
+
+    public sendGoodMorningMessage(): void {
         const msg: IEventMessage = {
-            event: 'initialMessage',
+            event: 'goodMorning',
             data: {
-                type: EWebSocketEventType.InitialMessage
+                type: EWebSocketEventType.GoodMorningMessage
+            }
+
+        }
+        this.sendMessage(msg)
+    }
+
+    public sendGoodByeMessage(): void {
+        const msg: IEventMessage = {
+            event: 'goodBye',
+            data: {
+                type: EWebSocketEventType.GoodByeMessage
             }
 
         }
@@ -84,7 +97,6 @@ export class AppEvent extends EventEmitter {
     }
 
     private parseMsg(data: IEventMessage): Buffer {
-        console.log(JSON.stringify(data))
         return Buffer.from(JSON.stringify(data), 'utf-8');
     }
 

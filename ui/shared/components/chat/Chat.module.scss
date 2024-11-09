@@ -1,25 +1,50 @@
 
 .chatContainer {
   padding-top: 100px;
-  position: relative;
-  height: 100%;
+  padding-left: 5px;
+  padding-right: 5px;
+  display: flex;
+  height: calc(100% - 100px);
+  flex-direction: column;
   max-height: 100%;
   width: 70%;
   max-width: 1080px;
   margin: auto;
+  position: relative;
 
-  .message-contaner {
-    &__wrapper {
-
-    }
+  .messageContainer {
+    flex-grow: 1;
+    //overflow-x: hidden;
+    //overflow-y: scroll;
+    //
+    //scrollbar-width: none;
+    //&::-webkit-scrollbar {
+    //  display: none;
+    //}
+    //&__wrapper {
+    //  position: absolute;
+    //  left: 0;
+    //  top: 0;
+    //  right: 0;
+    //  bottom: 0;
+    //}
+    //&__scrollbar {
+    //  position: absolute;
+    //  right: 0;
+    //  width: 15px;
+    //  height: 15px;
+    //  border-radius: 100%;
+    //  bottom: 0;
+    //  background-color: red;
+    //}
 
   }
 
   &__input {
+    flex-shrink: 0;
     left: 0;
     right: 0;
     width: 100%;
-    position: absolute;
     bottom: 0;
 
   }

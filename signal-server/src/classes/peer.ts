@@ -70,6 +70,7 @@ export class Peer extends PeerEmitter {
         logInfo({ event: "ClientInit", message: "Initializing client", userToken: this._userToken });
         this._createClient(ws);
         this._dataMessageHandler();
+        this._startPing();
     }
 
     private _createClient(ws: AppEvent): void {
@@ -154,7 +155,7 @@ export class Peer extends PeerEmitter {
         });
     }
 
-    private startPing(): void {
+    private _startPing(): void {
         const sendPing = () => {
             if (!this._conn) {
                 logWarning({ event: "PingError", message: "No connection available for ping", userToken: this._userToken });

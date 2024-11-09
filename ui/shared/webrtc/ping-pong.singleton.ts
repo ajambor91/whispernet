@@ -8,6 +8,7 @@ class PingPong implements IPingPong {
     private _appEvent: AppEvent = AppEvent.getInstance();
 
     private constructor() {
+        this._handlePing();
     }
 
     public static getInstance(): PingPong {
@@ -17,12 +18,12 @@ class PingPong implements IPingPong {
         return this._instance;
     }
 
-    public handlePing(): void {
-        this._appEvent.off('signal', this.handlePingListener)
-        this._appEvent.on('signal', this.handlePingListener)
+    private _handlePing(): void {
+        this._appEvent.off('signal', this._handlePingListener)
+        this._appEvent.on('signal', this._handlePingListener)
     }
 
-    private handlePingListener = (data: ISignalMessage): void => {
+    private _handlePingListener = (data: ISignalMessage): void => {
         if (data.type === EWebSocketEventType.Ping) {
             const msg: ISignalMessage = {
                 type: EWebSocketEventType.Pong,

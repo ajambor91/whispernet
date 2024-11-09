@@ -1,5 +1,4 @@
 .messageContainer {
-  width: 100%;
   height: auto;
   display: flex;
   padding: 10px 30px;
@@ -17,6 +16,8 @@
     border-radius: 5px;
     padding: 8px;
     max-width: 50%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 
     &Incoming {
       background-color: #283c63;

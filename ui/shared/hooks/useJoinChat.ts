@@ -10,9 +10,9 @@ const useJoinChat = () => {
     useEffect(() => {
         // addToast({ss: 'ss'})
         setInterval(() => {
-            addToast({title: 'test', description: 'x'})
+            addToast({title: 'test', description: 'x', type: 'info'})
 
-        },5000)
+        },1000)
 
     }, []);
 

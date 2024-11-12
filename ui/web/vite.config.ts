@@ -10,7 +10,7 @@ export default defineConfig({
         port: 3000,
         proxy: {
             '/api/signal': {
-                target: 'ws://localhost:8099', // Adres serwera backendowego
+                target: 'ws://localhost:8099',
                 changeOrigin: true,
                 ws: true
             },

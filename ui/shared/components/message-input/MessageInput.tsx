@@ -13,19 +13,16 @@ interface IMessageInput {
 const MessageInput: React.FC<IMessageInput> = ({ sendMessage, setMessageInput }) => {
     const messageRef = useRef<HTMLDivElement>(null);
     const inputContainerRef = useRef<HTMLDivElement | null>(null);
-    const [trigger, setTrigger] = useState<number>(0)
     const handleInput = () => {
         const inputContainer = inputContainerRef.current as HTMLDivElement;
         const input = messageRef.current as HTMLDivElement;
         const inputScrollHeight: number = input.scrollHeight + 66;
         inputContainer.style.height = `${inputScrollHeight}px`;
         const heightMatch = input.style.height.match(/[0-9]*/);
-        setTrigger(trigger + 1)
 
     };
 
     const passMessage = () => {
-        setTrigger(0)
         const messageElement: HTMLDivElement = messageRef.current as HTMLDivElement;
         const msg: IWebrtcPeerMessage = {
             type: undefined,
@@ -54,7 +51,6 @@ const MessageInput: React.FC<IMessageInput> = ({ sendMessage, setMessageInput })
     };
 
     const insertLineBreak = () => {
-        setTrigger(0)
         const selection: Selection = window.getSelection() as Selection;
         if (!selection || !selection.rangeCount) return;
 
@@ -73,7 +69,7 @@ const MessageInput: React.FC<IMessageInput> = ({ sendMessage, setMessageInput })
 
     return (
         <div id="message-input-container" ref={inputContainerRef} className={styles['message-input']}>
-            <ScrollContainer wheelOnId="message-input-text-area" trigger={trigger}>
+            <ScrollContainer wheelOnId="message-input-text-area">
                 <div
                     id="message-input-text-area"
                     onInput={handleInput}

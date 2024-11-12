@@ -1,10 +1,20 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {IPeerState} from "../slices/createSession.slice";
+import {useToasts} from "../providers/toast-provider";
 
 const useJoinChat = () => {
     const [response, setResponse] = useState<IPeerState>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const {addToast}= useToasts();
+    useEffect(() => {
+        // addToast({ss: 'ss'})
+        setInterval(() => {
+            addToast({title: 'test', description: 'x'})
+
+        },5000)
+
+    }, []);
 
     const joinChat = async (wsToken: string) => {
         try {

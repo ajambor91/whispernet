@@ -1,0 +1,18 @@
+.toastsContainer {
+  position: absolute;
+  top: -120px;
+  right: 10px;
+
+  &__toastWrapper {
+    background-color: #ffffff;
+    width: 100px;
+    height: 100px;
+    //transform: translateY(-100px); // początkowa pozycja
+    //transition: transform 0.3s ease-in-out;
+  }
+
+  //// Klasa, która wywoła animację
+  //.slide-down {
+  //  transform: translateY(0); // ostateczna pozycja
+  //}
+}

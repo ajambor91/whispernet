@@ -240,7 +240,7 @@ import {IPeer} from "../interfaces/peer.interface";
             const webRTCInitizalizationMessage: IInitialWebRTCMessage = JSON.parse(message);
             if (webRTCInitizalizationMessage.type === EWebSocketEventType.WebRTCInitializationMessage) {
                 this._setOwnStatus(EClientStatus.PeersConnected)
-                this._appEvent.sendGoodByeMessage();
+                // this._appEvent.sendGoodByeMessage();
             }
         } catch (e) {
             logError({message: e.message, error: e})

@@ -1,47 +1,48 @@
-import {useRef} from "react";
-import styles from './MessageInput.module.scss'
-import {IWebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCircleUp} from "@fortawesome/free-solid-svg-icons/faCircleUp";
+import {useRef, useState} from "react";
+import styles from './MessageInput.module.scss';
+import { IWebrtcPeerMessage } from "../../models/webrtc-peer-message.model";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleUp } from "@fortawesome/free-solid-svg-icons/faCircleUp";
+import ScrollContainer from "../elements/scroll-container/ScrollContainer";
 
 interface IMessageInput {
     sendMessage: (msg: IWebrtcPeerMessage) => void;
     setMessageInput: (height: number) => void;
 }
 
-const MessageInput: React.FC<IMessageInput> = ({sendMessage, setMessageInput}) => {
+const MessageInput: React.FC<IMessageInput> = ({ sendMessage, setMessageInput }) => {
     const messageRef = useRef<HTMLDivElement>(null);
-
+    const inputContainerRef = useRef<HTMLDivElement | null>(null);
+    const [trigger, setTrigger] = useState<number>(0)
     const handleInput = () => {
-
+        const inputContainer = inputContainerRef.current as HTMLDivElement;
         const input = messageRef.current as HTMLDivElement;
-        input.style.height = 'auto';
-        input.style.overflowY = 'hidden';
-        input.style.height = `${input.scrollHeight}px`;
+        const inputScrollHeight: number = input.scrollHeight + 66;
+        inputContainer.style.height = `${inputScrollHeight}px`;
         const heightMatch = input.style.height.match(/[0-9]*/);
-        const height: number = +heightMatch[0];
-        setMessageInput(height)
-        if (heightMatch && 150 < +heightMatch[0]) {
-            input.style.overflowY = 'auto';
-
-
-        }
+        setTrigger(trigger + 1)
 
     };
+
     const passMessage = () => {
+        setTrigger(0)
         const messageElement: HTMLDivElement = messageRef.current as HTMLDivElement;
         const msg: IWebrtcPeerMessage = {
             type: undefined,
             sessionId: '',
-            content: messageElement.innerHTML
-        }
-        sendMessage(msg)
+            content: messageElement.innerHTML,
+        };
+        sendMessage(msg);
         messageElement.focus();
         messageElement.innerHTML = '';
         const input = messageRef.current as HTMLDivElement;
-        input.style.height = 'auto';
-    }
-    const handleKeyDown = (e: any) => {
+        const heightMatch = input.style.height.match(/[0-9]*/);
+        const height: number = +heightMatch[0];
+        setMessageInput(height);
+        handleInput();
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             if (e.shiftKey) {
                 insertLineBreak();
@@ -53,8 +54,9 @@ const MessageInput: React.FC<IMessageInput> = ({sendMessage, setMessageInput}) =
     };
 
     const insertLineBreak = () => {
+        setTrigger(0)
         const selection: Selection = window.getSelection() as Selection;
-        if (!!selection && !selection.rangeCount) return;
+        if (!selection || !selection.rangeCount) return;
 
         const range = selection.getRangeAt(0);
         const br = document.createElement('br');
@@ -68,24 +70,30 @@ const MessageInput: React.FC<IMessageInput> = ({sendMessage, setMessageInput}) =
         selection.removeAllRanges();
         selection.addRange(range);
     };
+
     return (
-        <div className={styles['input-container']}>
-            <div
-                onInput={handleInput}
-                onKeyDown={handleKeyDown}
-                className={styles['input-container__input']}
-                ref={messageRef}
-                contentEditable={true}
-            ></div>
-            <div className={styles['input-container__button-container']}>
+        <div id="message-input-container" ref={inputContainerRef} className={styles['message-input']}>
+            <ScrollContainer wheelOnId="message-input-text-area" trigger={trigger}>
+                <div
+                    id="message-input-text-area"
+                    onInput={handleInput}
+                    onKeyDown={handleKeyDown}
+                    className={styles['message-input__text-area']}
+                    ref={messageRef}
+                    contentEditable={true}
+                ></div>
+            </ScrollContainer>
+            <div id="message-input-button-container" className={styles['message-input__button-container']}>
                 <button
-                    className={styles['input-container__button-container__button']}
+                    id="message-input-send-button"
+                    className={styles['message-input__send-button']}
                     onClick={passMessage}
                 >
-                    <FontAwesomeIcon icon={faCircleUp} style={{fontSize: '1.5rem'}}/></button>
+                    <FontAwesomeIcon icon={faCircleUp} style={{ fontSize: '1.5rem' }} />
+                </button>
             </div>
         </div>
+    );
+};
 
-    )
-}
 export default MessageInput;

@@ -1,37 +1,57 @@
-.scrollbarContainer {
+.scrollableContainer {
   position: relative;
   height: 100%;
+  display: flex;
   width: calc(100% + 100px);
-  overflow: hidden;
+  overflow: visible;
 
-  &__scrollbar {
-    cursor: pointer;
-    position: absolute;
-    right: 30px;
-    width: 17px;
-    height: 17px;
-    border-radius: 50%;
-    background-color: #FF6347;
-    transition: transform 0.1s ease, opacity 0.2s ease;
-    box-shadow: 0 0 10px rgba(255, 99, 71, 0.6), 0 0 20px rgba(255, 99, 71, 0.3); /* Miękki, rozmyty cień */
-
-    &:hover {
-      opacity: 1; // Kulka staje się bardziej widoczna przy najechaniu myszą
-    }
-  }
-  &__content {
+  &ContentWrapper {
+    position: relative;
     width: calc(100% - 100px);
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 0;
-    overflow-y: scroll;
-    transition: transform 0.2s ease-out;
-    scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
+
+    &__content {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      overflow-y: scroll;
+      transition: transform 0.2s ease-out;
+      scrollbar-width: none; // Ukrywa scrollbar w Firefox
+
+      &::-webkit-scrollbar { // Ukrywa scrollbar w Chrome, Safari
+        display: none;
+      }
     }
   }
 
+  &ScrollbarWrapper {
+    position: relative;
+    width: 10px;
+    height: 100%;
+    background: linear-gradient(to bottom, #2A2A4A, #1D1D37, #141428);
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.6), inset -1px -1px 3px rgba(255, 255, 255, 0.1);
+
+    &__scrollbar {
+      cursor: pointer;
+      position: absolute;
+      right: 0;
+      left: 0;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(to bottom, #B266FF, #8A33CC, #5C1999);
+      box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4), inset -1px -1px 3px rgba(255, 255, 255, 0.1);
+
+      transition: transform 0.1s ease, opacity 0.2s ease, width 0.5s, height 0.5s;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      &:active {
+        height: 27px;
+        background: linear-gradient(to bottom, #C47DFF, #A34BCC, #7A2E99);
+      }
+    }
+  }
 }

@@ -74,10 +74,6 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
                         ))}
                     </ScrollContainer>
                 </div>
-                <div>
-
-                </div>
-
                 <div className={styles.chatContainer__input}>
                     <MessageInput sendMessage={sendMessage} setMessageInput={setMessageInputHeight}/>
                 </div>

@@ -1,49 +1,44 @@
-import React, {useEffect, useRef, useState, useCallback, useLayoutEffect} from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import styles from './ScrollContainer.module.scss';
 
 interface IScrollContainerProps {
     children: React.ReactNode;
+    scroll?: boolean;
     resize?: number;
     wheelOnId?: string;
-    trigger?: any;
 }
 
-const ScrollContainer: React.FC<IScrollContainerProps> = ({ children, resize, wheelOnId, trigger }) => {
-    let wheelOn = useRef<HTMLDivElement>(null);
+const ScrollContainer: React.FC<IScrollContainerProps> = ({ children, resize, scroll, wheelOnId }) => {
+    const wheelOn = useRef<HTMLDivElement>(null);
     const scrollbar = useRef<HTMLDivElement>(null);
     const scrollableContent = useRef<HTMLDivElement>(null);
-    const isDraggedRef = useRef<boolean>(false);
+    const isDraggedRef = useRef(false);
     const [startY, setStartY] = useState<number | null>(null);
-    const [scrollTopStart, setScrollTopStart] = useState<number>(0);
-    const [showScrollbar, setShowScrollbar] = useState<boolean>(false);
+    const [scrollTopStart, setScrollTopStart] = useState(0);
+    const [showScrollbar, setShowScrollbar] = useState(false);
 
-
-
-    // Funkcja aktualizująca widoczność scrollbara
     const updateScrollbarVisibility = useCallback(() => {
         const contentHeight = scrollableContent.current?.scrollHeight || 0;
         const visibleHeight = scrollableContent.current?.clientHeight || 0;
-
         setShowScrollbar(contentHeight > visibleHeight);
     }, []);
 
     useEffect(() => {
-        updateScrollbarVisibility();
-    }, [trigger]);
+        const resizeObserver = new ResizeObserver(updateScrollbarVisibility);
+        if (scrollableContent.current) {
+            resizeObserver.observe(scrollableContent.current);
+        }
+        return () => resizeObserver.disconnect();
+    }, [updateScrollbarVisibility]);
 
-    useLayoutEffect(() => {
-        console.log("EFFECT")
+    useEffect(() => {
         updateScrollbarVisibility();
         wheelOn.current = document.getElementById(wheelOnId || "scrollable") as HTMLDivElement;
-
-        // Dodanie listenera dla kółka myszy
         if (wheelOn.current) {
             wheelOn.current.addEventListener('wheel', handleWheel, { passive: false });
-            return () => {
-                wheelOn.current?.removeEventListener('wheel', handleWheel);
-            };
+            return () => wheelOn.current?.removeEventListener('wheel', handleWheel);
         }
-    }, [trigger, resize, children]); // Dependencies zapewniają aktualizację przy zmianie
+    }, [updateScrollbarVisibility, children, wheelOnId]);
 
     const startDrag = (e: React.MouseEvent) => {
         isDraggedRef.current = true;
@@ -66,7 +61,7 @@ const ScrollContainer: React.FC<IScrollContainerProps> = ({ children, resize, wh
             const deltaY = e.clientY - startY;
             const contentHeight = scrollableContent.current.scrollHeight;
             const visibleHeight = scrollableContent.current.clientHeight;
-            const scrollbarHeight = scrollbar.current.parentNode?.clientHeight;
+            const scrollbarHeight = scrollbar.current.parentNode?.clientHeight || 1;
             const scrollAmount = (deltaY / scrollbarHeight) * (contentHeight - visibleHeight);
             scrollableContent.current.scrollTop = scrollTopStart + scrollAmount;
             const scrollRatio = scrollableContent.current.scrollTop / (contentHeight - visibleHeight);
@@ -77,19 +72,17 @@ const ScrollContainer: React.FC<IScrollContainerProps> = ({ children, resize, wh
     const handleWheel = (event: WheelEvent) => {
         event.preventDefault();
         updateScrollbarVisibility();
-        if (scrollbar.current) {
+        if (scrollbar.current && scrollableContent.current) {
             const contentHeight = scrollableContent.current.scrollHeight;
             const visibleHeight = scrollableContent.current.clientHeight;
             const maxScrollableHeight = contentHeight - visibleHeight;
-            const scrollRatio = maxScrollableHeight / 1000;
-            const scrollAmount = event.deltaY * scrollRatio;
+            const scrollAmount = event.deltaY * (maxScrollableHeight / 1000);
             scrollableContent.current.scrollTop += scrollAmount;
 
-            const scrollbarHeight = scrollbar.current.parentNode?.clientHeight;
+            const scrollbarHeight = scrollbar.current.parentNode?.clientHeight || 1;
             const thumbPosition = (scrollableContent.current.scrollTop / maxScrollableHeight) * (scrollbarHeight - scrollbar.current.clientHeight);
             scrollbar.current.style.transform = `translateY(${thumbPosition}px)`;
         }
-
     };
 
     return (

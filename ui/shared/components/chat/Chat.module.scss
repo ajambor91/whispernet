@@ -7,17 +7,20 @@
   height: calc(100% - 100px);
   flex-direction: column;
   max-height: 100%;
-  width: 70%;
+  width: 100%;
   max-width: 1080px;
   margin: auto;
   position: relative;
 
   .messageContainer {
     flex-grow: 1;
+    padding-bottom: 10px;
 
   }
 
   &__input {
+    background-color: transparent;
+    margin-top: -25px;
     flex-shrink: 0;
     left: 0;
     right: 0;

@@ -1,18 +1,69 @@
 .toastsContainer {
-  position: absolute;
-  top: -120px;
-  right: 10px;
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  width: 300px;
+  z-index: 1000;
+}
 
-  &__toastWrapper {
-    background-color: #ffffff;
-    width: 100px;
-    height: 100px;
-    //transform: translateY(-100px); // początkowa pozycja
-    //transition: transform 0.3s ease-in-out;
+.toastsContainer__toastWrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to right, #3a3a5a, #1e1e3e);
+  color: #f1f1f1;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  opacity: 1;
+  transition: opacity 0.3s ease, top 0.3s ease;
+  max-width: 100%;
+
+  &.fadeIn {
+    animation: fadeInDown 5s ease forwards;
   }
 
-  //// Klasa, która wywoła animację
-  //.slide-down {
-  //  transform: translateY(0); // ostateczna pozycja
-  //}
+  &.fadeOut {
+    animation: fadeOutUp 2s ease forwards;
+  }
+}
+
+.toastSuccess {
+  background: linear-gradient(to right, #4caf50, #388e3c);
+}
+
+.toastError {
+  background: linear-gradient(to right, #f44336, #d32f2f);
+}
+
+.toastInfo {
+  background: linear-gradient(to right, #2196f3, #1976d2);
+}
+
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOutUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 }

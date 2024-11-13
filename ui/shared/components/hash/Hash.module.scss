@@ -13,20 +13,21 @@
 
   &__inputWrapper {
     position: relative;
-
+    display: flex;
+    align-items: center;
+    gap: 10px;
     .hash__input {
-      /* Stylowanie dla Input.tsx */
-      width: 400px;
-      border-radius: 2px;
+      width: 370px;
       border: solid 1px #ffffff;
       font-size: 1.2em;
       font-weight: bold;
       text-align: center;
       padding: 5px 5px;
+      height: 45px;
     }
 
     &__copyButton {
-      /* Stylowanie dla przycisku kopiowania */
+      height: 60px;
       outline: none;
       background-color: transparent;
       border: #ffffff solid 1px;

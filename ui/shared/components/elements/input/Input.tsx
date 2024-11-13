@@ -6,10 +6,12 @@ const StyledInput = styled.input`
     border: 2px solid var(--border-color); 
     color: #eaeaea;
     padding: 10px 15px;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
     transition: background-color 0.3s ease, border-color 0.3s ease;
-
+    width: auto;
+    min-width: 1ch;
+    max-width: 100%;
     &:focus {
         background-color: #2a2a5e;
         border-color: #666;

@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from "react";
+import {EClientStatus} from "../../enums/client-status.enum";
 
 interface IStatusProps {
-    sessionStatus: string;
+    sessionStatus: EClientStatus;
 }
 
 const Status: React.FC<IStatusProps> = ({sessionStatus}) => {
-    const [status, setStatus] = useState<string>("Started connection")
-    const getStatus = (): string => {
+    const [status, setStatus] = useState<EClientStatus | null>("Started connection")
+    const getStatus = (): EClientStatus => {
+        console.log('connecting', status)
       return sessionStatus;
     }
     useEffect(() => {

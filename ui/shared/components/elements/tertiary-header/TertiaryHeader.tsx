@@ -2,16 +2,18 @@ import styled from 'styled-components';
 import React from "react";
 import '../../../styles/vars.scss'
 
-const StyledTertiaryHeader = styled.h1`
+const StyledTertiaryHeader = styled.h3`
     font-size: var(--tertiary-header-font-size);
     font-weight: var(--tertiary-header-font-weight);
     text-align: center;
 
 `;
-
-const TertiaryHeader: React.FC<any> = ({children}) => {
+interface IHeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
+    children: string;
+}
+const TertiaryHeader: React.FC<IHeaderProps> = ( {children, ...props }) => {
     return (
-        <StyledTertiaryHeader>
+        <StyledTertiaryHeader  {...props}>
             {children}
         </StyledTertiaryHeader>
     );

@@ -1,7 +1,27 @@
-.joinChatContainer {
+.join-chat {
   &__form {
     display: flex;
     justify-content: center;
   }
 
+  &__form-button {
+    height: 60px;
+  }
+
+  &__form-input {
+    width: 370px;
+    border: solid 1px #ffffff;
+    font-size: 19px;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px 5px;
+
+  }
+
+  &__hash-wrapper {
+    gap: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
 }

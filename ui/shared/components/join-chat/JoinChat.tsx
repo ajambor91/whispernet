@@ -1,50 +1,53 @@
 import styles from './JoinChat.module.scss';
-import React, {useState} from "react";
-import Button from "../elements/button/Button";
-import Input from "../elements/input/Input";
-import InlineDiv from "../elements/inline-div/InlineDiv";
-import SecondaryHeader from "../elements/secondary-header/SecondaryHeader";
-import TertiaryHeader from "../elements/tertiary-header/TertiaryHeader";
-import {faCopy} from "@fortawesome/free-solid-svg-icons/faCopy";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import React, { useState } from 'react';
+import Button from '../elements/button/Button';
+import Input from '../elements/input/Input';
+import SecondaryHeader from '../elements/secondary-header/SecondaryHeader';
+import TertiaryHeader from '../elements/tertiary-header/TertiaryHeader';
+import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface IChatJoiningProps {
     onChatSubmit?: (hash: string) => void;
 }
 
-const JoinChat: React.FC<IChatJoiningProps> = ({onChatSubmit}) => {
+const JoinChat: React.FC<IChatJoiningProps> = ({ onChatSubmit }) => {
     const [hash, setHash] = useState('');
-    const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
-        if (!!e && !!onChatSubmit) {
-            e.preventDefault();
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (onChatSubmit) {
             onChatSubmit(hash);
         }
-    }
+    };
 
-    const handleChange = (e: any) => {
-        const sessionHash: string = e.target.value;
-        setHash(sessionHash);
-    }
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setHash(e.target.value);
+    };
 
     return (
-        <div className={styles.joinChatContainer}>
+        <div className={styles['join-chat']}>
             <SecondaryHeader>Connect to Client Using Hash</SecondaryHeader>
-            <form onSubmit={handleSubmit}>
+            <form className={styles['join-chat__form']} onSubmit={handleSubmit}>
                 <div>
-                    <TertiaryHeader>Paste hash from peer: </TertiaryHeader>
-                    <InlineDiv><Input id="sessionHash" name="sessionHash" value={hash}
-                                      onChange={onChatSubmit ? handleChange : () => {
-                                      }} type="text"/> </InlineDiv>
-                    <InlineDiv>
-                        <Button className={"primary"} type={"submit"}>
-                            Submit <FontAwesomeIcon style={{fontSize: '1.5rem'}} icon={faCopy}/>
+                    <TertiaryHeader>Paste hash from peer:</TertiaryHeader>
+                    <div className={styles['join-chat__hash-wrapper']}>
+                        <Input
+                            className={styles['join-chat__form-input']}
+                            id="sessionHash"
+                            name="sessionHash"
+                            value={hash}
+                            onChange={onChatSubmit ? handleChange : undefined}
+                            type="text"
+                        />
+                        <Button className={`primary ${styles['join-chat__form-button']}`} type="submit">
+                            Submit <FontAwesomeIcon style={{ fontSize: '1.5rem' }} icon={faCopy} />
                         </Button>
-                    </InlineDiv>
+                    </div>
                 </div>
             </form>
         </div>
-    )
-
-}
+    );
+};
 
 export default JoinChat;

@@ -43,12 +43,10 @@ const ChatWaiting: React.FC = () => {
     return (
         peerState.session?.sessionToken ? (
             <section className="full-screen">
-
                 <Hash peerState={peerState} sessionStatus={status}/>
-                <h1>STATUS {status}</h1>
             </section>
         ) : (<TertiaryHeader>
-            Redirecting
+        Redirecting
         </TertiaryHeader>)
 
     );

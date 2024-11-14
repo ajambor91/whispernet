@@ -2,16 +2,18 @@ import styled from 'styled-components';
 import React from "react";
 import '../../../styles/vars.scss'
 
-const StyledPrimaryHeader = styled.h3`
+const StyledPrimaryHeader = styled.h1`
     font-size: var(--main-header-font-size);
     font-weight: var(--main-header-font-weight);
     text-align: center;
 
 `;
-
-const PrimaryHeader: React.FC<any> = ({children}) => {
+interface IHeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
+    children: string;
+}
+const PrimaryHeader: React.FC<IHeaderProps> = ( {children, ...props }) => {
     return (
-        <StyledPrimaryHeader>
+        <StyledPrimaryHeader {...props}>
             {children}
         </StyledPrimaryHeader>
     );

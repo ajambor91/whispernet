@@ -3,8 +3,8 @@ import React from "react";
 import '../../../styles/globals.scss'
 
 const StyledButton = styled.button`
-    margin: 10px;
-    padding: 10px 30px;
+    height: 60px;
+    padding: 5px 30px;
     font-size: 18px;
     font-weight: bold;
     color: var(--font-color);

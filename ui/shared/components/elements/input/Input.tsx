@@ -2,14 +2,14 @@ import styled from 'styled-components';
 import React, {FormEvent} from "react";
 
 const StyledInput = styled.input`
+    overflow: hidden;
     background-color: #2a2a5e; 
     border: 2px solid var(--border-color); 
     color: #eaeaea;
-    padding: 10px 15px;
+    padding: 5px;
+    height: 47px;
     border-radius: 8px;
-    font-size: 16px;
     transition: background-color 0.3s ease, border-color 0.3s ease;
-    width: auto;
     min-width: 1ch;
     max-width: 100%;
     &:focus {
@@ -17,11 +17,16 @@ const StyledInput = styled.input`
         border-color: #666;
         outline: none;
     }
-
+    &:disabled {
+        background-color: #e0e0e0; 
+        color: #a0a0a0; 
+        border: 1px solid #c0c0c0; 
+    }
     &::placeholder {
         color: #888;
         opacity: 0.7;
     }
+    
 `;
 
 interface IInputProps {

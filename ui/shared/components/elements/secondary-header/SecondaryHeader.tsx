@@ -7,10 +7,12 @@ const StyledSecondaryHeader = styled.h1`
     font-weight: var(--secondary-header-font-weight);
     text-align: center;
 `;
-
-const SecondaryHeader: React.FC<any> = ({children}) => {
+interface IHeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
+    children: string;
+}
+const SecondaryHeader: React.FC<IHeaderProps> = ( {children, ...props }) => {
     return (
-        <StyledSecondaryHeader>
+        <StyledSecondaryHeader  {...props}>
             {children}
         </StyledSecondaryHeader>
     );

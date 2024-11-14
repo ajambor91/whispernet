@@ -6,6 +6,7 @@ import ChatJoining from "@/app/pages/join/page";
 import ChatWaitingJoin from "@/app/pages/waiting-join/page";
 import RootLayout from "@/app/layout";
 import Chat from "@/app/pages/chat/page";
+import AppBar from "../../shared/components/app-bar/AppBar";
 
 const App: React.FC = () => (
     <RootLayout>
@@ -13,10 +14,17 @@ const App: React.FC = () => (
         <Router>
             <Routes>
                 <Route path="/" element={<Home />}/>
-                <Route path="/waiting" element={<ChatWaiting />}/>
+                <Route path="*" element={
+                    <>
+                    <AppBar />
+                    <Routes>
+                    <Route path="/waiting" element={<ChatWaiting />}/>
                 <Route path="/join" element={<ChatJoining />}/>
                 <Route path="/waiting-join" element={<ChatWaitingJoin />}/>
                 <Route path="/chat" element={<Chat />} />
+            </Routes>
+                </>
+                }/>
             </Routes>
         </Router>
     </RootLayout>

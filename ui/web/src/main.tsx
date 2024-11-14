@@ -4,6 +4,7 @@ import App from "./app";
 import {logInfo, startCatchingError} from "../../shared/error-logger/web";
 import {ToastProvider} from "../../shared/providers/toast-provider";
 import ToastContainer from "../../shared/components/toast/Toast";
+import './i18n';
 startCatchingError();
 logInfo({data: "App initialized"})
 ReactDOM.createRoot(document.getElementById('root')!).render(

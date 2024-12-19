@@ -1,5 +1,5 @@
 
-import {startKafka} from "./functions/kafka";
+import {startKafka} from "./classes/kafka";
 import {wsConnection} from "./functions/ws-connection";
 
 startKafka();

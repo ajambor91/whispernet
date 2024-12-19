@@ -5,6 +5,7 @@ import {logWarning} from "../error-logger/error-looger";
 export type SessionManager = {
     getSessions: () => SessionController[],
     getSession: (sessionToken: string) => SessionController | undefined,
+    hasSession: (sessionToken: string) => boolean,
     addSession: (sessionToken: string, sessionController: SessionController) => void,
     removeSession: (sessionToken: string) => void
 }
@@ -12,6 +13,7 @@ export const sessionMap: Map<string, SessionController> = new Map();
 
 const createSessionManager = (): SessionManager => {
     return  {
+        hasSession: (sessionToken: string) => sessionMap.has(sessionToken),
         getSession: (sessionToken: string)  => sessionMap.get(sessionToken),
         getSessions: () => Array.from(sessionMap.values()) as SessionController[],
         addSession: (sessionToken: string, sessionController: SessionController) => {

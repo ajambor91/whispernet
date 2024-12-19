@@ -1,11 +1,11 @@
-import { IInitialClient } from "../models/client.model";
+import {IInitialPeer} from "../models/peer.model";
 import { PeerRole } from "../enums/peer-role.enum";
-import { ISession } from "../models/session.model";
+import {IPeerSession, ISession} from "../models/session.model";
 import { EClientConnectionStatus } from "../enums/client-connection-status.enum";
 import { IClientCallbacks } from "../models/client-callbacks.model";
 import { EClientStatus } from "../enums/client-status.enum";
 import { EWebSocketEventType } from "../enums/ws-message.enum";
-import { AppEvent } from "./base-event.class";
+import { AppEvent } from "./app-event";
 import { IIncomingMessage, IOutgoingMessage } from "../models/ws-message.model";
 import { MessageQueue } from "./message-queue";
 import { EInternalMessageType } from "../enums/internal-message-type.enum";
@@ -16,7 +16,8 @@ export class Peer extends PeerEmitter {
     private readonly _pingIntervalDuration: number = 2000;
     private readonly _timeLimit: number = 6000;
     private _peerRole: PeerRole;
-    private _session: ISession;
+    //TODO FIX SESSIO AUTH
+    private _session: IPeerSession;
     private _status: EClientStatus;
     private _userId: string;
     private _userToken: string;
@@ -31,7 +32,7 @@ export class Peer extends PeerEmitter {
         return this._userToken;
     }
 
-    public get session(): ISession {
+    public get session(): IPeerSession {
         return this._session;
     }
 
@@ -56,13 +57,14 @@ export class Peer extends PeerEmitter {
             this._connectionStatus === EClientConnectionStatus.NotConnected;
     }
 
-    constructor(initialClient: IInitialClient) {
+    constructor(initialClient: IInitialPeer, session: IPeerSession) {
         super();
         this._userToken = initialClient.userToken;
-        this._session = initialClient.session;
         this._userId = initialClient.userId;
         this._status = initialClient.status;
         this._peerRole = initialClient.peerRole;
+        this._session = session;
+
         logInfo({ event: "PeerCreated", message: "New Peer instance created", userId: this._userId, userToken: this._userToken, peerRole: this._peerRole });
     }
 
@@ -163,7 +165,7 @@ export class Peer extends PeerEmitter {
             }
 
             logInfo({ event: "PingSent", message: "Sending ping message", session: this._session });
-            this._conn.sendPingMessage(this._session);
+            this._conn.sendPingMessage(this._session.sessionToken);
 
             this._pingInterval = setTimeout(() => {
                 this._connectionStatus = EClientConnectionStatus.DisconnectedFail;

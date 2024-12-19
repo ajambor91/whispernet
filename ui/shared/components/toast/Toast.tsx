@@ -33,7 +33,6 @@ const Toast: React.FC = () => {
                                     : ''
                     }`}
                     onAnimationEnd={() => {
-                        console.log("AUTOCLOSE", toast.autoClose)
                         if (toast.autoClose) removeToast(toast.id);
                     }}
                 >

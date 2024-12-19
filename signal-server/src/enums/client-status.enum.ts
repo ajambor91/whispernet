@@ -1,4 +1,5 @@
 export enum EClientStatus {
+    Created = 'created',
     NotConnected = 'not-connected',
     Initialization = 'init',
     Authorized = 'authorized',

@@ -7,7 +7,6 @@ const ToastContext = createContext<TToastContext | undefined>(undefined)
 export const ToastProvider = ({children}) => {
     const [toasts, setToasts] = useState<IToast<object>[]>([]);
     const addToast = useCallback(({title, description, type, autoClose, customElement, customStyle}) => {
-        console.log("ADD TOAST")
         if (autoClose === undefined || autoClose == null) {
             autoClose = true;
         }

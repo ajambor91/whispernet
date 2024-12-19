@@ -30,7 +30,7 @@ export default function Home() {
         logInfo({ message: "Home component mounted" });
 
         dispatch(setCreatePeerState({
-            session: response ? response.session : null,
+            sessionToken: response ? response.sessionToken : null,
             peerRole: response ? response.peerRole : null
         }));
 

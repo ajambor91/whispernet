@@ -1,13 +1,13 @@
 import {WebRTCIceCandidate, WebRTCSessionDescription} from "./webrtc.interface";
 import {EWebSocketEventType} from "../enums/ws-message.enum";
-import {ISession} from "./session.model";
+import {IPeerSession, ISession} from "./session.model";
 import {EClientStatus} from "../enums/client-status.enum";
 import {PeerRole} from "../enums/peer-role.enum";
 
 
 interface IBaseMessage {
     type: EWebSocketEventType;
-    session: ISession;
+    sessionToken: string;
     candidate?: WebRTCIceCandidate;
     offer?: WebRTCSessionDescription;
     answer?: WebRTCSessionDescription;
@@ -27,6 +27,6 @@ export interface IOutgoingMessage extends  IBaseMessage{
 }
 
 
-export interface ISignalMessage extends Pick<IBaseMessage, 'type' | 'session'> {}
+export interface ISignalMessage extends Pick<IBaseMessage, 'type' | 'sessionToken'> {}
 
-export interface IAuthMessage extends Pick<IBaseMessage, 'type' >, Partial<Pick<IBaseMessage, 'session'>> {}
+export interface IAuthMessage extends Pick<IBaseMessage, 'type' >, Partial<Pick<IBaseMessage, 'sessionToken'>> {}

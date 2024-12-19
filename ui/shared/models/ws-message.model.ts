@@ -7,7 +7,7 @@ export interface ISession {
 
 interface IBaseMessage {
     type: EWebSocketEventType;
-    session: ISession;
+    sessionToken: string;
     candidate?: RTCIceCandidate;
     offer?: RTCSessionDescriptionInit;
     answer?: RTCSessionDescriptionInit;

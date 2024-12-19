@@ -39,6 +39,7 @@ services:
     depends_on:
       - broker
       - gateway
+      - loki
   wssession:
     build: 'net.whisper.wssession'
     networks:
@@ -48,6 +49,7 @@ services:
     depends_on:
       - broker
       - session
+      - loki
   gateway:
     build: './nginx'
     ports:

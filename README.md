@@ -126,7 +126,7 @@ Currently, tests have been implemented for the **Session-Service** microservice,
 The coverage report for **Session-Service** has been generated using [Jacoco](https://www.jacoco.org/).  
 You can find the HTML report in the `target/site/jacoco` directory or access it via the link below:
 
-- [Session-Service Coverage Report](net.whisper.session/reports/jacoco/test/index.html)
+- [Session-Service Coverage Report](net.whisper.session/reports/jacoco/test/html/index.html)
 
 
 ## Future Enhancements

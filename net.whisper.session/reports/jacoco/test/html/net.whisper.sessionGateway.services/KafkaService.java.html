@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KafkaService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">whispernet</a> &gt; <a href="index.source.html" class="el_package">net.whisper.sessionGateway.services</a> &gt; <span class="el_source">KafkaService.java</span></div><h1>KafkaService.java</h1><pre class="source lang-java linenums">package net.whisper.sessionGateway.services;
+
+import net.whisper.sessionGateway.enums.EKafkaMessageTypes;
+import net.whisper.sessionGateway.enums.EKafkaTopic;
+import net.whisper.sessionGateway.factories.ClientFactory;
+import net.whisper.sessionGateway.factories.KafkaTemplatesFactory;
+import net.whisper.sessionGateway.interfaces.IBaseClient;
+import net.whisper.sessionGateway.models.Client;
+import net.whisper.sessionGateway.models.ClientWithoutSession;
+import net.whisper.sessionGateway.templates.KafkaClientMessage;
+import net.whisper.sessionGateway.templates.KafkaClientWithoutSessionMessage;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.stereotype.Service;
+
+import java.util.concurrent.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Service
+public class KafkaService {
+    private final Logger logger;
+    private final KafkaTemplate&lt;String, String&gt; kafkaTemplate;
+    private final ObjectMapper objectMapper;
+    private final ConcurrentHashMap&lt;String, BlockingQueue&lt;Client&gt;&gt; responseMap;
+
+    @Autowired
+    public KafkaService(
+            ObjectMapper objectMapper,
+<span class="fc" id="L39">            KafkaTemplate&lt;String, String&gt; kafkaTemplate) {</span>
+<span class="fc" id="L40">        this.kafkaTemplate = kafkaTemplate;</span>
+<span class="fc" id="L41">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L42">        this.responseMap = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L43">        this.logger = LoggerFactory.getLogger(KafkaService.class);</span>
+<span class="fc" id="L44">    }</span>
+
+    @KafkaListener(topics = &quot;request-return-client-topic&quot;, groupId = &quot;whispernet-session-clients-group&quot;)
+    public void listen(String message) {
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (message.isEmpty()) {</span>
+<span class="nc" id="L49">            throw new NullPointerException(&quot;Message is empty&quot;);</span>
+        }
+<span class="fc" id="L51">        logger.info(&quot;Received kafka message from wssession service to create a new session message={}&quot;, message);</span>
+<span class="fc" id="L52">        Client client = null;</span>
+        try {
+<span class="fc" id="L54">            client = this.getClient(message);</span>
+
+<span class="nc" id="L56">        } catch (JsonProcessingException  e) {</span>
+<span class="nc" id="L57">            logger.error(String.valueOf(e));</span>
+<span class="nc" id="L58">            return;</span>
+<span class="fc" id="L59">        }</span>
+<span class="fc" id="L60">        BlockingQueue&lt;Client&gt; queue = responseMap.get(client.getUserToken());</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (queue != null) {</span>
+            try {
+<span class="fc" id="L63">                queue.put(client);</span>
+<span class="nc" id="L64">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L65">                Thread.currentThread().interrupt();</span>
+<span class="nc" id="L66">                logger.error(String.valueOf(e));</span>
+<span class="fc" id="L67">            }</span>
+        }
+<span class="fc" id="L69">    }</span>
+
+    public Client waitForMessage(IBaseClient client, long timeoutInSeconds) throws InterruptedException {
+<span class="fc" id="L72">        BlockingQueue&lt;Client&gt; queue = responseMap.computeIfAbsent(client.getUserToken(), k -&gt; new LinkedBlockingQueue&lt;&gt;());</span>
+        try {
+<span class="fc" id="L74">            Client message = queue.poll(timeoutInSeconds, TimeUnit.SECONDS);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            if (message == null) {</span>
+<span class="fc" id="L76">                throw new RuntimeException(&quot;Timeout: No message received from Kafka for token: &quot; + client.getUserToken());</span>
+            }
+<span class="fc" id="L78">            return message;</span>
+        } finally {
+<span class="fc" id="L80">            responseMap.remove(client.getUserToken());</span>
+<span class="fc" id="L81">            logger.info(&quot;Remove client from hashmap, userToken={}&quot;, client.getUserToken());</span>
+        }
+
+    }
+
+    public void sendNewClient(ClientWithoutSession client) throws JsonProcessingException {
+<span class="fc" id="L87">        KafkaClientWithoutSessionMessage clientWithoutSessionMessage = KafkaTemplatesFactory.createNewClientTemplate(client);</span>
+<span class="fc" id="L88">        String kafkaMessageString = this.objectMapper.writeValueAsString(clientWithoutSessionMessage);</span>
+<span class="fc" id="L89">        logger.info(&quot;Sending new client session using Kafka to wssession&quot;);</span>
+<span class="fc" id="L90">        sendKafkaMsg(</span>
+                kafkaMessageString,
+<span class="fc" id="L92">                EKafkaTopic.CLIENT_TOPIC.getTopicName(),</span>
+<span class="fc" id="L93">                EKafkaMessageTypes.NEW_CLIENT.getMessageType()</span>
+        );
+<span class="fc" id="L95">        logger.info(&quot;New client message was send&quot;);</span>
+
+<span class="fc" id="L97">    }</span>
+
+    public void sendJoinlient(Client client) throws JsonProcessingException {
+<span class="fc" id="L100">        KafkaClientMessage clientTemplate = KafkaTemplatesFactory.creatJoinClientTemplate(client);</span>
+<span class="fc" id="L101">        String kafkaMessageString = this.objectMapper.writeValueAsString(clientTemplate);</span>
+<span class="fc" id="L102">        logger.info(&quot;Sending joining client session using Kafka to wssession&quot;);</span>
+<span class="fc" id="L103">        sendKafkaMsg(kafkaMessageString, EKafkaTopic.CLIENT_TOPIC.getTopicName(), EKafkaMessageTypes.ADD_CLIENT.getMessageType());</span>
+<span class="fc" id="L104">        logger.info(&quot;Joining client message was send&quot;);</span>
+
+
+<span class="fc" id="L107">    }</span>
+
+    private Client getClient(String message) throws  JsonProcessingException {
+<span class="fc" id="L110">        KafkaClientMessage client = objectMapper.readValue(message, KafkaClientMessage.class);</span>
+<span class="fc" id="L111">        return ClientFactory.createClientFromTemplate(client);</span>
+    }
+
+    private void sendKafkaMsg(String parsedObject, String topic, String type){
+<span class="fc" id="L115">        Message&lt;String&gt; message = MessageBuilder</span>
+<span class="fc" id="L116">                .withPayload(parsedObject)</span>
+<span class="fc" id="L117">                .setHeader(KafkaHeaders.TOPIC, topic)</span>
+<span class="fc" id="L118">                .setHeader(&quot;type&quot;, type)</span>
+<span class="fc" id="L119">                .build();</span>
+<span class="fc" id="L120">        CompletableFuture&lt;SendResult&lt;String, String&gt;&gt; future = this.kafkaTemplate.send(message);</span>
+<span class="fc" id="L121">        future.thenAccept(result -&gt; {</span>
+<span class="fc" id="L122">            RecordMetadata recordMetadata = result.getRecordMetadata();</span>
+<span class="nc" id="L123">            logger.info(&quot;Kafka message was send topic={}, partition={}, offset={}&quot;, recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());</span>
+<span class="pc" id="L124">        }).exceptionally(ex -&gt; {</span>
+<span class="fc" id="L125">            logger.error(&quot;Kafka message send error={}&quot;,ex.getMessage());</span>
+<span class="fc" id="L126">            return null;</span>
+        });
+
+<span class="fc" id="L129">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

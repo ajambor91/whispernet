@@ -6,16 +6,6 @@ const useJoinChat = () => {
     const [response, setResponse] = useState<IPeerState>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const {addToast}= useToasts();
-    useEffect(() => {
-        // addToast({ss: 'ss'})
-        setInterval(() => {
-            addToast({title: 'test', description: 'x', type: 'info'})
-
-        },1000)
-
-    }, []);
-
     const joinChat = async (wsToken: string) => {
         try {
             const response: Response = await fetch(`/api/session/exists/${wsToken}`, {method: 'POST'});

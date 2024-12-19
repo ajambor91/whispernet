@@ -19,8 +19,8 @@ interface IHashProps {
 
 const Hash: React.FC<IHashProps> = ({peerState, sessionStatus}) => {
     const handleCopy = () => {
-        if (!!peerState.session) {
-            navigator.clipboard.writeText(peerState.session.sessionToken).then(() => {
+        if (!!peerState.sessionToken) {
+            navigator.clipboard.writeText(peerState.sessionToken).then(() => {
 
             });
         }
@@ -31,7 +31,7 @@ const Hash: React.FC<IHashProps> = ({peerState, sessionStatus}) => {
                 <SecondaryHeader className={styles.hash__header}>Waiting for peer...</SecondaryHeader>
                 <TertiaryHeader className={styles.hash__header}>Copy below hash:</TertiaryHeader>
                 <div className={styles.hash__inputWrapper}>
-                    <Input onClick={handleCopy} className={styles.hash__input} type="text" value={peerState.session?.sessionToken ?? ''} disabled={true}/>
+                    <Input onClick={handleCopy} className={styles.hash__input} type="text" value={peerState.sessionToken ?? ''} disabled={true}/>
                     <Button className={styles.hash__inputWrapper__copyButton} onClick={handleCopy}><FontAwesomeIcon
                         style={{fontSize: '1.5rem'}} icon={faCopy}/></Button>
                 </div>

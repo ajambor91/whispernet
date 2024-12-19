@@ -1,4 +1,4 @@
-import {AppEvent} from "../classes/base-event.class";
+import {AppEvent} from "../classes/app-event";
 import {IAuthMessage} from "../models/ws-message.model";
 
 import {Peer} from "../classes/peer";
@@ -18,7 +18,7 @@ export class AuthController {
     public authorize(): void {
         try {
             this.checkUser();
-            this._appEvent.sendAuthorizeMessage(this._user.session);
+            this._appEvent.sendAuthorizeMessage(this._user.session.sessionToken);
         } catch (e) {
             this._appEvent.close();
             if (e instanceof Error) {
@@ -35,7 +35,7 @@ export class AuthController {
             throw new Error('User token mismatch');
         }
 
-        if (this._user.session.sessionToken !== this._authMessage.session?.sessionToken) {
+        if (this._user.session.sessionToken !== this._authMessage.sessionToken) {
             this._appEvent.sendUnauthorizeMessage();
             this._appEvent.close();
             throw new Error('Session token mismatch');

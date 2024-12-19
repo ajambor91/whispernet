@@ -25,7 +25,7 @@ class Auth implements IAuth {
 
     private async handleAuth(): Promise<boolean | unknown> {
         const authMessage: IAuthMessage = {
-            session: this._peer.session,
+            sessionToken: this._peer.sessionToken,
             type: EWebSocketEventType.Auth
         }
         return new Promise((resolve, reject) => {

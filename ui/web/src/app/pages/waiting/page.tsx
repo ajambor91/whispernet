@@ -11,6 +11,7 @@ import TertiaryHeader from "../../../../../shared/components/elements/tertiary-h
 const ChatWaiting: React.FC = () => {
     const [status, setStatus] = useState<string>("Connecting");
     const peerState: IPeerState = useAppSelector(state => state?.peerState);
+    console.log("peerState", peerState)
     const onStatus = useWebSocket(peerState);
     const router = useNavigate();
     useEffect(() => {
@@ -41,7 +42,7 @@ const ChatWaiting: React.FC = () => {
         }
     }, [peerState, router]);
     return (
-        peerState.session?.sessionToken ? (
+        peerState.sessionToken ? (
             <section className="full-screen">
                 <Hash peerState={peerState} sessionStatus={status}/>
             </section>

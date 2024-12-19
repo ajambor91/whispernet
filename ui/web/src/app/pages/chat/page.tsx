@@ -12,14 +12,13 @@ const Chat: React.FC = () => {
     const router = useNavigate();
 
     useEffect(() => {
-        console.log("$CHAT")
-        if (!peerState || !peerState.session?.sessionToken) {
+        if (!peerState || !peerState.sessionToken) {
             router('/');
         }
     }, [peerState, router]);
 
     return (
-        peerState.session?.sessionToken ? (
+        peerState.sessionToken ? (
             <div className="full-screen">
                 <ChatComponent peerState={peerState} />
             </div>

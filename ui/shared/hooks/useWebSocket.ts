@@ -16,7 +16,7 @@ const useWebSocket = (peerState: IPeerState) => {
     );
 
     useEffect(() => {
-        if (!peerRef.current && peerState?.session && peerState?.peerRole) {
+        if (!peerRef.current && peerState?.sessionToken && peerState?.peerRole) {
             peerRef.current = initializePeer(peerState);
         }
 

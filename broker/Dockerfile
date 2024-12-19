@@ -1,4 +1,4 @@
-FROM confluentinc/cp-kafka:latest
+FROM confluentinc/cp-kafka
 COPY ./config/server.properties /opt/kafka/config/server.properties
 COPY ./topics.sh /usr/bin
 CMD ["sh", "/usr/bin/topics.sh"]

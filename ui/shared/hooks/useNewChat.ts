@@ -2,7 +2,7 @@ import {useState} from "react";
 import {ISession} from "../models/ws-message.model";
 
 interface IPeerState {
-    session: ISession;
+    sessionToken: string;
     peerRole: string
 }
 

@@ -21,7 +21,7 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
     const [trigger, setTrigger] = useState<number>(0)
     const addMessage = (content: IWebrtcPeerMessage) => {
         setTrigger(0)
-        if (content.sessionId !== peerState.session.sessionToken) {
+        if (content.sessionId !== peerState.sessionToken) {
             throw new Error('Invalid session token!')
         }
         setMessages(prevState => [
@@ -41,11 +41,11 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
         return JSON.parse(msg);
     }
     const sendMessage = (content: IWebrtcPeerMessage) => {
-        sendWebRTCMessage(stringfyWebRTCPeerMsg({...content, sessionId: peerState.session.sessionToken as string}))
+        sendWebRTCMessage(stringfyWebRTCPeerMsg({...content, sessionId: peerState.sessionToken as string}))
         addMessage({
             ...content,
             type: 'reply',
-            sessionId: peerState.session.sessionToken as string
+            sessionId: peerState.sessionToken as string
         })
         setTrigger(trigger + 1);
 

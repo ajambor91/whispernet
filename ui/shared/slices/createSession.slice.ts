@@ -3,13 +3,13 @@ import {PeerRole} from "../enums/peer-role.enum";
 import {ISession} from "../models/ws-message.model";
 
 export interface IPeerState {
-    session: ISession | null;
+    sessionToken: string | null;
     peerRole: PeerRole | null;
 
 }
 
 const initialState: IPeerState = {
-    session: null,
+    sessionToken: null,
     peerRole: null
 }
 
@@ -18,7 +18,7 @@ export const createPeerStateSlice = createSlice({
     initialState,
     reducers: {
         setCreatePeerState: (state, action: PayloadAction<IPeerState>) => {
-            state.session = action.payload.session;
+            state.sessionToken = action.payload.sessionToken;
             state.peerRole = action.payload.peerRole;
         }
     }

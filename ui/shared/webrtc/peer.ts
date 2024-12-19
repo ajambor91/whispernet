@@ -18,19 +18,19 @@ import {IPeer} from "../interfaces/peer.interface";
     private readonly _auth: IAuth;
     private readonly _ping: IPingPong;
     private readonly _appEvent: AppEvent;
-    private readonly _session: ISession;
+    private readonly _sessionToken: string;
     private readonly _peerRole: PeerRole;
     private _status: EClientStatus = EClientStatus.NotConnected;
     private _rtcState!: ConnectionStateModel;
     private iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
 
-    public get session(): ISession {
-        return this._session;
+    public get sessionToken(): string {
+        return this._sessionToken;
     }
 
     constructor(peerState: IPeerState) {
         super();
-        this._session = peerState.session;
+        this._sessionToken = peerState.sessionToken;
         this._peerRole = peerState.peerRole
         this._rtcState = {
             dataChannel: null,
@@ -91,7 +91,7 @@ import {IPeer} from "../interfaces/peer.interface";
     private async _initClient(): Promise<void> {
         this._setOwnStatus(EClientStatus.Initialization);
         try {
-            await this._auth.authorize(this._session);
+            await this._auth.authorize(this._sessionToken);
             this._setOwnStatus(EClientStatus.Authorized);
         } catch (e) {
             this._setOwnStatus(EClientStatus.DisconnectedFail);
@@ -107,7 +107,9 @@ import {IPeer} from "../interfaces/peer.interface";
     }
 
     private async _processMessage(data: IIncomingMessage): Promise<void> {
+
         if (this._peerRole === PeerRole.Initiator && data.type === EWebSocketEventType.Connect) {
+
             this._setOwnStatus(EClientStatus.SendingOffer);
             await this._sendOffer();
             this._setOwnStatus(EClientStatus.WaitingForAnswer);
@@ -137,7 +139,7 @@ import {IPeer} from "../interfaces/peer.interface";
             const rtcOffer: IOutgoingMessage = {
                 type: EWebSocketEventType.Offer,
                 offer: offer,
-                session: this._session,
+                sessionToken: this._sessionToken,
                 peerStatus: EClientStatus.WebRTCInitialization
             }
 
@@ -150,7 +152,7 @@ import {IPeer} from "../interfaces/peer.interface";
             const iceCandidateMsg: IOutgoingMessage = {
                 type: EWebSocketEventType.Candidate,
                 candidate: event.candidate,
-                session: this._session,
+                sessionToken: this._sessionToken,
                 peerStatus: EClientStatus.WebRTCInitialization
             };
             this._appEvent.sendWSMessage(iceCandidateMsg);
@@ -183,7 +185,7 @@ import {IPeer} from "../interfaces/peer.interface";
             const answerMsg: IOutgoingMessage = {
                 type: EWebSocketEventType.Answer,
                 answer: answer,
-                session: this._session,
+                sessionToken: this._sessionToken,
                 peerStatus: EClientStatus.WebRTCInitialization
             };
             this._appEvent.sendWSMessage(answerMsg);
@@ -207,7 +209,7 @@ import {IPeer} from "../interfaces/peer.interface";
                 const openedMsg: IOutgoingMessage = {
                     type: EWebSocketEventType.PeerReady,
                     peerStatus: EClientStatus.WebRTCInitialization,
-                    session: message.session
+                    sessionToken: message.sessionToken
                 };
                 this._appEvent.sendWSMessage(openedMsg);
             };
@@ -261,7 +263,7 @@ import {IPeer} from "../interfaces/peer.interface";
         };
 
         this._rtcState.dataChannel.onclose = () => {
-            console.log('Data channel closed');
+            logInfo({message: "WebRTC Session was closed:" + this._sessionToken + " for peer: " + this._peerRole  })
         };
     }
 

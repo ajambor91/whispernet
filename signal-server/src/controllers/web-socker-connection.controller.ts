@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import { IncomingMessage } from "http";
 import { getSessionManager, SessionManager } from "../managers/session-manager";
-import { AppEvent } from "../classes/base-event.class";
+import { AppEvent } from "../classes/app-event";
 import { AuthController } from "./auth.controller";
 import { SessionController } from "./session-controller";
 import { Peer } from "../classes/peer";
@@ -47,13 +47,12 @@ export class WebSocketConnectionController {
 
     private handleAuth(data: any): void {
         try {
-            const sessionToken: string = data.session.sessionToken;
+            const sessionToken: string = data.sessionToken;
             const currentSession: SessionController | undefined = this.sessionManager.getSession(sessionToken);
 
             if (!currentSession) {
                 throw new Error("No session found");
             }
-
             const currentPeer: Peer | undefined = currentSession.getUser(this.userToken);
 
             if (!currentPeer) {
@@ -104,7 +103,7 @@ export class WebSocketConnectionController {
     //TODO added destroy session
     private destroy(): void {
         if (this.currentSession.getUsers().length === 0) {
-            this.sessionManager.removeSession(this.currentSession.session.sessionToken)
+            this.sessionManager.removeSession(this.currentSession.sessionToken)
 
         }
     }

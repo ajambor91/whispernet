@@ -1,6 +1,6 @@
 import '../../styles/globals.scss'
 import styles from './Chat.module.scss'
-import React, {useEffect, useRef, useState} from "react";
+import React, {Ref, useEffect, useRef, useState} from "react";
 import Message from "../message/Message";
 import MessageInput from "../message-input/MessageInput";
 import {IWebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
@@ -9,6 +9,7 @@ import {onMessage, sendWebRTCMessage} from "../../webrtc/peer";
 import FullHeight from "../elements/full-height/FullHeight";
 import ScrollContainer from "../elements/scroll-container/ScrollContainer";
 import {useToasts} from "../../providers/toast-provider";
+import {MessageEncoder} from "../../webrtc/wasm";
 
 
 interface IChatComponentProps {
@@ -40,7 +41,7 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
     const parseWebRTCPeerMsg = (msg: string): IWebrtcPeerMessage => {
         return JSON.parse(msg);
     }
-    const sendMessage = (content: IWebrtcPeerMessage) => {
+    const sendMessage = async (content: IWebrtcPeerMessage) => {
         sendWebRTCMessage(stringfyWebRTCPeerMsg({...content, sessionId: peerState.sessionToken as string}))
         addMessage({
             ...content,

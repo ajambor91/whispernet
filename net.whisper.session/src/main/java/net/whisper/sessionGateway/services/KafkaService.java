@@ -9,8 +9,10 @@ import net.whisper.sessionGateway.factories.KafkaTemplatesFactory;
 import net.whisper.sessionGateway.interfaces.IBaseClient;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
+import net.whisper.sessionGateway.models.IncomingClient;
 import net.whisper.sessionGateway.templates.KafkaClientMessage;
 import net.whisper.sessionGateway.templates.KafkaClientWithoutSessionMessage;
+import net.whisper.sessionGateway.templates.KafkaIncomingClientMessage;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,7 @@ public class KafkaService {
     private final Logger logger;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
-    private final ConcurrentHashMap<String, BlockingQueue<Client>> responseMap;
+    private final ConcurrentHashMap<String, BlockingQueue<IncomingClient>> responseMap;
 
     @Autowired
     public KafkaService(
@@ -48,7 +50,7 @@ public class KafkaService {
             throw new NullPointerException("Message is empty");
         }
         logger.info("Received kafka message from wssession service to create a new session message={}", message);
-        Client client = null;
+        IncomingClient client = null;
         try {
             client = this.getClient(message);
 
@@ -56,7 +58,7 @@ public class KafkaService {
             logger.error(String.valueOf(e));
             return;
         }
-        BlockingQueue<Client> queue = responseMap.get(client.getUserToken());
+        BlockingQueue<IncomingClient> queue = responseMap.get(client.getUserToken());
         if (queue != null) {
             try {
                 queue.put(client);
@@ -67,10 +69,10 @@ public class KafkaService {
         }
     }
 
-    public Client waitForMessage(IBaseClient client, long timeoutInSeconds) throws InterruptedException {
-        BlockingQueue<Client> queue = responseMap.computeIfAbsent(client.getUserToken(), k -> new LinkedBlockingQueue<>());
+    public IncomingClient waitForMessage(IBaseClient client, long timeoutInSeconds) throws InterruptedException {
+        BlockingQueue<IncomingClient> queue = responseMap.computeIfAbsent(client.getUserToken(), k -> new LinkedBlockingQueue<>());
         try {
-            Client message = queue.poll(timeoutInSeconds, TimeUnit.SECONDS);
+            IncomingClient message = queue.poll(timeoutInSeconds, TimeUnit.SECONDS);
             if (message == null) {
                 throw new RuntimeException("Timeout: No message received from Kafka for token: " + client.getUserToken());
             }
@@ -105,8 +107,8 @@ public class KafkaService {
 
     }
 
-    private Client getClient(String message) throws JsonProcessingException {
-        KafkaClientMessage client = objectMapper.readValue(message, KafkaClientMessage.class);
+    private IncomingClient getClient(String message) throws JsonProcessingException {
+        KafkaIncomingClientMessage client = objectMapper.readValue(message, KafkaIncomingClientMessage.class);
         return ClientFactory.createClientFromTemplate(client);
     }
 

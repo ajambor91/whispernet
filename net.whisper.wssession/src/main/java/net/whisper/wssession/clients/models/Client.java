@@ -11,7 +11,7 @@ import net.whisper.wssession.session.models.PeerSession;
 @Setter
 public class Client extends BaseClient implements IClient {
     String sessionToken;
-
+    String secretKey;
     public Client() {
 
     }
@@ -19,5 +19,6 @@ public class Client extends BaseClient implements IClient {
     public Client(PeerClient peerClient, PeerSession peerSession) {
         super(peerClient);
         this.sessionToken = peerSession.getSessionToken();
+        this.secretKey = peerSession.getSecretKey();
     }
 }

@@ -3,6 +3,7 @@ package net.whisper.sessionGateway.services;
 import net.whisper.sessionGateway.managers.ClientManager;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
+import net.whisper.sessionGateway.models.IncomingClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class SessionService {
         this.logger = LoggerFactory.getLogger(SessionService.class);
     }
 
-    public Client createClient() {
+    public IncomingClient createClient() {
         try {
 
             ClientWithoutSession client = this.clientManager.setupNewClient();
@@ -35,7 +36,7 @@ public class SessionService {
 
     }
 
-    public Client createNextClientSession(String sessionToken) {
+    public IncomingClient createNextClientSession(String sessionToken) {
         try {
             Client client = this.clientManager.createJoinClient(sessionToken);
             this.kafkaService.sendJoinlient(client);

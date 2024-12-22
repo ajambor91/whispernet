@@ -5,8 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.sessionGateway.managers.ClientManager;
 import net.whisper.sessionGateway.models.BaseClient;
-import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
+import net.whisper.sessionGateway.models.IncomingClient;
 import net.whisper.sessionGateway.services.KafkaService;
 import net.whisper.sessionGateway.services.SessionService;
 import net.whisper.sessionGateway.whispernet.utils.TestFactory;
@@ -42,8 +42,8 @@ public class SessionServiceTest {
     @SpyBean
     private KafkaService kafkaService;
     private ClientWithoutSession clientWithoutSession;
-    private Client client;
-    private Client joiner;
+    private IncomingClient client;
+    private IncomingClient joiner;
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -54,8 +54,8 @@ public class SessionServiceTest {
     @BeforeEach
     public void setup() {
         this.clientWithoutSession = TestFactory.createClientWithoutSession();
-        this.client = TestFactory.createClient();
-        this.joiner = TestFactory.createJoinerClient();
+        this.client = TestFactory.createIncomingClient();
+        this.joiner = TestFactory.createIncomingJoinerClient();
         this.objectMapper = new ObjectMapper();
     }
 
@@ -69,7 +69,7 @@ public class SessionServiceTest {
         doReturn(this.client).when(this.kafkaService).waitForMessage(any(BaseClient.class), anyLong());
         CompletableFuture<SendResult<String, String>> mockFuture = CompletableFuture.completedFuture(mock(SendResult.class));
         when(this.kafkaTemplate.send(any(Message.class))).thenReturn(mockFuture);
-        Client client = this.sessionService.createClient();
+        IncomingClient client = this.sessionService.createClient();
         assertEquals(client.getUserToken(), this.clientWithoutSession.getUserToken());
     }
 
@@ -85,7 +85,7 @@ public class SessionServiceTest {
         when(this.kafkaTemplate.send(any(Message.class))).thenReturn(mockFuture);
         assertThrows(RuntimeException.class, () -> {
             this.kafkaService.waitForMessage(this.joiner, 5);
-            Client client = this.sessionService.createClient();
+            IncomingClient client = this.sessionService.createClient();
 
         });
     }
@@ -96,7 +96,7 @@ public class SessionServiceTest {
         doReturn(this.joiner).when(this.kafkaService).waitForMessage(any(BaseClient.class), anyLong());
         CompletableFuture<SendResult<String, String>> mockFuture = CompletableFuture.completedFuture(mock(SendResult.class));
         when(this.kafkaTemplate.send(any(Message.class))).thenReturn(mockFuture);
-        Client client = this.sessionService.createNextClientSession(this.objectMapper.writeValueAsString(this.joiner));
+        IncomingClient client = this.sessionService.createNextClientSession(this.objectMapper.writeValueAsString(this.joiner));
         assertEquals(this.joiner, client);
     }
 
@@ -107,7 +107,7 @@ public class SessionServiceTest {
         when(this.kafkaTemplate.send(any(Message.class))).thenReturn(mockFuture);
         assertThrows(RuntimeException.class, () -> {
             this.kafkaService.waitForMessage(this.joiner, 1);
-            Client client = this.sessionService.createNextClientSession(this.client.getSessionToken());
+            IncomingClient client = this.sessionService.createNextClientSession(this.client.getSessionToken());
 
         });
     }

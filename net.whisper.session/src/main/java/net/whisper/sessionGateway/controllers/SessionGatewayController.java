@@ -2,7 +2,7 @@ package net.whisper.sessionGateway.controllers;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import net.whisper.sessionGateway.models.Client;
+import net.whisper.sessionGateway.models.IncomingClient;
 import net.whisper.sessionGateway.services.CookiesService;
 import net.whisper.sessionGateway.services.SessionService;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class SessionGatewayController {
     public ResponseEntity<Map<String, String>> createSession(HttpServletResponse response) {
         logger.info("Received request to create a new session");
         try {
-            Client client = sessionService.createClient();
+            IncomingClient client = sessionService.createClient();
             logger.debug("Created new client: sessionToken={}, peerRole={}", client.getSessionToken(), client.getPeerRole().getPeerRoleName());
 
             Cookie httpOnlyCookie = cookiesService.getCookie(client, 86400);
@@ -43,7 +43,8 @@ public class SessionGatewayController {
 
             Map<String, String> responseBody = Map.of(
                     "sessionToken", client.getSessionToken(),
-                    "peerRole", client.getPeerRole().getPeerRoleName()
+                    "peerRole", client.getPeerRole().getPeerRoleName(),
+                    "secretKey", client.getSecretKey()
             );
 
             response.addCookie(httpOnlyCookie);
@@ -63,7 +64,7 @@ public class SessionGatewayController {
     public ResponseEntity<Map<String, String>> createNextClientSession(HttpServletResponse response, @PathVariable String sessionToken) {
         logger.info("Received request to check if session exists: sessionToken={}", sessionToken);
         try {
-            Client client = sessionService.createNextClientSession(sessionToken);
+            IncomingClient client = sessionService.createNextClientSession(sessionToken);
             logger.debug("Created next client session: sessionToken={}, peerRole={}", client.getSessionToken(), client.getPeerRole().getPeerRoleName());
 
             Cookie httpOnlyCookie = cookiesService.getCookie(client, 86400);
@@ -71,7 +72,9 @@ public class SessionGatewayController {
 
             Map<String, String> responseBody = Map.of(
                     "sessionToken", client.getSessionToken(),
-                    "peerRole", client.getPeerRole().getPeerRoleName()
+                    "peerRole", client.getPeerRole().getPeerRoleName(),
+                    "secretKey", client.getSecretKey()
+
             );
 
             response.addCookie(httpOnlyCookie);

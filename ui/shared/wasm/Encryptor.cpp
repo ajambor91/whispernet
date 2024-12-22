@@ -10,6 +10,7 @@ Encryptor::Encryptor(std::string secretArg) :
 std::pair<std::string, std::string> Encryptor::encrypt(const std::string& data) {
 	EVP_CIPHER_CTX_Guard evpGuard;
 	std::vector<unsigned char> iv = generateRandomIV();
+	std::cout << decodedSecret.size();
 	if (decodedSecret.size() != SECRET_SIZE) {
 		throw std::runtime_error("Invalid AES key size");
 	}

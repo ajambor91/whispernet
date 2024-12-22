@@ -3,36 +3,44 @@
   "WorkspaceRootPath": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\B64Enc.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:B64Enc.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\BIO_Guard.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:BIO_Guard.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\BIO_Guard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:BIO_Guard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Encryptor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:Encryptor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Encryptor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:Encryptor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\EVP_CIPHER_CTX_Guard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:EVP_CIPHER_CTX_Guard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\EVP_CIPHER_CTX_Guard.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:EVP_CIPHER_CTX_Guard.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\EVP_CIPHER_CTX_Guard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:EVP_CIPHER_CTX_Guard.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\B64Enc.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:B64Enc.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\B64Enc.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:B64Enc.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Sanitizer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:Sanitizer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\B64Enc.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:B64Enc.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Encryptor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:Encryptor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|solutionrelative:Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F1B382D7-DDF2-40D9-8CCF-F5A664A441D9}|wasm.vcxproj|C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Decryptor.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -59,19 +67,32 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "BIO_Guard.h",
+              "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\BIO_Guard.h",
+              "RelativeDocumentMoniker": "BIO_Guard.h",
+              "ToolTip": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\BIO_Guard.h",
+              "RelativeToolTip": "BIO_Guard.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-12-22T12:00:03.679Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "EVP_CIPHER_CTX_Guard.h",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\EVP_CIPHER_CTX_Guard.h",
               "RelativeDocumentMoniker": "EVP_CIPHER_CTX_Guard.h",
               "ToolTip": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\EVP_CIPHER_CTX_Guard.h",
               "RelativeToolTip": "EVP_CIPHER_CTX_Guard.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAhAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-12-21T16:09:08.531Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 11,
               "Title": "Decryptor.h",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Decryptor.h",
               "RelativeDocumentMoniker": "Decryptor.h",
@@ -83,7 +104,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "Decryptor.cpp",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Decryptor.cpp",
               "RelativeDocumentMoniker": "Decryptor.cpp",
@@ -95,7 +116,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 9,
               "Title": "Main.cpp",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Main.cpp",
               "RelativeDocumentMoniker": "Main.cpp",
@@ -103,18 +124,17 @@
               "RelativeToolTip": "Main.cpp",
               "ViewState": "AgIAAAMAAAAAAAAAAAAUwA4AAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-10-20T12:53:04.301Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-20T12:53:04.301Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 6,
               "Title": "B64Enc.cpp",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\B64Enc.cpp",
               "RelativeDocumentMoniker": "B64Enc.cpp",
               "ToolTip": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\B64Enc.cpp",
               "RelativeToolTip": "B64Enc.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAUwAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-12-20T16:39:11.656Z",
               "EditorCaption": ""
@@ -123,50 +143,63 @@
         },
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 0,
               "Title": "B64Enc.h",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\B64Enc.h",
               "RelativeDocumentMoniker": "B64Enc.h",
               "ToolTip": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\B64Enc.h",
               "RelativeToolTip": "B64Enc.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-12-20T16:39:00.116Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "Sanitizer.h",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Sanitizer.h",
               "RelativeDocumentMoniker": "Sanitizer.h",
               "ToolTip": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Sanitizer.h",
               "RelativeToolTip": "Sanitizer.h",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAsAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-12-20T08:40:46.474Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
+              "Title": "BIO_Guard.cpp",
+              "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\BIO_Guard.cpp",
+              "RelativeDocumentMoniker": "BIO_Guard.cpp",
+              "ToolTip": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\BIO_Guard.cpp",
+              "RelativeToolTip": "BIO_Guard.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-12-22T12:04:06.774Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "Encryptor.cpp",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Encryptor.cpp",
               "RelativeDocumentMoniker": "Encryptor.cpp",
               "ToolTip": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Encryptor.cpp",
               "RelativeToolTip": "Encryptor.cpp",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAUwCAAAAAWAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-10-20T12:53:15.974Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 8,
               "Title": "Encryptor.h",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Encryptor.h",
               "RelativeDocumentMoniker": "Encryptor.h",
@@ -174,12 +207,11 @@
               "RelativeToolTip": "Encryptor.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-20T12:54:39.759Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-20T12:54:39.759Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "EVP_CIPHER_CTX_Guard.cpp",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\EVP_CIPHER_CTX_Guard.cpp",
               "RelativeDocumentMoniker": "EVP_CIPHER_CTX_Guard.cpp",
@@ -192,7 +224,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 12,
               "Title": "Sanitizer.cpp",
               "DocumentMoniker": "C:\\PROJECTS\\whispernet\\ui\\shared\\wasm\\Sanitizer.cpp",
               "RelativeDocumentMoniker": "Sanitizer.cpp",

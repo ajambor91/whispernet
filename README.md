@@ -13,6 +13,7 @@ WhisperNet is a decentralized communication platform designed to provide private
 - **Real-Time Monitoring**: Includes Grafana, Loki, and Promtail for application logs and metrics.
 - **Cross-Platform**: Frontend built in React.
 - **WebRTC**: Session signaling with a test TURN server.
+- **WebAssembly**: Message sanitizing and AES 256 encoding and decoding
 
 ---
 
@@ -29,6 +30,7 @@ WhisperNet is a decentralized communication platform designed to provide private
 
 - **Frontend**:
     - React: A modern, responsive UI for the chat platform.
+    - WebAssembly: C++ with emscripten
 
 - **Infrastructure**:
     - Grafana + Loki + Promtail: For real-time monitoring and logging.

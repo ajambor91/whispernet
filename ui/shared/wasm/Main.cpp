@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Encryptor.h"
+#include "Decryptor.h"
 #include "Sanitizer.h"
 #include "B64Enc.h"
 #include <string>
@@ -15,8 +16,9 @@ class Main {
 		std::string decodedSecret;
 		Sanitizer sanitizer;
 		Encryptor encryptor;
+		Decryptor decryptor;
 	public:
-		Main(std::string secretArg) : encryptor(secretArg) {
+		Main(std::string secretArg) : encryptor(secretArg), decryptor(secretArg) {
 		}
 		std::string encodeMessage(const std:: string& data) {
 			json responseData;
@@ -44,14 +46,31 @@ class Main {
 			return responseData.dump();
 		}
 
-		void decodeMessage() {
+		std::string decodeMessage(const std::string& b64Message, const std::string& IVKey) {
+			json responseData;
+			try {
+				decryptor.setIV(IVKey);
+				std::string decryptedMessage = decryptor.decryptMessage(b64Message);
+				responseData = {
+					{"decryptedMessage", decryptedMessage}
+				};
+			}	
+			catch (const std::exception& e) {
+				std::cout << "Exception: " << e.what() << std::endl;
+			}
+			catch (...) {
+				std::cout << "Unknown exception";
+			}
+			return responseData.dump();
 
 		}
 };
 
 int main() {
 	Main mainProgram("bkJQ7g1eA3WxzqrDcI9VldzWuBFZtkCNoeqyPXI8IcA=");
-	mainProgram.encodeMessage("TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST");
+	//mainProgram.encodeMessage("TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST");
+	mainProgram.decodeMessage("lsIclo0l/T5OXSHapnYKZzvCWpYwaqWXgUHSt1toRCMjqgymPlyewvAU2wrSZabopR14FI+0kQ30wccP1eCxDFNsZX1G9/iN1zPs2gMmolNEpHzoZMK86d65wBmGTKWIWFxV4aJbhKmyyMBYLQI+0pIlxPi7pTL8EDMeADcTMR4Kd5NxkEo8Og6mBXbj1r2XEI2YMfWmwU1xt51DeXfFx6+EApx/TO9RfNMPdw677JGu3eyDIh6TIxhRo8eeVObhvugeQ6KvJGSdwSNCzdg/htEqXb/hLmsN8ZJBprDmTEXuNu9lfbPerzTAPuI1YO7R", "m6kUGEPZycNsnBviOxB5Zg==");
+
 }
 
 //EMSCRIPTEN_BINDINGS(MainBinding) {
@@ -60,3 +79,4 @@ int main() {
 //		.function("encodeMessage", &Main::encodeMessage)
 //		.function("decodeMessage", &Main::decodeMessage);
 //}
+

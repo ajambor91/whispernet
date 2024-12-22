@@ -5,6 +5,7 @@ import net.whisper.sessionGateway.enums.EClientConnectionStatus;
 import net.whisper.sessionGateway.enums.EPeerRole;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
+import net.whisper.sessionGateway.models.IncomingClient;
 import net.whisper.sessionGateway.templates.KafkaClientMessage;
 
 public class TestFactory {
@@ -36,6 +37,18 @@ public class TestFactory {
         return client;
     }
 
+    public static IncomingClient createIncomingClient() {
+        IncomingClient client = new IncomingClient();
+        client.setClientConnectionStatus(EClientConnectionStatus.CREATED);
+        client.setUserId(TEST_USER_ID);
+        client.setSessionToken(TEST_SESSION_TOKEN);
+        client.setPeerRole(EPeerRole.INITIATOR);
+        client.setUserToken(TEST_USER_TOKEN);
+        client.setSecretKey("SECRET");
+        return client;
+    }
+
+
     public static ClientWithoutSession createClientWithoutSession() {
         ClientWithoutSession client = new ClientWithoutSession();
         client.setClientConnectionStatus(EClientConnectionStatus.CREATED);
@@ -55,7 +68,19 @@ public class TestFactory {
         return client;
     }
 
-    public static Cookie createCookie(Client tokenBody) {
+    public static IncomingClient createIncomingJoinerClient() {
+        IncomingClient client = new IncomingClient();
+        client.setClientConnectionStatus(EClientConnectionStatus.CREATED);
+        client.setUserId(TEST_USER_ID_JOINER);
+        client.setSecretKey("SECRET");
+        client.setSessionToken(TEST_SESSION_TOKEN_JOINER);
+        client.setPeerRole(EPeerRole.JOINER);
+        client.setUserToken(TEST_USER_TOKEN_JOINER);
+        return client;
+    }
+
+
+    public static Cookie createCookie(IncomingClient tokenBody) {
         Cookie httpOnlyCookie = new Cookie("userToken", tokenBody.getUserToken());
         httpOnlyCookie.setHttpOnly(true);
         httpOnlyCookie.setSecure(true);

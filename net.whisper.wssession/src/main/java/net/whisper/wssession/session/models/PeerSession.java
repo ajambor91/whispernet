@@ -11,13 +11,14 @@ import java.util.List;
 @Setter
 public class PeerSession extends BaseSession {
     private List<PeerClient> peerClients = new ArrayList<>();
-
+    private String secretKey;
 
     public PeerSession() {
     }
 
-    public PeerSession(String sessionToken) {
+    public PeerSession(String sessionToken, String secretKey) {
         super(sessionToken);
+        this.secretKey = secretKey;
     }
 
     public void addPeerClient(PeerClient peerClient) {

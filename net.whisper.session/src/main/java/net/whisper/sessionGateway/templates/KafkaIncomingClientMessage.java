@@ -9,13 +9,14 @@ import net.whisper.sessionGateway.models.Client;
 
 @Setter
 @Getter
-public class KafkaClientMessage extends BaseClient implements IKafkaMessage, IKafkaMessageClient {
+public class KafkaIncomingClientMessage extends BaseClient implements IKafkaMessage, IKafkaMessageClient {
     String sessionToken;
+    String secretKey;
 
-    public KafkaClientMessage() {
+    public KafkaIncomingClientMessage() {
     }
 
-    public KafkaClientMessage(Client client) {
+    public KafkaIncomingClientMessage(Client client) {
         super(client);
         this.sessionToken = client.getSessionToken();
     }

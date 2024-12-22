@@ -20,7 +20,7 @@ public class SessionKafkaProducer {
     @Autowired
     private ObjectMapper objectMapper;
 
-
+    //TODO CHANGE PEER SESSION FOR KAFKA SESSION TEMPLATE
     public void sendSession(PeerSession peerSession, EKafkaMessageTypes type) throws JsonProcessingException {
         String message = this.objectMapper.writeValueAsString(peerSession);
         this.sendKafkaMsg(message, EKafkaTopic.WEBSOCKET_SESSION_TOPIC.getTopicName(), type);

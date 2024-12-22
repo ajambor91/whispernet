@@ -2,7 +2,7 @@ package net.whisper.sessionGateway.whispernet.controllers;
 
 import jakarta.servlet.http.Cookie;
 import net.whisper.sessionGateway.controllers.SessionGatewayController;
-import net.whisper.sessionGateway.models.Client;
+import net.whisper.sessionGateway.models.IncomingClient;
 import net.whisper.sessionGateway.services.CookiesService;
 import net.whisper.sessionGateway.services.SessionService;
 import net.whisper.sessionGateway.whispernet.utils.TestFactory;
@@ -34,13 +34,13 @@ public class SessionGatewayControllerTest {
     @MockBean
     private CookiesService cookiesService;
 
-    private Client mockClient;
+    private IncomingClient mockClient;
 
     private Cookie mockCookie;
 
     @BeforeEach
     public void setup() {
-        this.mockClient = TestFactory.createClient();
+        this.mockClient = TestFactory.createIncomingClient();
         this.mockCookie = TestFactory.createCookie(this.mockClient);
         when(cookiesService.getCookie(mockClient, this.cookieTimeToLive)).thenReturn(mockCookie);
         when(sessionService.createClient()).thenReturn(this.mockClient);
@@ -56,7 +56,8 @@ public class SessionGatewayControllerTest {
                 .andExpect(content().json("""
                         {
                             "sessionToken": "7c944fc9-ad51-4392-bde2-f4b6126ea62e",
-                            "peerRole": "initiator"
+                            "peerRole": "initiator",
+                            "secretKey": "SECRET"
                         }
                         """))
                 .andExpect(cookie().value("userToken", TEST_USER_TOKEN));
@@ -71,7 +72,8 @@ public class SessionGatewayControllerTest {
                 .andExpect(content().json("""
                         {
                             "sessionToken": "7c944fc9-ad51-4392-bde2-f4b6126ea62e",
-                            "peerRole": "initiator"
+                            "peerRole": "initiator",
+                              "secretKey": "SECRET"
                         }
                         """))
                 .andExpect(cookie().value("userToken", TEST_USER_TOKEN));

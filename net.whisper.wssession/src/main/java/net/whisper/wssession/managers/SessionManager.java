@@ -6,6 +6,10 @@ import net.whisper.wssession.session.repositories.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -32,10 +36,25 @@ public class SessionManager {
 
     private PeerSession setupPeerSession(PeerClient peerClient) {
         String sessionToken = UUID.randomUUID().toString();
-        PeerSession peerSession = new PeerSession(sessionToken);
+        String secretKey = this.createAESSecret();
+        PeerSession peerSession = new PeerSession(sessionToken, secretKey);
         peerSession.addPeerClient(peerClient);
         this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);
         return peerSession;
+
+    }
+
+    private String createAESSecret(){
+        try {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(256);
+            SecretKey secretKey = keyGenerator.generateKey();
+            return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+
+        } catch (NoSuchAlgorithmException e) {
+            //TODO handle an exception
+            throw new RuntimeException(e);
+        }
 
     }
 }

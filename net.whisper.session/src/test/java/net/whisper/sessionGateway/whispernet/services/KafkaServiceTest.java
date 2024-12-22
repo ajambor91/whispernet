@@ -6,6 +6,7 @@ import net.whisper.sessionGateway.enums.EKafkaMessageTypes;
 import net.whisper.sessionGateway.enums.EKafkaTopic;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
+import net.whisper.sessionGateway.models.IncomingClient;
 import net.whisper.sessionGateway.services.KafkaService;
 import net.whisper.sessionGateway.whispernet.utils.TestFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,17 +35,18 @@ import static org.mockito.Mockito.*;
 })
 public class KafkaServiceTest {
     private final long waitForMessageTimeout = 10;
+    private final KafkaService kafkaService;
     private String testResponseMessage;
     private ObjectMapper objectMapper;
-    private final KafkaService kafkaService;
     private Client client;
     private Client joinerClient;
     private ClientWithoutSession clientWithoutSession;
-
+    private IncomingClient incomingClient;
+    private IncomingClient incomingJoiner;
     private String serializedJoinMessage;
     private String serializedMessage;
-    private ConcurrentHashMap<String, BlockingQueue<Client>> responseMap;
-    private BlockingQueue<Client> realQueue;
+    private ConcurrentHashMap<String, BlockingQueue<IncomingClient>> responseMap;
+    private BlockingQueue<IncomingClient> realQueue;
 
     @MockBean
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -59,6 +61,8 @@ public class KafkaServiceTest {
 
         this.objectMapper = new ObjectMapper();
         this.client = TestFactory.createClient();
+        this.incomingClient = TestFactory.createIncomingClient();
+        this.incomingJoiner = TestFactory.createIncomingJoinerClient();
         this.joinerClient = TestFactory.createJoinerClient();
         this.clientWithoutSession = TestFactory.createClientWithoutSession();
         this.testResponseMessage = String.format("{\"userToken\":\"%s\",\"userId\":\"d4418d30-3ce2-405a-b7fd-994181518c04\",\"clientConnectionStatus\":\"CREATED\",\"peerRole\":\"INITIATOR\",\"sessionToken\":\"748f56cf-ebab-4fb7-92a7-45f363a2daac\"}", TEST_USER_TOKEN);
@@ -81,7 +85,7 @@ public class KafkaServiceTest {
     @DisplayName("Should pass listen method")
     public void listenTest() throws InterruptedException {
         this.kafkaService.listen(this.testResponseMessage);
-        Client fromQueue = realQueue.poll(10, TimeUnit.SECONDS);
+        IncomingClient fromQueue = realQueue.poll(10, TimeUnit.SECONDS);
         assertNotNull(fromQueue);
         assertEquals(TEST_USER_TOKEN, fromQueue.getUserToken());
 
@@ -101,7 +105,7 @@ public class KafkaServiceTest {
     @DisplayName("Should fail listen method with invalid client token")
     public void listenFailWithInvalidClientMessage() throws InterruptedException {
         this.kafkaService.listen(this.testResponseMessage);
-        Client fromQueue = this.realQueue.poll(10, TimeUnit.SECONDS);
+        IncomingClient fromQueue = this.realQueue.poll(10, TimeUnit.SECONDS);
         assertNotNull(fromQueue);
         assertNotEquals("INVALID TOKEN", fromQueue);
 
@@ -110,8 +114,8 @@ public class KafkaServiceTest {
     @Test
     @DisplayName("Should wait for message pass")
     public void shouldWaitForMessagePass() throws InterruptedException {
-        this.realQueue.put(this.client);
-        Client client = this.kafkaService.waitForMessage(this.client, this.waitForMessageTimeout);
+        this.realQueue.put(this.incomingClient);
+        IncomingClient client = this.kafkaService.waitForMessage(this.client, this.waitForMessageTimeout);
         assertEquals(client.getUserToken(), TEST_USER_TOKEN);
 
 
@@ -121,8 +125,8 @@ public class KafkaServiceTest {
     @DisplayName("Should wait for message fail with mismatch clients")
     public void shouldWaitForMessageFail() {
         assertThrows(RuntimeException.class, () -> {
-            this.realQueue.put(this.client);
-            Client client = this.kafkaService.waitForMessage(this.joinerClient, this.waitForMessageTimeout);
+            this.realQueue.put(this.incomingClient);
+            IncomingClient client = this.kafkaService.waitForMessage(this.joinerClient, this.waitForMessageTimeout);
             assertNotEquals(client.getUserToken(), TEST_USER_TOKEN);
         });
 
@@ -132,8 +136,8 @@ public class KafkaServiceTest {
     @DisplayName("Should wait for message fail with null client")
     public void shouldWaitForMessageWithInvalidFail() {
         assertThrows(RuntimeException.class, () -> {
-            this.realQueue.put(this.client);
-            Client client = this.kafkaService.waitForMessage(null, this.waitForMessageTimeout);
+            this.realQueue.put(this.incomingClient);
+            IncomingClient client = this.kafkaService.waitForMessage(null, this.waitForMessageTimeout);
             assertNotEquals(client.getUserToken(), TEST_USER_TOKEN);
         });
     }

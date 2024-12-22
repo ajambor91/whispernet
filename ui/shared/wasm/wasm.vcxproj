@@ -136,7 +136,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="B64Enc.cpp" />
-    <ClCompile Include="BIO_Guard.cpp" />
     <ClCompile Include="Decryptor.cpp" />
     <ClCompile Include="Encryptor.cpp" />
     <ClCompile Include="EVP_CIPHER_CTX_Guard.cpp" />
@@ -145,7 +144,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="B64Enc.h" />
-    <ClInclude Include="BIO_Guard.h" />
     <ClInclude Include="Decryptor.h" />
     <ClInclude Include="Encryptor.h" />
     <ClInclude Include="EVP_CIPHER_CTX_Guard.h" />

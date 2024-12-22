@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
+#include <exception>
 using json = nlohmann::json;
 //#include <emscripten/bind.h>
 
@@ -18,18 +19,28 @@ class Main {
 		Main(std::string secretArg) : encryptor(secretArg) {
 		}
 		std::string encodeMessage(const std:: string& data) {
-			std::string sanitizedMessage = sanitizer.sanitize(data);
-			auto result = encryptor.encrypt(sanitizedMessage);
-			std::string encryptedMessage = result.first;
-			std::string iv = result.second;
-			std::cout << sanitizedMessage << std::endl;
-			std::cout << encryptedMessage << std::endl;
-			std::cout << iv << std::endl;
-			json responseData = {
-				{"sanitazedMsg", sanitizedMessage},
-				{"iv", iv},
-				{"encryptedMsg", encryptedMessage}
-			};
+			json responseData;
+			try {
+				std::string sanitizedMessage = sanitizer.sanitize(data);
+				auto result = encryptor.encrypt(sanitizedMessage);
+				std::string encryptedMessage = result.first;
+				std::string iv = result.second;
+				std::cout << sanitizedMessage << std::endl << std::endl;
+		
+				std::cout << encryptedMessage << std::endl << std::endl;
+				std::cout << iv << std::endl << std::endl;
+				responseData = {
+					{"sanitazedMsg", sanitizedMessage},
+					{"iv", iv},
+					{"encryptedMsg", encryptedMessage}
+				};
+			}
+			catch (const std::exception& e) {
+				std::cout << "Exception: " << e.what() << std::endl;
+			}
+			catch (...) {
+				std::cout << "Unknown exception";
+			}
 			return responseData.dump();
 		}
 

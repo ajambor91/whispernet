@@ -1,4 +1,5 @@
 C:\PROJECTS\whispernet\ui\shared\wasm\B64Enc.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\B64Enc.obj
+C:\PROJECTS\whispernet\ui\shared\wasm\BIO_Guard.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\BIO_Guard.obj
 C:\PROJECTS\whispernet\ui\shared\wasm\Decryptor.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\Decryptor.obj
 C:\PROJECTS\whispernet\ui\shared\wasm\Encryptor.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\Encryptor.obj
 C:\PROJECTS\whispernet\ui\shared\wasm\EVP_CIPHER_CTX_Guard.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\EVP_CIPHER_CTX_Guard.obj

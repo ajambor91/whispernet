@@ -3,13 +3,9 @@
 #include <stdexcept>
 #include <iostream>
 B64Enc::B64Enc() {}
-//B64Enc::~B64Enc() {
-//	cleanup();
-//}
+
 
 const std::vector<unsigned char> B64Enc::decodeB64(const std::string& data) const {
-	std::cout << "secret";
-	std::cout << data.size();
 	BIO* bio = BIO_new_mem_buf(data.data(), data.size());
 	if (!bio) throw std::runtime_error("Nie uda³o siê stworzyæ BIO dla danych wejœciowych");
 
@@ -24,9 +20,7 @@ const std::vector<unsigned char> B64Enc::decodeB64(const std::string& data) cons
 		BIO_free_all(bio);
 		throw std::runtime_error("B³¹d dekodowania Base64");
 	}
-	std::cout << "Coœ tam dl";
 	decoded.resize(decodedLen);
-	//std::cout << decodedSecret;
 	cleanup(bio);
 	return decoded;
 

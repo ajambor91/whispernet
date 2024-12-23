@@ -4,9 +4,10 @@ import { IWebrtcPeerMessage } from "../../models/webrtc-peer-message.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleUp } from "@fortawesome/free-solid-svg-icons/faCircleUp";
 import ScrollContainer from "../elements/scroll-container/ScrollContainer";
+import {IWebrtcLocalMessage, IWebrtcPreparingMessage} from "../../models/webrtc-preparing-message.moidel";
 
 interface IMessageInput {
-    sendMessage: (msg: IWebrtcPeerMessage) => void;
+    sendMessage: (msg: IWebrtcLocalMessage) => void;
     setMessageInput: (height: number) => void;
 }
 
@@ -24,9 +25,8 @@ const MessageInput: React.FC<IMessageInput> = ({ sendMessage, setMessageInput })
 
     const passMessage = () => {
         const messageElement: HTMLDivElement = messageRef.current as HTMLDivElement;
-        const msg: IWebrtcPeerMessage = {
+        const msg: IWebrtcLocalMessage = {
             type: undefined,
-            sessionId: '',
             content: messageElement.innerHTML,
         };
         sendMessage(msg);

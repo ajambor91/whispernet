@@ -1,25 +1,23 @@
 #ifndef ENCRYPTOR_H
 #define ENCRYPTOR_H
 #include "B64Enc.h"
-#include <openssl/aes.h>
-#include <openssl/evp.h>
-#include <openssl/bio.h>
-#include <openssl/buffer.h>
+#include "IVGenerator.h"
+#include "aes.hpp"
 #include <string>
 #include <vector>
-#include <openssl/rand.h>
 #include <stdexcept>
 #include <iostream>
-#include "EVP_CIPHER_CTX_Guard.h"
 class Encryptor {
 private: 
+	const IVGenerator ivGen;
 	const B64Enc b64e;
 	const int IV_SIZE;
 	const int SECRET_SIZE;
 	const std::vector<unsigned char> decodedSecret;
-	std::vector<unsigned char> generateRandomIV();
+	const std::vector<uint8_t> convertedSecret;
+	void addPadding(std::vector<unsigned char>& data);
 public:
-	Encryptor(std::string secretArg);
+	Encryptor(const std::string& secretArg);
 	std::pair<std::string, std::string>  encrypt(const std::string& data);
 };
 #endif // !ENCRYPTOR_H

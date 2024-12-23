@@ -4,8 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/env.config.js && next build",
-    "start": "next start",
-    "lint": "next lint"
+    "build": "vite build"
   }
 }

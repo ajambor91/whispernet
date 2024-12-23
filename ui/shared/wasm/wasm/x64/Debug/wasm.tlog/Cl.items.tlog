@@ -1,6 +1,8 @@
+C:\PROJECTS\whispernet\ui\shared\wasm\aes.c;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\aes.obj
 C:\PROJECTS\whispernet\ui\shared\wasm\B64Enc.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\B64Enc.obj
 C:\PROJECTS\whispernet\ui\shared\wasm\Decryptor.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\Decryptor.obj
 C:\PROJECTS\whispernet\ui\shared\wasm\Encryptor.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\Encryptor.obj
-C:\PROJECTS\whispernet\ui\shared\wasm\EVP_CIPHER_CTX_Guard.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\EVP_CIPHER_CTX_Guard.obj
+C:\PROJECTS\whispernet\ui\shared\wasm\IVGenerator.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\IVGenerator.obj
+C:\PROJECTS\whispernet\ui\shared\wasm\IVGenerator.h;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\IVGenerator.obj
 C:\PROJECTS\whispernet\ui\shared\wasm\Main.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\Main.obj
 C:\PROJECTS\whispernet\ui\shared\wasm\Sanitizer.cpp;C:\PROJECTS\whispernet\ui\shared\wasm\wasm\x64\Debug\Sanitizer.obj

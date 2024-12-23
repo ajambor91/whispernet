@@ -138,34 +138,30 @@ Here are the planned improvements and features for WhisperNet:
 1. **Fully Functional TURN Server**:
     - Deploy a fully operational TURN server (Coturn) to support WebRTC in restrictive network environments.
 
-2. **WebAssembly for Encryption**:
-    - Integrate WebAssembly (C++) for fast and secure message encryption and decryption.
-
-3. **Enhanced Test Coverage**:
+2. **Enhanced Test Coverage**:
     - Increase test coverage beyond 81% with additional unit, integration, and end-to-end tests.
 
-4. **User Authentication**:
+3. **User Authentication**:
     - Add a dedicated **Authentication microservice** built with Spring Boot.
     - Use MariaDB with Hibernate for secure and scalable user data management.
     - Implement authentication mechanisms such as JWT or OAuth2.
 
-5. **PGP Key-Based User Verification**:
+4. **PGP Key-Based User Verification**:
     - Allow users to verify the identity of their chat partners using PGP keys.
 
-6. **Improved Monitoring and Performance Metrics**:
+5. **Improved Monitoring and Performance Metrics**:
     - Add advanced metrics and alerts in Grafana for real-time system health tracking.
     - Integrate Prometheus for detailed performance monitoring and analysis.
 
-7. **Mobile Application**:
+6. **Mobile Application**:
     - Build a mobile-friendly version of the application using React Native.
 
-8. **Desktop Application**:
+7. **Desktop Application**:
     - Develop a desktop version of the application using Electron for a native-like experience.
 
-9. **Group Chat Support** (Optional):
+8. **Group Chat Support** (Optional):
     - Extend the application to support multi-user group chats with dynamic room creation.
-
-10. **zkSNARK Integration** (Optional):
+9. **zkSNARK Integration** (Optional):
     - Explore the possibility of using zkSNARKs for advanced cryptographic features, such as zero-knowledge proofs.
 
 ## Contributing ##

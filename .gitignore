@@ -70,3 +70,6 @@ electron/dist/
 *.iml
 
 
+.vs/
+x64/
+wasm/

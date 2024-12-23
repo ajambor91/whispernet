@@ -7,7 +7,7 @@ dotenv.config();
 export default defineConfig({
     plugins: [react()],
     server: {
-        port: 3000,
+        port: 3001,
         proxy: {
             '/api/signal': {
                 target: 'ws://localhost:8099',

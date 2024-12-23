@@ -31,7 +31,8 @@ export default function Home() {
 
         dispatch(setCreatePeerState({
             sessionToken: response ? response.sessionToken : null,
-            peerRole: response ? response.peerRole : null
+            peerRole: response ? response.peerRole : null,
+            secretKey: response ? response.secretKey : null
         }));
 
         if (response && !error) {

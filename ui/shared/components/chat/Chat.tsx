@@ -10,6 +10,8 @@ import FullHeight from "../elements/full-height/FullHeight";
 import ScrollContainer from "../elements/scroll-container/ScrollContainer";
 import {useToasts} from "../../providers/toast-provider";
 import {MessageEncoder} from "../../webrtc/wasm";
+import {IWebrtcLocalMessage} from "../../models/webrtc-preparing-message.moidel";
+import {IWasmEncoded} from "../../models/wasm-encoded.model";
 
 
 interface IChatComponentProps {
@@ -17,10 +19,11 @@ interface IChatComponentProps {
 }
 
 const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
-    const [messages, setMessages] = useState<IWebrtcPeerMessage[]>([]);
+    const encoder: React.Ref<MessageEncoder> = useRef(new MessageEncoder(peerState.secretKey));
+    const [messages, setMessages] = useState<IWebrtcLocalMessage[]>([]);
     const [messageInputHeight, setMessageInputHeight] = useState<number>(0)
     const [trigger, setTrigger] = useState<number>(0)
-    const addMessage = (content: IWebrtcPeerMessage) => {
+    const addMessage = (content: IWebrtcLocalMessage) => {
         setTrigger(0)
         if (content.sessionId !== peerState.sessionToken) {
             throw new Error('Invalid session token!')
@@ -41,10 +44,11 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
     const parseWebRTCPeerMsg = (msg: string): IWebrtcPeerMessage => {
         return JSON.parse(msg);
     }
-    const sendMessage = async (content: IWebrtcPeerMessage) => {
-        sendWebRTCMessage(stringfyWebRTCPeerMsg({...content, sessionId: peerState.sessionToken as string}))
+    const sendMessage = async (content: IWebrtcLocalMessage) => {
+        const msg: IWasmEncoded = encoder.current.encodeMessage(content.content);
+        sendWebRTCMessage(stringfyWebRTCPeerMsg({iv: msg.iv, encryptedMsg: msg.encryptedMsg, sessionId: peerState.sessionToken as string}))
         addMessage({
-            ...content,
+            content: msg.sanitazedMsg,
             type: 'reply',
             sessionId: peerState.sessionToken as string
         })
@@ -56,10 +60,13 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
 
         onMessage((event) => {
                 const incommingMessage: IWebrtcPeerMessage = parseWebRTCPeerMsg(event)
-                addMessage({
-                    ...incommingMessage,
-                    type: 'incoming'
-                })
+                const msg: IWebrtcLocalMessage = {
+                    content: encoder.current.decodeMessage(incommingMessage.encryptedMsg, incommingMessage.iv).decryptedMessage,
+                    messageId: incommingMessage.messageId,
+                    type: 'incoming',
+                    sessionId: incommingMessage.sessionId
+                }
+                addMessage(msg)
         })
     }, []);
     return (

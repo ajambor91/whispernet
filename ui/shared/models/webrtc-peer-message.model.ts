@@ -1,7 +1,8 @@
 type MessageType = 'incoming' | 'reply'
 
 export interface IWebrtcPeerMessage {
-    content: string;
+    encryptedMsg: string;
+    iv: string;
     messageId?: number;
     sessionId?: string;
     type?: MessageType

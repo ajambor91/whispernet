@@ -1,0 +1,1 @@
+emcc Main.cpp Encryptor.cpp Sanitizer.cpp Decryptor.cpp B64Enc.cpp IVGenerator.cpp aes.c -o main.js -s MODULARIZE -s ENVIRONMENT=web -Iinclude -s EXPORT_ES6 --bind

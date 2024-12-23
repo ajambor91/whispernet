@@ -4,6 +4,7 @@ import {ISession} from "../models/ws-message.model";
 interface IPeerState {
     sessionToken: string;
     peerRole: string
+    secretKey: string;
 }
 
 const useNewChat = () => {

@@ -5,12 +5,14 @@ import {ISession} from "../models/ws-message.model";
 export interface IPeerState {
     sessionToken: string | null;
     peerRole: PeerRole | null;
+    secretKey: string | null;
 
 }
 
 const initialState: IPeerState = {
     sessionToken: null,
-    peerRole: null
+    peerRole: null,
+    secretKey: null
 }
 
 export const createPeerStateSlice = createSlice({
@@ -20,6 +22,7 @@ export const createPeerStateSlice = createSlice({
         setCreatePeerState: (state, action: PayloadAction<IPeerState>) => {
             state.sessionToken = action.payload.sessionToken;
             state.peerRole = action.payload.peerRole;
+            state.secretKey = action.payload.secretKey;
         }
     }
 });

@@ -135,10 +135,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="aes.c" />
     <ClCompile Include="B64Enc.cpp" />
     <ClCompile Include="Decryptor.cpp" />
     <ClCompile Include="Encryptor.cpp" />
-    <ClCompile Include="EVP_CIPHER_CTX_Guard.cpp" />
+    <ClCompile Include="IVGenerator.cpp" />
+    <ClCompile Include="IVGenerator.h" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Sanitizer.cpp" />
   </ItemGroup>
@@ -146,7 +148,6 @@
     <ClInclude Include="B64Enc.h" />
     <ClInclude Include="Decryptor.h" />
     <ClInclude Include="Encryptor.h" />
-    <ClInclude Include="EVP_CIPHER_CTX_Guard.h" />
     <ClInclude Include="Sanitizer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

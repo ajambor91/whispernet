@@ -1,10 +1,9 @@
 #ifndef DECRYPTOR_H
 #define DECRYPTOR_H
-#include <openssl/evp.h>
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include "EVP_CIPHER_CTX_Guard.h"
+#include "aes.hpp"
 #include "B64Enc.h"
 class Decryptor {
 private:
@@ -13,6 +12,7 @@ private:
 	const int SECRET_SIZE;
 	const std::vector<unsigned char> decodedSecret;
 	std::vector<unsigned char> decodedIV;
+	void removePadding(std::vector<unsigned char>& data);
 
 public:
 	Decryptor(const std::string& secretArg);

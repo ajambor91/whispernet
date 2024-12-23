@@ -11,19 +11,31 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Component
 public class SessionKafkaProducer {
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+
+    private final Logger logger;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
+    SessionKafkaProducer(ObjectMapper objectMapper, KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.objectMapper = objectMapper;
+        this.logger = LoggerFactory.getLogger(SessionKafkaProducer.class);
+    }
     //TODO CHANGE PEER SESSION FOR KAFKA SESSION TEMPLATE
-    public void sendSession(PeerSession peerSession, EKafkaMessageTypes type) throws JsonProcessingException {
-        String message = this.objectMapper.writeValueAsString(peerSession);
-        this.sendKafkaMsg(message, EKafkaTopic.WEBSOCKET_SESSION_TOPIC.getTopicName(), type);
+    public void sendSession(PeerSession peerSession, EKafkaMessageTypes type)  {
+        try {
+            String message = this.objectMapper.writeValueAsString(peerSession);
+            this.sendKafkaMsg(message, EKafkaTopic.WEBSOCKET_SESSION_TOPIC.getTopicName(), type);
+            logger.info("Kafka message with session to webscoket was send, sessionToken={}", peerSession.getSessionToken());
+        } catch (JsonProcessingException e) {
+            logger.error("JSON process session message failed, sessionToken={}, message={}", peerSession.getSessionToken(), e.getMessage());
+        }
+
     }
 
     private void setupMessage(PeerSession peerSession) {

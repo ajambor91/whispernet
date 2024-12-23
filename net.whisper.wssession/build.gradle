@@ -36,6 +36,8 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-core'
 	implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+	implementation 'ch.qos.logback:logback-classic:1.4.11'
+	implementation 'com.github.loki4j:loki-logback-appender:1.5.2'
 }
 
 tasks.named('test') {

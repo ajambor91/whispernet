@@ -10,19 +10,30 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Component
 public class ClientsKafkaProducer {
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
+    private final Logger logger;
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    public ClientsKafkaProducer(ObjectMapper objectMapper, KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.objectMapper = objectMapper;
+        this.logger = LoggerFactory.getLogger(ClientsKafkaProducer.class);
+    }
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    public void returnNewUser(Client userClient) {
+        try {
+            String message = this.objectMapper.writeValueAsString(userClient);
+            this.sendKafkaMsg(message, EKafkaTopic.RETURN_CLIENT_TOPIC.getTopicName());
+            logger.info("Send kafka client message, userToken={}", userClient.getUserToken());
+        } catch (JsonProcessingException e) {
+            logger.error("Json process message error userToken={}, message={}", userClient.getUserToken(), e.getMessage());
+        }
 
 
-    public void returnNewUser(Client userClient) throws JsonProcessingException {
-        String message = this.objectMapper.writeValueAsString(userClient);
-        this.sendKafkaMsg(message, EKafkaTopic.RETURN_CLIENT_TOPIC.getTopicName());
     }
 
     private void sendKafkaMsg(String parsedObject, String topic) {

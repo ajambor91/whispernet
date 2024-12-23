@@ -10,21 +10,21 @@ import net.whisper.wssession.session.services.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class ClientSessionCoordinator {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     private final ClientsService clientsService;
     private final SessionService sessionService;
-
+    private final Logger logger;
 
     @Autowired()
     public ClientSessionCoordinator(@Lazy ClientsService clientsService, @Lazy SessionService sessionService) {
         this.clientsService = clientsService;
         this.sessionService = sessionService;
+        this.logger = LoggerFactory.getLogger(ClientSessionCoordinator.class);
     }
 
     public void processClientWithoutSession(PeerClient newClient) {
@@ -32,7 +32,7 @@ public class ClientSessionCoordinator {
         try {
             this.sessionService.processNewClient(newClient);
         } catch (java.lang.Exception e) {
-            throw new RuntimeException(e);
+            logger.error("Error with process client without session, userToken={}, errorMessage={}", newClient.getUserToken(), e.getMessage());
         }
     }
 
@@ -42,7 +42,7 @@ public class ClientSessionCoordinator {
 
             this.sessionService.processJoinClient(sessionToken, client);
         } catch (java.lang.Exception e) {
-            throw new RuntimeException(e);
+            logger.error("Error with process joining client session, userToken={}, sessionToken={}, errorMessage={}", client.getUserToken(), sessionToken, e.getMessage());
         }
     }
 

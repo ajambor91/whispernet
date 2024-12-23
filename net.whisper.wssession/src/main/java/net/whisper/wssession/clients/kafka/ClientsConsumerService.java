@@ -11,14 +11,22 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class ClientsConsumerService {
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+    private final Logger logger;
+    private final ClientsService clientsService;
 
     @Autowired
-    private ClientsService clientsService;
+    ClientsConsumerService(ClientsService clientsService, ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+        this.clientsService = clientsService;
+        this.logger = LoggerFactory.getLogger(ClientsConsumerService.class);
+
+    }
 
     @KafkaListener(topics = {"request-client-topic"}, groupId = "whispernet-wsession-clients-group")
     public void handleTokenEvent(ConsumerRecord<String, String> record) {
@@ -32,15 +40,16 @@ public class ClientsConsumerService {
             IKafkaMessage kafkaMessage = mapMessage(type, message);
 
             if (kafkaMessage instanceof KafkaClientWithoutSessionMessage) {
+                logger.info("Received kafka message for new client, userToken={}", ((KafkaClientWithoutSessionMessage) kafkaMessage).getUserToken());
                 clientsService.processNewClient((KafkaClientWithoutSessionMessage) kafkaMessage);
             } else if (kafkaMessage instanceof KafkaClientMessage) {
                 clientsService.processJoiningClient((KafkaClientMessage) kafkaMessage);
-            } else {
+                logger.info("Received kafka message for joining client, userToken={}, sessionToken={}", ((KafkaClientMessage) kafkaMessage).getUserToken(), ((KafkaClientMessage) kafkaMessage).getSessionToken());
             }
-
+            logger.error("Error: Received an empty kafka message");
         } catch (Exception e) {
             System.err.println("Error processing message");
-            e.printStackTrace();
+            logger.error("Error processing message={}", e.getMessage());
         }
     }
 

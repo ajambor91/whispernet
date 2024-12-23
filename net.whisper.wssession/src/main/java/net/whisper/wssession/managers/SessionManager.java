@@ -11,14 +11,16 @@ import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.UUID;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Service
 public class SessionManager {
 
     private final SessionRepository sessionRepository;
-
+    private final Logger logger;
     @Autowired
     public SessionManager(SessionRepository sessionRepository) {
+        this.logger = LoggerFactory.getLogger(SessionManager.class);
         this.sessionRepository = sessionRepository;
     }
 
@@ -31,6 +33,7 @@ public class SessionManager {
         PeerSession peerSession = this.sessionRepository.getSession(sessionToken);
         peerSession.addPeerClient(peerClient);
         this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);
+        logger.info("Peer added to session, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
         return peerSession;
     }
 
@@ -38,23 +41,27 @@ public class SessionManager {
         String sessionToken = UUID.randomUUID().toString();
         String secretKey = this.createAESSecret();
         PeerSession peerSession = new PeerSession(sessionToken, secretKey);
+        logger.info("New session created, sessionToken={}", peerSession.getSessionToken());
         peerSession.addPeerClient(peerClient);
         this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);
+        logger.info("Peer added to session, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
         return peerSession;
 
     }
 
     private String createAESSecret(){
+        String AESToken = null;
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
             keyGenerator.init(256);
             SecretKey secretKey = keyGenerator.generateKey();
-            return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+            AESToken = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+            logger.info("AES Token created");
+            return AESToken;
 
         } catch (NoSuchAlgorithmException e) {
-            //TODO handle an exception
-            throw new RuntimeException(e);
+            logger.error("Cannot create AES Token, message={}", e.getMessage());
+            throw new RuntimeException("Cannot create AES Token");
         }
-
     }
 }

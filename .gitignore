@@ -73,3 +73,5 @@ electron/dist/
 .vs/
 x64/
 wasm/
+grafana/data/
+cms_data/

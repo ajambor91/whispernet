@@ -100,10 +100,18 @@ services:
         ipv4_address: 172.18.0.10
     container_name: coturn
     ports:
-      - "3478:3478/udp"            # STUN dostępny na host:3478
-      - "3478:3478/tcp"            # TURN dostępny na host:3478
-      - "5349:5349/udp"            # TURN z TLS dostępny na host:5349
-      - "5349:5349/tcp"            # TURN z TLS dostępny na host:5349
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+      - "5349:5349/udp"
+      - "5349:5349/tcp"
+  cms-db:
+    build: './landing-page-db'
+    hostname: cms-db.whisper.net
+    container_name: cms-db
+    networks:
+      - whispernet
+    volumes:
+      - './landing-page-db/cms_data:/var/lib/mysql'
 networks:
   whispernet:
     driver: bridge

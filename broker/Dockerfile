@@ -1,6 +1,4 @@
 FROM confluentinc/cp-kafka
 COPY ./config/server.properties /opt/kafka/config/server.properties
 COPY ./topics.sh /usr/bin
-CMD ["sh", "/usr/bin/topics.sh"]
-
-CMD ["kafka-server-start", "/opt/kafka/config/server.properties"]
+ENTRYPOINT ["sh", "-c", "rm -rf /var/lib/kafka/data/* && /usr/bin/topics.sh && kafka-server-start /opt/kafka/config/server.properties"]

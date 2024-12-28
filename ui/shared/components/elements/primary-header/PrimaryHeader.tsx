@@ -1,10 +1,9 @@
 import styled from 'styled-components';
 import React from "react";
-import '../../../styles/vars.scss'
 
 const StyledPrimaryHeader = styled.h1`
-    font-size: var(--main-header-font-size);
-    font-weight: var(--main-header-font-weight);
+    font-size: 50px;
+    font-weight: 900;
     text-align: center;
 
 `;

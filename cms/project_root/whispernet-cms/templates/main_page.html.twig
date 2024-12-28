@@ -1,0 +1,105 @@
+{% extends 'dashboard.html.twig' %}
+
+{% block title %}Edit Main Page{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <h1 class="mb-4">Edit Main Page</h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+        {% set prototype %}
+            {{ form_widget(form.translate.vars.prototype) }}
+        {% endset %}
+
+        {{ form_start(form, {'action': path('main_page'), 'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+        <div class="mb-3">
+            <label for="{{ form.title.vars.id }}" class="form-label">{{ form.title.vars.label }}</label>
+            {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.subtitle.vars.id }}" class="form-label">{{ form.subtitle.vars.label }}</label>
+            {{ form_widget(form.subtitle, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.description.vars.id }}" class="form-label">{{ form.description.vars.label }}</label>
+            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+        </div>
+        <h3 class="mt-4">Translations</h3>
+        <div id="translations" data-prototype="{{ prototype|e('html_attr') }}">
+            {% for translationForm in form.translate %}
+                <div class="translation-item mb-3 border p-3 rounded">
+                    <div class="mb-3">
+                        <label for="{{ translationForm.title.vars.id }}" class="form-label">{{ translationForm.title.vars.label }}</label>
+                        <div class="form-group">
+                            {{ form_widget(translationForm.title, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ translationForm.subtitle.vars.id }}" class="form-label">{{ translationForm.subtitle.vars.label }}</label>
+                        <div class="form-group">
+                            {{ form_widget(translationForm.subtitle, {'attr': {'class': 'form-control'}}) }}
+
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ translationForm.description.vars.id }}" class="form-label">{{ translationForm.description.vars.label }}</label>
+                        {{ form_widget(translationForm.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ translationForm.code.vars.id }}" class="form-label">{{ translationForm.code.vars.label }}</label>
+                        <div class="form-group">
+                            {{ form_widget(translationForm.code, {'attr': {'class': 'form-control'}}) }}
+
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-translation">Remove</button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" id="add-translation" class="btn btn-secondary mb-4">Add Translation</button>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+
+        {{ form_end(form) }}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const translationsContainer = document.getElementById('translations');
+            const addButton = document.getElementById('add-translation');
+
+            const prototype = translationsContainer.dataset.prototype;
+
+            addButton.addEventListener('click', function () {
+                const index = translationsContainer.children.length;
+
+                const newForm = prototype.replace(/__name__/g, index);
+
+                const newFormElement = document.createElement('div');
+                newFormElement.innerHTML = newForm;
+                newFormElement.classList.add('translation-item', 'mb-3', 'border', 'p-3', 'rounded');
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'remove-translation');
+                removeButton.textContent = 'Remove';
+                removeButton.addEventListener('click', () => newFormElement.remove());
+
+                newFormElement.appendChild(removeButton);
+                translationsContainer.appendChild(newFormElement);
+            });
+
+            translationsContainer.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-translation')) {
+                    e.target.closest('.translation-item').remove();
+                }
+            });
+        });
+    </script>
+{% endblock %}

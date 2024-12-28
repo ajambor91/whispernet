@@ -57,6 +57,7 @@ services:
       - '8098:443'
     networks:
       - whispernet
+      - whispernet-cms
     hostname: gateway.whisper.net
     container_name: gateway
     volumes:
@@ -109,16 +110,30 @@ services:
     hostname: cms-db.whisper.net
     container_name: cms-db
     networks:
-      - whispernet
+      - whispernet-cms
     volumes:
       - './landing-page-db/cms_data:/var/lib/mysql'
+    ports:
+      - 3306:3306
+  cms:
+    build: './cms'
+    hostname: cms.whisper.net
+    container_name: cms
+    networks:
+      - whispernet-cms
+    volumes:
+      - './cms/project_root:/var/www/html'
 networks:
   whispernet:
     driver: bridge
     ipam:
       config:
         - subnet: 172.18.0.0/16
-
+  whispernet-cms:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 173.19.0.0/28
 volumes:
   cache:
     driver: local

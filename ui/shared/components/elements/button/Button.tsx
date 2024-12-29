@@ -1,15 +1,14 @@
 import styled from 'styled-components';
 import React from "react";
-import '../../../styles/globals.scss'
 
 const StyledButton = styled.button`
     height: 60px;
     padding: 5px 30px;
     font-size: 18px;
     font-weight: bold;
-    color: var(--font-color);
+    color: #b0b3c0;
     background-color: transparent;
-    border: 2px solid var(--border-color); 
+    border: 2px solid #b0b3c0; 
     border-radius: 8px; 
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;

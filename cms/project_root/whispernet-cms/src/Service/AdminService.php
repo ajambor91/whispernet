@@ -17,7 +17,7 @@ class AdminService
         $this->entityManager = $entityManager;
     }
 
-    public function createUser(string $email, string $password)
+    public function createUser(string $email, string $password): void
     {
         $user = new Admin();
         $user->setEmail($email)
@@ -25,7 +25,5 @@ class AdminService
             ->setRoles(['ROLE_ADMIN']);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
-
-
     }
 }

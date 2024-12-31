@@ -31,7 +31,7 @@ class MakeAdminCommand extends Command
 
         $email = $input->getArgument('email');
         $password = $input->getArgument('password');
-        if ($email || $password) {
+        if (!$email || !$password) {
             return Command::FAILURE;
         }
         $this->adminService->createUser($email, $password);

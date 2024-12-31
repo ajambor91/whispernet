@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\Lang;
 use App\Repository\PointTranslateRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,11 +20,8 @@ class PointTranslate
     #[ORM\Column(length: 255)]
     private ?string $subtitle = null;
 
-    #[ORM\Column(length: 3)]
-    private ?string $code = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $deleted_at = null;
+    #[ORM\Column(enumType: Lang::class)]
+    private ?Lang $code = null;
 
     #[ORM\ManyToOne(inversedBy: 'translate')]
     private ?Point $point = null;
@@ -57,26 +55,14 @@ class PointTranslate
         return $this;
     }
 
-    public function getCode(): ?string
+    public function getCode(): ?Lang
     {
         return $this->code;
     }
 
-    public function setCode(string $code): static
+    public function setCode(Lang $code): static
     {
         $this->code = $code;
-
-        return $this;
-    }
-
-    public function getDeletedAt(): ?\DateTimeImmutable
-    {
-        return $this->deleted_at;
-    }
-
-    public function setDeletedAt(\DateTimeImmutable $deleted_at): static
-    {
-        $this->deleted_at = $deleted_at;
 
         return $this;
     }

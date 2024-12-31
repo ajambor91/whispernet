@@ -1,0 +1,40 @@
+.features {
+  &__headers {
+    margin-top: 200px;
+    h1 {
+      font-size: 1.8em;
+      margin-bottom: 40px;
+    }
+    h2 {
+      font-size: 1.7em;
+      margin-bottom: 40px;
+    }
+
+  }
+
+  &__points {
+    font-size: 20px;
+    line-height: 30px;
+    font-style: italic;
+    padding-left: 40px;
+    .points-menu {
+      padding: 30px;
+
+      &__item {
+        margin-bottom: 20px;
+        &__title {
+        font-weight: 900;
+        }
+        &__subtitle {
+          font-style: italic;
+        }
+      }
+    }
+
+  }
+
+  &__button-container {
+    display: flex;
+    gap: 10px;
+  }
+}

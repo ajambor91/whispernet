@@ -24,13 +24,13 @@ class Feature
     /**
      * @var Collection<int, Point>
      */
-    #[ORM\OneToMany(targetEntity: Point::class, mappedBy: 'feature')]
+    #[ORM\OneToMany(targetEntity: Point::class, mappedBy: 'feature',  cascade: ['persist'] )]
     private Collection $features;
 
     /**
      * @var Collection<int, FeatureTranslate>
      */
-    #[ORM\OneToMany(targetEntity: FeatureTranslate::class, mappedBy: 'feature')]
+    #[ORM\OneToMany(targetEntity: FeatureTranslate::class, mappedBy: 'feature', cascade: ['persist'])]
     private Collection $translate;
 
     public function __construct()

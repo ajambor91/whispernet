@@ -15,7 +15,7 @@
 
 /**
  * @fileoverview
- * some functions for browser-side pretty printing of code contained in html.
+ * some functions for browser-side pretty printing of core contained in html.
  * <p>
  *
  * For a fairly comprehensive set of languages see the
@@ -28,20 +28,20 @@
  * <p>
  * Usage: <ol>
  * <li> include this source file in an html page via
- *   {@code <script type="text/javascript" src="/path/to/prettify.js"></script>}
+ *   {@core <script type="text/javascript" src="/path/to/prettify.js"></script>}
  * <li> define style rules.  See the example page for examples.
- * <li> mark the {@code <pre>} and {@code <code>} tags in your source with
- *    {@code class=prettyprint.}
- *    You can also use the (html deprecated) {@code <xmp>} tag, but the pretty
+ * <li> mark the {@core <pre>} and {@core <core>} tags in your source with
+ *    {@core class=prettyprint.}
+ *    You can also use the (html deprecated) {@core <xmp>} tag, but the pretty
  *    printer needs to do more substantial DOM manipulations to support that, so
  *    some css styles may not be preserved.
  * </ol>
  * That's it.  I wanted to keep the API as simple as possible, so there's no
- * need to specify which language the code is in, but if you wish, you can add
- * another class to the {@code <pre>} or {@code <code>} element to specify the
- * language, as in {@code <pre class="prettyprint lang-java">}.  Any class that
+ * need to specify which language the core is in, but if you wish, you can add
+ * another class to the {@core <pre>} or {@core <core>} element to specify the
+ * language, as in {@core <pre class="prettyprint lang-java">}.  Any class that
  * starts with "lang-" followed by a file extension, specifies the file type.
- * See the "lang-*.js" files in this directory for code that implements
+ * See the "lang-*.js" files in this directory for core that implements
  * per-language file handlers.
  * <p>
  * Change log:<br>
@@ -56,9 +56,9 @@
 /*global console, document, navigator, setTimeout, window */
 
 /**
- * Split {@code prettyPrint} into multiple timeouts so as not to interfere with
+ * Split {@core prettyPrint} into multiple timeouts so as not to interfere with
  * UI events.
- * If set to {@code false}, {@code prettyPrint()} is synchronous.
+ * If set to {@core false}, {@core prettyPrint()} is synchronous.
  */
 window['PR_SHOULD_USE_CONTINUATION'] = true;
 
@@ -76,14 +76,14 @@ window['PR_normalizedHtml']
   */
   = window['PR']
 
-/** Pretty print a chunk of code.
+/** Pretty print a chunk of core.
   *
-  * @param {string} sourceCodeHtml code as html
-  * @return {string} code as html, but prettier
+  * @param {string} sourceCodeHtml core as html
+  * @return {string} core as html, but prettier
   */
   = window['prettyPrintOne']
-/** Find all the {@code <pre>} and {@code <code>} tags in the DOM with
-  * {@code class=prettyprint} and prettify them.
+/** Find all the {@core <pre>} and {@core <core>} tags in the DOM with
+  * {@core class=prettyprint} and prettify them.
   * @param {Function?} opt_whenDone if specified, called when the last entry
   *     has been finished.
   */
@@ -169,8 +169,8 @@ window['_pr_isIE6'] = function () {
   var PR_ATTRIB_VALUE = 'atv';
 
   /**
-   * A class that indicates a section of markup that is not code, e.g. to allow
-   * embedding of line numbers within code listings.
+   * A class that indicates a section of markup that is not core, e.g. to allow
+   * embedding of line numbers within core listings.
    */
   var PR_NOCODE = 'nocode';
 
@@ -344,7 +344,7 @@ window['_pr_isIE6'] = function () {
   }
 
   /**
-   * Given a group of {@link RegExp}s, returns a {@code RegExp} that globally
+   * Given a group of {@link RegExp}s, returns a {@core RegExp} that globally
    * matches the union o the sets o strings matched d by the input RegExp.
    * Since it matches globally, if the input strings have a start-of-input
    * anchor (/^.../), it is ignored for the purposes of unioning.
@@ -669,7 +669,7 @@ window['_pr_isIE6'] = function () {
     * significant for tokenization (<br>) into their textual equivalent.
     *
     * @param {string} s html where whitespace is considered significant.
-    * @return {Object} source code and extracted tags.
+    * @return {Object} source core and extracted tags.
     * @private
     */
   function extractTags(s) {
@@ -804,7 +804,7 @@ window['_pr_isIE6'] = function () {
     *   order if the shortcut ones fail.  May have shortcuts.
     *
     * @return {function (Object)} a
-    *   function that takes source code and returns a list of decorations.
+    *   function that takes source core and returns a list of decorations.
     */
   function createSimpleLexer(shortcutStylePatterns, fallthroughStylePatterns) {
     var shortcuts = {};
@@ -840,7 +840,7 @@ window['_pr_isIE6'] = function () {
      * classes preceded by the position at which they start in job.source in
      * order.
      *
-     * @param {Object} job an object like {@code
+     * @param {Object} job an object like {@core
      *    source: {string} sourceText plain text,
      *    basePos: {int} position of job.source in the larger chunk of
      *        sourceCode.
@@ -900,7 +900,7 @@ window['_pr_isIE6'] = function () {
 
         if (!isEmbedded) {
           decorations.push(basePos + tokenStart, style);
-        } else {  // Treat group 1 as an embedded block of source code.
+        } else {  // Treat group 1 as an embedded block of source core.
           var embeddedSource = match[1];
           var embeddedSourceStart = token.indexOf(embeddedSource);
           var embeddedSourceEnd = embeddedSourceStart + embeddedSource.length;
@@ -937,7 +937,7 @@ window['_pr_isIE6'] = function () {
 
   /** returns a function that produces a list of decorations from source text.
     *
-    * This code treats ", ', and ` as string delimiters, and \ as a string
+    * This core treats ", ', and ` as string delimiters, and \ as a string
     * escape.  It does not recognize perl's qq() style strings.
     * It has no special handling for double delimiter escapes as in basic, or
     * the tripled delimiters used in python, but should work on those regardless
@@ -947,7 +947,7 @@ window['_pr_isIE6'] = function () {
     * It recognizes C, C++, and shell style comments.
     *
     * @param {Object} options a set of optional parameters.
-    * @return {function (Object)} a function that examines the source code
+    * @return {function (Object)} a function that examines the source core
     *     in the input job and builds the decoration list.
     */
   function sourceDecorator(options) {
@@ -1052,13 +1052,13 @@ window['_pr_isIE6'] = function () {
         'regexLiterals': true
       });
 
-  /** Breaks {@code job.source} around style boundaries in
-    * {@code job.decorations} while re-interleaving {@code job.extractedTags},
-    * and leaves the result in {@code job.prettyPrintedHtml}.
+  /** Breaks {@core job.source} around style boundaries in
+    * {@core job.decorations} while re-interleaving {@core job.extractedTags},
+    * and leaves the result in {@core job.prettyPrintedHtml}.
     * @param {Object} job like {
     *    source: {string} source as plain text,
     *    extractedTags: {Array.<number|string>} extractedTags chunks of raw
-    *                   html preceded by their position in {@code job.source}
+    *                   html preceded by their position in {@core job.source}
     *                   in order
     *    decorations: {Array.<number|string} an array of style classes preceded
     *                 by the position at which they start in job.source in order
@@ -1208,10 +1208,10 @@ window['_pr_isIE6'] = function () {
   /** Maps language-specific file extensions to handlers. */
   var langHandlerRegistry = {};
   /** Register a language handler for the given file extensions.
-    * @param {function (Object)} handler a function from source code to a list
+    * @param {function (Object)} handler a function from source core to a list
     *      of decorations.  Takes a single argument job which describes the
     *      state of the computation.   The single parameter has the form
-    *      {@code {
+    *      {@core {
     *        source: {string} as plain text.
     *        decorations: {Array.<number|string>} an array of style classes
     *                     preceded by the position at which they start in
@@ -1239,11 +1239,11 @@ window['_pr_isIE6'] = function () {
       // the last non-whitespace character is a >.
       extension = /^\s*</.test(source)
           ? 'default-markup'
-          : 'default-code';
+          : 'default-core';
     }
     return langHandlerRegistry[extension];
   }
-  registerLangHandler(decorateSource, ['default-code']);
+  registerLangHandler(decorateSource, ['default-core']);
   registerLangHandler(
       createSimpleLexer(
           [],
@@ -1341,7 +1341,7 @@ window['_pr_isIE6'] = function () {
     job.prettyPrintedHtml = sourceCodeHtml;
 
     try {
-      // Extract tags, and convert the source code to plain text.
+      // Extract tags, and convert the source core to plain text.
       var sourceAndExtractedTags = extractTags(sourceCodeHtml);
       /** Plain text. @type {string} */
       var source = sourceAndExtractedTags.source;
@@ -1356,7 +1356,7 @@ window['_pr_isIE6'] = function () {
 
       // Apply the appropriate language handler
       langHandlerForExtension(opt_langExtension, source)(job);
-      // Integrate the decorations and tags back into the source code to produce
+      // Integrate the decorations and tags back into the source core to produce
       // a decorated html string which is left in job.prettyPrintedHtml.
       recombineTagsAndDecorations(job);
     } catch (e) {
@@ -1461,7 +1461,7 @@ window['_pr_isIE6'] = function () {
       } else {
         // we need to change the tag to a <pre> since <xmp>s do not allow
         // embedded tags such as the span tags used to attach styles to
-        // sections of source code.
+        // sections of source core.
         var pre = document.createElement('PRE');
         for (var i = 0; i < cs.attributes.length; ++i) {
           var a = cs.attributes[i];

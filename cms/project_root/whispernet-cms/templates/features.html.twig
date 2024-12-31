@@ -1,0 +1,257 @@
+{% extends 'dashboard.html.twig' %}
+{% block title %}Edit Features Page{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <h1 class="mb-4">Edit Features Page</h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+
+        {% set mainTranslatePrototype %}
+            <div class="translation-item mb-3 border p-3 rounded">
+                {{ form_widget(form.translate.vars.prototype) }}
+
+                <button type="button" class="btn btn-danger btn-sm remove-main-translation mt-2">
+                    Remove translation
+                </button>
+            </div>
+        {% endset %}
+
+
+        {% set pointTranslationPrototype %}
+            <div class="translation-item mb-3 border p-3 rounded">
+
+
+                <div class="form-group">
+                    {{ form_label(form.features.vars.prototype.translate.vars.prototype.title) }}
+                    <input
+                            class="form-control"
+                            type="text"
+                            name="feature[features][__name__][translate][__index__][title]"
+                            value="{{ form.features.vars.prototype.translate.vars.prototype.title.vars.value|e }}"
+                    />
+                    {{ form_errors(form.features.vars.prototype.translate.vars.prototype.title) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.features.vars.prototype.translate.vars.prototype.subtitle) }}
+                    <input
+                            class="form-control"
+                            type="text"
+                            name="feature[features][__name__][translate][__index__][subtitle]"
+                            value="{{ form.features.vars.prototype.translate.vars.prototype.subtitle.vars.value|e }}"
+                    />
+                    {{ form_errors(form.features.vars.prototype.translate.vars.prototype.subtitle) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.features.vars.prototype.translate.vars.prototype.code) }}
+                    <select name="feature[features][__name__][translate][__index__][code]">
+                        <option value="en">en</option>
+                        <option value="pl">pl</option>
+                    </select>
+                    {{ form_errors(form.features.vars.prototype.translate.vars.prototype.subtitle) }}
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-point-translation mt-2">
+                    Remove translation
+                </button>
+            </div>
+        {% endset %}
+
+        {% set pointsPrototype %}
+            <div class="point-item mb-4 border p-3 rounded">
+                {{ form_widget(form.features.vars.prototype) }}
+
+                <h4>Point Translations</h4>
+                <div class="point-translations-container"
+                     data-prototype="{{ pointTranslationPrototype|e('html_attr') }}">
+                </div>
+                <button data-id="__elIndex__" type="button" class="btn btn-secondary btn-sm add-point-translation mb-3">
+                    Add translation to this point
+                </button>
+
+                <button type="button" class="btn btn-danger btn-sm remove-point">
+                    Remove Point
+                </button>
+            </div>
+        {% endset %}
+
+        {{ form_start(form, {'action': path('features_page'), 'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+        <div class="mb-3">
+            <label for="{{ form.title.vars.id }}" class="form-label">{{ form.title.vars.label }}</label>
+            {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.subtitle.vars.id }}" class="form-label">{{ form.subtitle.vars.label }}</label>
+            {{ form_widget(form.subtitle, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+        </div>
+
+        <h3>Main Translations</h3>
+        <div id="main-translations-container"
+             data-prototype="{{ mainTranslatePrototype|e('html_attr') }}">
+            {% for translationForm in form.translate %}
+                <div class="translation-item mb-3 border p-3 rounded">
+                    <div class="form-group">
+                        <label for="{{ translationForm.title.vars.id }}" class="form-label">{{ translationForm.title.vars.label }}</label>
+                        {{ form_widget(translationForm.title) }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ translationForm.subtitle.vars.id }}" class="form-label">{{ translationForm.subtitle.vars.label }}</label>
+                        {{ form_widget(translationForm.subtitle) }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ translationForm.code.vars.id }}" class="form-label">{{ translationForm.code.vars.label }}</label>
+                        {{ form_widget(translationForm.code) }}
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-main-translation mt-2">
+                        Remove translation
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" class="btn btn-secondary mb-4" id="add-main-translation">
+            Add Main Translation
+        </button>
+
+        <h3>Points</h3>
+        <div id="points-container" data-prototype="{{ pointsPrototype|e('html_attr') }}">
+            {% for point in form.features %}
+                <div class="point-item mb-4 border p-3 rounded">
+                    <div class="form-group">
+                        <label for="{{ point.title.vars.id }}" class="form-label">{{ point.title.vars.label }}</label>
+                        {{ form_widget(point.title) }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ point.subtitle.vars.id }}" class="form-label">{{ point.subtitle.vars.label }}</label>
+                        {{ form_widget(point.subtitle) }}
+                    </div>
+                    <h4>Point Translations</h4>
+                    <div class="point-translations-container"
+                         data-prototype="{{ pointTranslationPrototype|e('html_attr') }}">
+                        {% for pointTranslation in point.translate %}
+                            <div class="translation-item mb-3 border p-3 rounded">
+                                <div class="form-group">
+                                    <label for="{{ pointTranslation.title.vars.id }}" class="form-label">{{ pointTranslation.title.vars.label }}</label>
+                                    {{ form_widget(pointTranslation.title) }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ pointTranslation.subtitle.vars.id }}" class="form-label">{{ pointTranslation.subtitle.vars.label }}</label>
+                                    {{ form_widget(pointTranslation.subtitle) }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ pointTranslation.code.vars.id }}" class="form-label">{{ pointTranslation.code.vars.label }}</label>
+                                    {{ form_widget(pointTranslation.code) }}
+                                </div>
+                                <button type="button" class="btn btn-danger btn-sm remove-point-translation mt-2">
+                                    Remove translation
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button data-id="{{ loop.index }}" type="button" class="btn btn-secondary btn-sm add-point-translation mb-3">
+                        Add translation to this point
+                    </button>
+
+                    <button type="button" class="btn btn-danger btn-sm remove-point">
+                        Remove Point
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" class="btn btn-secondary mb-4" id="add-point">
+            Add Point
+        </button>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+
+        {{ form_end(form) }}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+
+            const mainTranslationsContainer = document.getElementById('main-translations-container');
+            const addMainTranslationBtn     = document.getElementById('add-main-translation');
+            const mainPrototypeHtml         = mainTranslationsContainer.dataset.prototype;
+
+            addMainTranslationBtn.addEventListener('click', () => {
+                const index = mainTranslationsContainer.querySelectorAll('.translation-item').length;
+                const newFormHtml = mainPrototypeHtml.replace(/__name__/g, index);
+
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = newFormHtml;
+                const translationItem = wrapper.querySelector('.translation-item') || wrapper;
+                mainTranslationsContainer.appendChild(translationItem);
+            });
+
+            mainTranslationsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-main-translation')) {
+                    e.target.closest('.translation-item').remove();
+                }
+            });
+
+
+            const pointsContainer  = document.getElementById('points-container');
+            const addPointBtn      = document.getElementById('add-point');
+            const pointPrototypeHtml = pointsContainer.dataset.prototype;
+
+            addPointBtn.addEventListener('click', () => {
+                const index = pointsContainer.querySelectorAll('.point-item').length;
+                const newPointHtml = pointPrototypeHtml.replace(/__name__/g, index);
+
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = newPointHtml;
+                const pointItem = wrapper.querySelector('.point-item') || wrapper;
+
+                setupPointActions(pointItem);
+
+                pointsContainer.appendChild(pointItem);
+            });
+
+            pointsContainer.querySelectorAll('.point-item').forEach((pointEl) => {
+                setupPointActions(pointEl);
+            });
+
+
+            function setupPointActions(pointElement) {
+                const removePointBtn = pointElement.querySelector('.remove-point');
+                if (removePointBtn) {
+                    removePointBtn.addEventListener('click', () => {
+                        pointElement.remove();
+                    });
+                }
+
+                const addPointTranslationBtn = pointElement.querySelector('.add-point-translation');
+                if (addPointTranslationBtn) {
+                    const translationsContainer = pointElement.querySelector('.point-translations-container');
+                    if (!translationsContainer) return;
+
+                    const translationPrototypeHtml = translationsContainer.dataset.prototype;
+
+                    addPointTranslationBtn.addEventListener('click', (e) => {
+                        const index = +(e.target.dataset.id) - 1;
+                        const elIndex = pointsContainer.querySelectorAll('.point-item').length;
+                        const tIndex = translationsContainer.querySelectorAll('.translation-item').length;
+                        const newTHtml = translationPrototypeHtml.replace(/__name__/g, index).replace(/__index__/g, tIndex).replace(/__elIndex__/g,elIndex );
+
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = newTHtml;
+
+                        const newTranslationItem = wrapper.querySelector('.translation-item') || wrapper;
+                        translationsContainer.appendChild(newTranslationItem);
+                    });
+                }
+
+                pointElement.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-point-translation')) {
+                        e.target.closest('.translation-item').remove();
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

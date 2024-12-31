@@ -24,11 +24,8 @@ class Point
     /**
      * @var Collection<int, PointTranslate>
      */
-    #[ORM\OneToMany(targetEntity: PointTranslate::class, mappedBy: 'point')]
+    #[ORM\OneToMany(targetEntity: PointTranslate::class, mappedBy: 'point',  cascade: ['persist'])]
     private Collection $translate;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $deletedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'features')]
     private ?Feature $feature = null;
@@ -93,18 +90,6 @@ class Point
                 $translate->setPoint(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getDeletedAt(): ?\DateTimeImmutable
-    {
-        return $this->deletedAt;
-    }
-
-    public function setDeletedAt(\DateTimeImmutable $deletedAt): static
-    {
-        $this->deletedAt = $deletedAt;
 
         return $this;
     }

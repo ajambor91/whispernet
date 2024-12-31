@@ -74,7 +74,6 @@ electron/dist/
 x64/
 wasm/
 grafana/data/
-cms_data/
 vendor/
 var/
 composer.lock

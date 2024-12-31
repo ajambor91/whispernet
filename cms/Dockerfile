@@ -9,4 +9,4 @@ RUN docker-php-ext-install pdo pdo_mysql
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 WORKDIR /var/www/html
-RUN symfony new whispernet-cms --webapp --no-git
+RUN cd whispernet-cms && composer install

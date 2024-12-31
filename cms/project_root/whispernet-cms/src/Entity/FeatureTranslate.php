@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\Lang;
 use App\Repository\FeatureTranslateRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,8 +23,8 @@ class FeatureTranslate
     #[ORM\ManyToOne(inversedBy: 'translate')]
     private ?Feature $feature = null;
 
-    #[ORM\Column(length: 3)]
-    private ?string $code = null;
+    #[ORM\Column(enumType: Lang::class)]
+    private ?Lang $code = null;
 
     public function getId(): ?int
     {
@@ -66,12 +67,12 @@ class FeatureTranslate
         return $this;
     }
 
-    public function getCode(): ?string
+    public function getCode(): ?Lang
     {
         return $this->code;
     }
 
-    public function setCode(string $code): static
+    public function setCode(Lang $code): static
     {
         $this->code = $code;
 

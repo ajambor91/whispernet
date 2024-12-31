@@ -11,14 +11,14 @@ function(moduleArg = {}) {
 // and export values on it. There are various ways Module can be used:
 // 1. Not defined. We create it here
 // 2. A function parameter, function(moduleArg) => Promise<Module>
-// 3. pre-run appended it, var Module = {}; ..generated code..
+// 3. pre-run appended it, var Module = {}; ..generated core..
 // 4. External script tag defines var Module.
 // We need to check if Module already exists (e.g. case 3 above).
-// Substitution will be replaced with actual code on later stage of the build,
+// Substitution will be replaced with actual core on later stage of the build,
 // this way Closure Compiler will not mangle it (e.g. case 4. above).
 // Note that if you want to run closure, and also to use Module
-// after the generated code, you will need to define   var Module = {};
-// before the code. Then that object will be used in the code, and you
+// after the generated core, you will need to define   var Module = {};
+// before the core. Then that object will be used in the core, and you
 // can continue to use Module afterwards as well.
 var Module = moduleArg;
 
@@ -45,7 +45,7 @@ var ENVIRONMENT_IS_WORKER = false;
 var ENVIRONMENT_IS_NODE = false;
 var ENVIRONMENT_IS_SHELL = false;
 
-// --pre-jses are emitted after the Module integration code, so that they can
+// --pre-jses are emitted after the Module integration core, so that they can
 // refer to Module (if they choose; they can also define Module)
 
 
@@ -135,7 +135,7 @@ Object.assign(Module, moduleOverrides);
 moduleOverrides = null;
 checkIncomingModuleAPI();
 
-// Emit code to handle expected values on the Module object. This applies Module.x
+// Emit core to handle expected values on the Module object. This applies Module.x
 // to the proper local x. This has two benefits: first, we only emit it if it is
 // expected to arrive, and second, by using a local everywhere else that can be
 // minified.
@@ -202,12 +202,12 @@ var wasmMemory;
 // Runtime essentials
 //========================================
 
-// whether we are quitting the application. no code should run after this.
+// whether we are quitting the application. no core should run after this.
 // set in exit() and abort()
 var ABORT = false;
 
 // set by exit() and abort().  Passed to 'onExit' handler.
-// NOTE: This is also used as the process return code code in shell environments
+// NOTE: This is also used as the process return core core in shell environments
 // but only when noExitRuntime is false.
 var EXITSTATUS;
 
@@ -482,7 +482,7 @@ function abort(what) {
 
   readyPromiseReject(e);
   // Throw the error whether or not MODULARIZE is set because abort is used
-  // in code paths apart from instantiation where an exception is expected
+  // in core paths apart from instantiation where an exception is expected
   // to be thrown when abort is called.
   throw e;
 }
@@ -774,7 +774,7 @@ missingGlobal('asm', 'Please use wasmExports instead');
 
 function missingLibrarySymbol(sym) {
   hookGlobalSymbolAccess(sym, () => {
-    // Can't `abort()` here because it would break code that does runtime
+    // Can't `abort()` here because it would break core that does runtime
     // checks.  e.g. `if (typeof SDL === 'undefined')`.
     var msg = `\`${sym}\` is a library symbol and not included by default; add it to your library.js __deps or to DEFAULT_LIBRARY_FUNCS_TO_INCLUDE on the command line`;
     // DEFAULT_LIBRARY_FUNCS_TO_INCLUDE requires the name as it appears in
@@ -916,7 +916,7 @@ function dbg(...args) {
       // TextDecoder needs to know the byte length in advance, it doesn't stop on
       // null terminator by itself.  Also, use the length info to avoid running tiny
       // strings through TextDecoder, since .subarray() allocates garbage.
-      // (As a tiny code save trick, compare endPtr against endIdx using a negation,
+      // (As a tiny core save trick, compare endPtr against endIdx using a negation,
       // so that undefined/NaN means Infinity)
       while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
   
@@ -1045,7 +1045,7 @@ function dbg(...args) {
     };
 
   var __abort_js = () =>
-      abort('native code called abort()');
+      abort('native core called abort()');
 
   var __embind_register_bigint = (primitiveType, name, size, minRange, maxRange) => {};
 
@@ -1360,7 +1360,7 @@ function dbg(...args) {
         var $$ = handle.$$;
         var hasSmartPtr = !!$$.smartPtr;
         if (hasSmartPtr) {
-          // We should not call the destructor on raw pointers in case other code expects the pointee to live
+          // We should not call the destructor on raw pointers in case other core expects the pointee to live
           var info = { $$: $$ };
           // Create a warning as an Error instance in advance so that we can store
           // the current stacktrace and point to it when / if a leak is detected.
@@ -1930,7 +1930,7 @@ function dbg(...args) {
       var legalFunctionName = makeLegalFunctionName(name);
   
       exposePublicSymbol(legalFunctionName, function() {
-        // this code cannot run if baseClassRawType is zero
+        // this core cannot run if baseClassRawType is zero
         throwUnboundTypeError(`Cannot construct ${name} due to unbound types`, [baseClassRawType]);
       });
   
@@ -2162,7 +2162,7 @@ function dbg(...args) {
       //    argTypes[1] is the type object for function this object/class type, or null if not crafting an invoker for a class method.
       //    argTypes[2...] are the actual function parameters.
       // classType: The embind type object for the class to be bound, or null if this is not a method of a class.
-      // cppInvokerFunc: JS Function object to the C++-side function that interops into C++ code.
+      // cppInvokerFunc: JS Function object to the C++-side function that interops into C++ core.
       // cppTargetFunc: Function pointer (an integer to FUNCTION_TABLE) to the target C++ function the cppInvokerFunc will end up calling.
       // isAsync: Optional. If true, returns an async function. Async bindings are only supported with JSPI.
       var argCount = argTypes.length;
@@ -2564,8 +2564,8 @@ function dbg(...args) {
       var startIdx = outIdx;
       var endIdx = outIdx + maxBytesToWrite - 1; // -1 for string null terminator.
       for (var i = 0; i < str.length; ++i) {
-        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
-        // unit, not a Unicode code point of the character! So decode
+        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded core
+        // unit, not a Unicode core point of the character! So decode
         // UTF16->UTF32->UTF8.
         // See http://unicode.org/faq/utf_bom.html#utf16-3
         // For UTF8 byte structure, see http://en.wikipedia.org/wiki/UTF-8#Description
@@ -2590,7 +2590,7 @@ function dbg(...args) {
           heap[outIdx++] = 0x80 | (u & 63);
         } else {
           if (outIdx + 3 >= endIdx) break;
-          if (u > 0x10FFFF) warnOnce('Invalid Unicode code point ' + ptrToString(u) + ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).');
+          if (u > 0x10FFFF) warnOnce('Invalid Unicode core point ' + ptrToString(u) + ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode core points should be in range 0-0x10FFFF).');
           heap[outIdx++] = 0xF0 | (u >> 18);
           heap[outIdx++] = 0x80 | ((u >> 12) & 63);
           heap[outIdx++] = 0x80 | ((u >> 6) & 63);
@@ -2609,8 +2609,8 @@ function dbg(...args) {
   var lengthBytesUTF8 = (str) => {
       var len = 0;
       for (var i = 0; i < str.length; ++i) {
-        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
-        // unit, not a Unicode code point of the character! So decode
+        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded core
+        // unit, not a Unicode core point of the character! So decode
         // UTF16->UTF32->UTF8.
         // See http://unicode.org/faq/utf_bom.html#utf16-3
         var c = str.charCodeAt(i); // possibly a lead surrogate
@@ -2637,7 +2637,7 @@ function dbg(...args) {
       registerType(rawType, {
         name,
         // For some method names we use string keys here since they are part of
-        // the public/external API and/or used by the runtime-generated code.
+        // the public/external API and/or used by the runtime-generated core.
         'fromWireType'(value) {
           var length = HEAPU32[((value)>>2)];
           var payload = value + 4;
@@ -2701,7 +2701,7 @@ function dbg(...args) {
                 var charCode = value.charCodeAt(i);
                 if (charCode > 255) {
                   _free(ptr);
-                  throwBindingError('String has UTF-16 code units that do not fit in 8 bits');
+                  throwBindingError('String has UTF-16 core units that do not fit in 8 bits');
                 }
                 HEAPU8[ptr + i] = charCode;
               }
@@ -2739,7 +2739,7 @@ function dbg(...args) {
       var idx = endPtr >> 1;
       var maxIdx = idx + maxBytesToRead / 2;
       // If maxBytesToRead is not passed explicitly, it will be undefined, and this
-      // will always evaluate to true. This saves on code size.
+      // will always evaluate to true. This saves on core size.
       while (!(idx >= maxIdx) && HEAPU16[idx]) ++idx;
       endPtr = idx << 1;
   
@@ -2755,7 +2755,7 @@ function dbg(...args) {
       for (var i = 0; !(i >= maxBytesToRead / 2); ++i) {
         var codeUnit = HEAP16[(((ptr)+(i*2))>>1)];
         if (codeUnit == 0) break;
-        // fromCharCode constructs a character from a UTF-16 code unit, so we can
+        // fromCharCode constructs a character from a UTF-16 core unit, so we can
         // pass the UTF16 string right through.
         str += String.fromCharCode(codeUnit);
       }
@@ -2773,7 +2773,7 @@ function dbg(...args) {
       var startPtr = outPtr;
       var numCharsToWrite = (maxBytesToWrite < str.length*2) ? (maxBytesToWrite / 2) : str.length;
       for (var i = 0; i < numCharsToWrite; ++i) {
-        // charCodeAt returns a UTF-16 encoded code unit, so it can be directly written to the HEAP.
+        // charCodeAt returns a UTF-16 encoded core unit, so it can be directly written to the HEAP.
         var codeUnit = str.charCodeAt(i); // possibly a lead surrogate
         HEAP16[((outPtr)>>1)] = codeUnit;
         outPtr += 2;
@@ -2791,12 +2791,12 @@ function dbg(...args) {
   
       var str = '';
       // If maxBytesToRead is not passed explicitly, it will be undefined, and this
-      // will always evaluate to true. This saves on code size.
+      // will always evaluate to true. This saves on core size.
       while (!(i >= maxBytesToRead / 4)) {
         var utf32 = HEAP32[(((ptr)+(i*4))>>2)];
         if (utf32 == 0) break;
         ++i;
-        // Gotcha: fromCharCode constructs a character from a UTF-16 encoded code (pair), not from a Unicode code point! So encode the code point to UTF-16 for constructing.
+        // Gotcha: fromCharCode constructs a character from a UTF-16 encoded core (pair), not from a Unicode core point! So encode the core point to UTF-16 for constructing.
         // See http://unicode.org/faq/utf_bom.html#utf16-3
         if (utf32 >= 0x10000) {
           var ch = utf32 - 0x10000;
@@ -2817,7 +2817,7 @@ function dbg(...args) {
       var startPtr = outPtr;
       var endPtr = startPtr + maxBytesToWrite - 4;
       for (var i = 0; i < str.length; ++i) {
-        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code unit, not a Unicode code point of the character! We must decode the string to UTF-32 to the heap.
+        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded core unit, not a Unicode core point of the character! We must decode the string to UTF-32 to the heap.
         // See http://unicode.org/faq/utf_bom.html#utf16-3
         var codeUnit = str.charCodeAt(i); // possibly a lead surrogate
         if (codeUnit >= 0xD800 && codeUnit <= 0xDFFF) {
@@ -2836,7 +2836,7 @@ function dbg(...args) {
   var lengthBytesUTF32 = (str) => {
       var len = 0;
       for (var i = 0; i < str.length; ++i) {
-        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code unit, not a Unicode code point of the character! We must decode the string to UTF-32 to the heap.
+        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded core unit, not a Unicode core point of the character! We must decode the string to UTF-32 to the heap.
         // See http://unicode.org/faq/utf_bom.html#utf16-3
         var codeUnit = str.charCodeAt(i);
         if (codeUnit >= 0xD800 && codeUnit <= 0xDFFF) ++i; // possibly a lead surrogate, so skip over the tail surrogate.
@@ -3553,7 +3553,7 @@ function checkUnflushedContent() {
   // something a non-ASSERTIONS build would have not seen.
   // How we flush the streams depends on whether we are in SYSCALLS_REQUIRE_FILESYSTEM=0
   // mode (which has its own special function for this; otherwise, all
-  // the code is inside libc)
+  // the core is inside libc)
   var oldOut = out;
   var oldErr = err;
   var has = false;
@@ -3583,7 +3583,7 @@ run();
 // end include: postamble.js
 
 // include: postamble_modularize.js
-// In MODULARIZE mode we wrap the generated code in a factory function
+// In MODULARIZE mode we wrap the generated core in a factory function
 // and return either the Module itself, or a promise of the module.
 //
 // We assign to the `moduleRtn` global here and configure closure to see

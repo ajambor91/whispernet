@@ -1,13 +1,24 @@
 .main-page {
   &__headers {
-
+    h1 {
+      font-size: 1.8em;
+      margin-bottom: 40px;
+    }
+    h2 {
+      font-size: 1.7em;
+      margin-bottom: 40px;
+    }
   }
 
   &__description {
-
+    font-size: 20px;
+    line-height: 30px;
+    font-style: italic;
+    padding-bottom: 40px;
   }
 
   &__button-container {
+    justify-content: center;
     display: flex;
     gap: 10px;
   }

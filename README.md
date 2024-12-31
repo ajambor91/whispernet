@@ -14,20 +14,22 @@ WhisperNet is a decentralized communication platform designed to provide private
 - **Cross-Platform**: Frontend built in React.
 - **WebRTC**: Session signaling with a test TURN server.
 - **WebAssembly**: Message sanitizing and AES 256 encoding and decoding for higher security and customizability
+- **CMS**: Landing page built with PHP and Symfony
 
 ---
 
 ## Tech Stack
 
 - **Backend**:
-    - Spring Boot microservices:
+    - Java 22 
+    - Spring Boot 3.3.4 microservices:
         - **Session**: Handles user creation and management.
         - **WSSession**: Creates and manages WebRTC sessions.
     - Node.js microservice:
         - **WebSocket Service**: Pairs users for communication.
     - Kafka: Handles asynchronous communication between microservices.
     - Redis: Stores session data for quick access.
-
+    
 - **Frontend**:
     - React: A modern, responsive UI for the chat platform.
     - WebAssembly: C++ with emscripten
@@ -37,13 +39,17 @@ WhisperNet is a decentralized communication platform designed to provide private
     - Docker: Containerized deployment of all services.
     - TURN Server: Coturn server for WebRTC signaling (currently in testing).
 
+- **CMS**
+  - Isolated network and service for CMS
+  - PHP 8.2 with Symfony 7.2 framework for higher performance
+
 ---
 
 ## Architecture Overview
 
 ### System Diagram
 
-
+#### Main application
 ```plaintext
 Frontend (React)
     |
@@ -60,6 +66,16 @@ Frontend (React)
     v
 Signal-Server (Node.js)
 ```
+
+#### CMS
+``` plaintext
+Frontend (Next.js)
+    
+    |
+    v
+Backend (Symfony) <--> Database (mariadb)
+```
+
 
 ### Component Descriptions
 
@@ -90,6 +106,7 @@ Signal-Server (Node.js)
 - Node.js and npm
 - Java 17+ for Spring Boot (included in docker)
 - Redis (included in Docker)
+- PHP 8.2 and composer (included in docker)
 
 ---
 
@@ -107,12 +124,29 @@ Signal-Server (Node.js)
    ```
  3. **Run frontend app**
     ```bash
-    cd ui/web
-    npm run install or yarn install
-    npm run start 
+    cd ui
+    npm install or yarn install *
+    cd ui/wb
+    npm run start
+    
+4. **Run CMS frontend**
+    ```bash
+   cd ui
+   npm install or yarn install *
+   cd ui/cms
+   npm run dev
 
-Open http://localhost:3001 in web browser, tested in Chromium based browsers like Chrome, Edge etc.
+* *You only need to run one install command in the main ui directory
 
+Open http://localhost:3200 in web browser for main application.
+Open http://localhost:3100 in web browser for cms frontend.
+
+cms-db directory contains example data for cms and example user with credentials test@teest.test, altough you can create your own user running from dir in cms service or (if you have php installed) in cms project root on your host machine
+
+```bash
+   php bin/console app:make-admin email@domain.example examplePassword
+```
+MariaDB instance in cms-db service has two example users - root and exampleUser, both has password 3x@mplePassword. All services has example configs and SSL keys.
 ## Test Coverage
 
 Currently, tests have been implemented for the **Session-Service** microservice, with the following coverage statistics:
@@ -142,8 +176,9 @@ Here are the planned improvements and features for WhisperNet:
     - Increase test coverage beyond 81% with additional unit, integration, and end-to-end tests.
 
 3. **User Authentication**:
-    - Add a dedicated **Authentication microservice** built with Spring Boot.
-    - Use MariaDB with Hibernate for secure and scalable user data management.
+    - Add a another mariadb instance.
+    - Add user authentication to session service.
+    - Use Hibernate for secure and scalable user data management.
     - Implement authentication mechanisms such as JWT or OAuth2.
 
 4. **PGP Key-Based User Verification**:

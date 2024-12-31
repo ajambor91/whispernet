@@ -1,11 +1,12 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {ELang} from "@/enums/lang.enum";
 
 
 export interface IAppSettingsState  {
-    lang: string;
+    lang: ELang;
 }
 const initialState: IAppSettingsState = {
-    lang: 'en'
+    lang: ELang.EN
 }
 export const appSlice = createSlice({
     name: 'appSlice',

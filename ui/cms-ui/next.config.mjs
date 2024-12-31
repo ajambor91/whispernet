@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
+import  i18n from './i18n.config.mjs';
 
 
 const nextConfig = {
+  i18n,
   /* config options here */
   reactStrictMode: true,
   sassOptions: {
@@ -9,12 +11,13 @@ const nextConfig = {
   },
   experimental: {
     externalDir: true,
+    turbo: false
   },
   async rewrites() {
     return [
       {
-        source: '/cms:path*',
-        destination: 'http://127.0.0.1:8099/cms:path*',
+        source: '/cms/:path*',
+        destination: 'http://127.0.0.1:8099/cms/:path*',
       },
     ];
   },

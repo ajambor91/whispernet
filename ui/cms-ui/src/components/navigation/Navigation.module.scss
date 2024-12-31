@@ -21,6 +21,38 @@
         color: #b0b3c0;
         font-weight: bold;
       }
+      &__lang{
+        text-align: right;
+        cursor: pointer;
+        margin-left: auto;
+        width: 80px;
+        position: relative;
+        .lang-menu{
+          cursor: pointer;
+          z-index: 100;
+          right: -10px;
+          top:27px;
+          width: 60px;
+          position: absolute;
+          background-color: #14133b;
+          border: solid #b0b3c0 1px;
+          &--disabled {
+            display: none;
+          }
+
+          &--active {
+            display: block;
+          }
+
+          &__list {
+            list-style-type: none;
+          }
+          &__item {
+            padding: 4px;
+            text-align: center;
+          }
+        }
+      }
     }
   }
   &::before {

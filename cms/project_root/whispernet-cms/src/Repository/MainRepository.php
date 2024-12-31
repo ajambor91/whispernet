@@ -22,8 +22,7 @@ class MainRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('q')
             ->select("q.title as mainTitle, q.subtitle as mainSubtitle, q.description as mainDescription, t.title as translationTitle, t.subtitle as translationSubtitle, t.description as translationDescription")
-            ->leftJoin('q.translate', 't' )
-            ->where('t.code = :code')
+            ->leftJoin('q.translate', 't', 'WITH', 't.code =  :code' )
             ->setParameter('code', $lang);
         return $qb->getQuery()->getResult();
     }

@@ -2,14 +2,19 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import {Provider} from "react-redux";
 import {store} from "@/store/store";
-import {Layout} from "../../../shared/layout/Layout";
 import Navigation from "@/components/navigation/Navigation";
+import '../i18n'
+import { appWithTranslation } from 'next-i18next';
 
-export default function App({ Component, pageProps }: AppProps) {
+
+ function App({ Component, pageProps }: AppProps) {
+
   return (
     <Provider store={store}>
-      <Navigation />
-    <Component {...pageProps} />
+        <Navigation />
+
+        <Component {...pageProps} />
     </Provider>
   )
 }
+export default appWithTranslation(App);

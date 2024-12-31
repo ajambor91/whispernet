@@ -106,13 +106,13 @@ services:
       - "5349:5349/udp"
       - "5349:5349/tcp"
   cms-db:
-    build: './landing-page-db'
+    build: './cms-db'
     hostname: cms-db.whisper.net
     container_name: cms-db
     networks:
       - whispernet-cms
     volumes:
-      - './landing-page-db/cms_data:/var/lib/mysql'
+      - './cms-db/cms_data:/var/lib/mysql'
     ports:
       - 3306:3306
   cms:

@@ -5,6 +5,5 @@
 #kafka-topics --bootstrap-server broker:9092 --create --topic request-return-client-topic --partitions 3 --replication-factor 1
 #kafka-topics --bootstrap-server broker:9092 --create --topic request-initialization-topic --partitions 3 --replication-factor 1
 #kafka-topics --bootstrap-server broker:9092 --create --topic request-websocket-session-topic --partitions 3 --replication-factor 1
-
-
-#TODO DEBUG
+#
+#

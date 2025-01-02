@@ -73,7 +73,7 @@ Frontend (Next.js)
     
     |
     v
-Backend (Symfony) <--> Database (mariadb)
+Backend (Symfony) --> Database (mariadb)
 ```
 
 
@@ -112,24 +112,27 @@ Backend (Symfony) <--> Database (mariadb)
 
 ### Steps to Run Locally
 
+### Dev environment
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/ajambor91/whispernet.git
    cd whispernet
    ```
-2. **Run containers stack**
+2. **Generate ssl server.crt and server.key files and replace server_dummy files in nginx directory**
+
+3. **Run containers stack**
     ```bash
     docker-compose build
     docker-compose up -d
    ```
- 3. **Run frontend app**
+4. **Run frontend app**
     ```bash
     cd ui
     npm install or yarn install *
     cd ui/wb
     npm run start
     
-4. **Run CMS frontend**
+5. **Run CMS frontend**
     ```bash
    cd ui
    npm install or yarn install *
@@ -140,6 +143,7 @@ Backend (Symfony) <--> Database (mariadb)
 
 Open http://localhost:3200 in web browser for main application.
 Open http://localhost:3100 in web browser for cms frontend.
+Open http://localhost:8099/cms/dashboard for administrator panel
 
 cms-db directory contains example data for cms and example user with credentials test@teest.test, altough you can create your own user running from dir in cms service or (if you have php installed) in cms project root on your host machine
 
@@ -147,6 +151,33 @@ cms-db directory contains example data for cms and example user with credentials
    php bin/console app:make-admin email@domain.example examplePassword
 ```
 MariaDB instance in cms-db service has two example users - root and exampleUser, both has password 3x@mplePassword. All services has example configs and SSL keys.
+
+### Local test environment
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/ajambor91/whispernet.git
+   cd whispernet
+   ```
+2. **Generate ssl server.crt and server.key files and replace server_dummy files in nginx directory** 
+3. **Copy nginx.example.conf from nginx-host directory, or create similar configuration for nginx or apache**
+4. **Generate your SSL certificates and replace whispernet_dummy and chat-whispernet_dummy with the new ones. Then, remove the _dummy suffix from the file names.**
+5. **Run containers stack**
+    ```bash
+    docker-compose -f ./docker-compose.local-frontend build
+    docker-compose -f ./docker-compose.local-frontend up -d
+   ```
+Open your web browser with https://whispernet.local for main page or https://chat.whispernet.local, frontend for both cms and app is included in docker
+***SSL is required for the app because user tokens, needed to connect sessions, are stored in secure cookies only***
+
+### Monitoring - Grafana
+
+Open your web browser and type http://localhost:3000. Example credentials are user: admin, password: examplePassword; apps to explore are:
+- wssession 
+- session
+- websocket
+- frontend
+
+
 ## Test Coverage
 
 Currently, tests have been implemented for the **Session-Service** microservice, with the following coverage statistics:

@@ -36,6 +36,6 @@ class MainPageController extends AbstractController
             $main = $main ? $main[count($main) - 1] : new Main();
         }
         $form = $this->createForm(MainPageType::class, $main);
-        return $this->render('main_page.html.twig', ['form' => $form->createView(), 'core' => 'created']);
+        return $this->render('main_page.html.twig', ['form' => $form->createView(), 'helpers' => 'created']);
     }
 }

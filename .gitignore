@@ -1,79 +1,69 @@
-# IntelliJ IDEA / WebStorm / PhpStorm / Rider settings
 .idea/
 
-# macOS system files
 .DS_Store
 
-# Node.js dependencies
 node_modules/
 
-# Log files
 *.log
 
-# Build directories
 build/
 dist/
 .next/
 
-# Gradle directories
 .gradle/
 build/
 
-# Compiled class files
 *.class
 
-# Windows files
 Thumbs.db
 ehthumbs.db
 
-# Nginx logs and temporary files
 nginx/*.log
 nginx/tmp/
 
-# Docker and Docker-Compose files (if they are specific to dev environments)
 docker-compose.override.yml
-#.dockerignore
 
-# npm packages lock files
 package-lock.json
 yarn.lock
 
-# TypeScript
 *.tsbuildinfo
 *.tscache
 
-# Java specific
 *.jar
 *.war
 *.ear
 
-# Environment files
-.env
-.env.local
-.env.production
-.env.test
-
-# Coverage files
 coverage/
 
-# Kafka data (if temporary data)
 kafka_data/
 
-# Redis Docker files (if generated dynamically)
 redis/*.log
 
-# Electron build files
 electron/*.build
 electron/dist/
 
-# Ignore specific IDE settings
 *.iml
-
-
+.env.prod
+.env.qa
+.env
+Dockerfile
+Dockerfile.qa
+Dockerfile.prod
 .vs/
 x64/
 wasm/
 grafana/data/
+grafana.db
+
 vendor/
 var/
 composer.lock
+chat-whispernet.crt
+chat-whispernet.key
+server.crt
+server.key
+whispernet.crt
+whispernet.key
+turn_server_pkey.pem
+turn_server_cert.pem
+grafana.ini

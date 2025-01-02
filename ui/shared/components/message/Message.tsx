@@ -1,8 +1,9 @@
 import {IWebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
 import styles from './Message.module.scss';
+import {IWebrtcLocalMessage} from "../../models/webrtc-preparing-message.moidel";
 
 interface IMessageProps {
-    message: IWebrtcPeerMessage;
+    message: IWebrtcLocalMessage;
 }
 
 const Message: React.FC<IMessageProps> = ({message}) => {

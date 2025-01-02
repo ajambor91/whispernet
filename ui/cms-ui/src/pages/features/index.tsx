@@ -4,9 +4,9 @@ import {IFeatures} from "@/models/features.model";
 import getFeaturesPage from "@/api/get-features";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {GetServerSideProps} from "next";
-import {getLangFromCookies, setLangCookie} from "@/core/cookie";
+import {getLangFromCookies, setLangCookie} from "@/helpers/cookie";
 import {ELang} from "@/enums/lang.enum";
-import {setLang} from "@/store/slice";
+import {setLang, settings} from "@/store/slice";
 import Centered from "../../../../shared/components/elements/centered/Centered";
 import styles from './Features.module.scss';
 import {useDispatch, useSelector} from "react-redux";
@@ -14,6 +14,7 @@ import {i18n, useTranslation } from 'next-i18next';
 import Indicator from "../../../../shared/components/indicator/Indicator";
 import PrimaryHeader from "../../../../shared/components/elements/primary-header/PrimaryHeader";
 import SecondaryHeader from "../../../../shared/components/elements/secondary-header/SecondaryHeader";
+import {useAppSelector} from "@/store/store";
 export const getServerSideProps: GetServerSideProps = async (context) => {
     let locale = getLangFromCookies(context.req);
 
@@ -33,7 +34,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 export default function FeaturesPage({ lang }: { lang: ELang }) {
     const [features, setFeatures] = useState<IFeatures | null>(null);
     const { t, i18n } = useTranslation("translation");
-    const langFromStore = useSelector(state => state.lang);
+    const langFromStore = useAppSelector(state => state.settings.lang);
     const [newLang, setNewLang] = useState<ELang | null>(null);
     i18n.on('languageChanged', setNewLang)
     const dispatch = useDispatch();

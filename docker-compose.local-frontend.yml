@@ -1,31 +1,78 @@
 version: '3'
 services:
+  loki:
+    build:
+      context: './loki'
+      dockerfile: 'Dockerfile.local'
+    container_name: loki
+    volumes:
+      - './loki/data:/data'
+    hostname: loki.whisper.net
+    networks:
+      - whispernet
+  grafana:
+    build:
+      context: './grafana'
+      dockerfile: './Dockerfile.local'
+    hostname: grafana.whisper.net
+    container_name: grafana
+    volumes:
+      - './grafana/data:/var/lib/grafana'
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+    networks:
+      - whispernet
+  promtail:
+    build:
+      context: 'promtail'
+      dockerfile: 'Dockerfile.local'
+    hostname: promtail.whisper.net
+    container_name: promtail
+    volumes:
+      - "./promtail/logs:/var/log"
+    networks:
+      - whispernet
+    depends_on:
+      - loki
   session:
-    build: 'net.whisper.session'
+    build:
+      context: 'net.whisper.session'
+      dockerfile: 'Dockerfile.local'
     networks:
       - whispernet
     hostname: session.whisper.net
     container_name: session
     depends_on:
       - broker
+      - gateway
+      - loki
   wssession:
-    build: 'net.whisper.wssession'
+    build:
+      context: 'net.whisper.wssession'
+      dockerfile: './Dockerfile.local'
     networks:
       - whispernet
     hostname: wssession.whisper.net
     container_name: wssession
     depends_on:
       - broker
+      - session
+      - loki
   gateway:
-    build: './nginx'
+    build:
+      context: './nginx'
+      dockerfile: './Dockerfile.local-frontend'
     ports:
       - '8099:80'
+      - '8098:443'
     networks:
       - whispernet
+      - whispernet-cms
+      - whispernet-ui
     hostname: gateway.whisper.net
     container_name: gateway
-    volumes:
-      - './nginx/nginx.conf:/etc/nginx/nginx.conf'
   zookeeper:
     image: zookeeper:latest
     container_name: zookeeper
@@ -35,35 +82,97 @@ services:
   broker:
     depends_on:
       - zookeeper
-    build: './broker'
+    build:
+      context: './broker'
+      dockerfile: './Dockerfile.local'
     container_name: broker
     networks:
       - whispernet
     hostname: broker.whisper.net
   cache:
-    build: './redis'
+    build:
+      context: './redis'
+      dockerfile: './Dockerfile.local'
     restart: always
-    command: redis-server --loglevel warning
     volumes:
       - cache:/data
     networks:
       - whispernet
   wsserver:
-    build: './signal-server'
+    depends_on:
+      - broker
+      - wssession
+    build:
+      context: './signal-server'
+      dockerfile: './Dockerfile.local'
     networks:
       - whispernet
+  coturn:
+    build:
+      context: './coturn'
+      dockerfile: './Dockerfile.local'
+    hostname: coturn
+    depends_on:
+      - wsserver
+    networks:
+      whispernet:
+        ipv4_address: 172.18.0.10
+    container_name: coturn
+    ports:
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+      - "5349:5349/udp"
+      - "5349:5349/tcp"
+  cms-db:
+    build:
+      context: './cms-db'
+      dockerfile: './Dockerfile.local'
+    hostname: cms-db.whisper.net
+    container_name: cms-db
+    networks:
+      - whispernet-cms
+    volumes:
+      - './cms-db/cms_data:/var/lib/mysql'
+  cms:
+    build:
+      context: './cms'
+      dockerfile: './Dockerfile.local'
+    hostname: cms.whisper.net
+    container_name: cms
+    networks:
+      - whispernet-cms
   frontend:
     build:
       context: './ui'
-      dockerfile: './web/Dockerfile'
+      dockerfile: './web/Dockerfile.local'
     networks:
-      - whispernet
+      - whispernet-ui
     hostname: frontend.whisper.net
     container_name: frontend
+  cms-ui:
+    build:
+      context: './ui'
+      dockerfile: './cms-ui/Dockerfile.local'
+    networks:
+      - whispernet-ui
+    hostname: cms-ui.whisper.net
+    container_name: cms-ui
 networks:
   whispernet:
-    driver: 'bridge'
-
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+  whispernet-cms:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 173.19.0.0/28
+  whispernet-ui:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 174.19.0.0/16
 volumes:
   cache:
     driver: local

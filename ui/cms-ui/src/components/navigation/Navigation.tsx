@@ -3,13 +3,13 @@ import Link from "next/link";
 import styles from './Navigation.module.scss';
 import {useTranslation} from 'next-i18next';
 import {ELang} from "@/enums/lang.enum";
-import {setLangCookie} from "@/core/cookie";
+import {setLangCookie} from "@/helpers/cookie";
 import {useState, useRef} from 'react';
 
 const Navigation: React.FC = () => {
     const { t, i18n  } = useTranslation("translation");
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-    const menu = useRef<HTMLElement | null>(null);
+    const menu = useRef<HTMLDivElement | null>(null);
     const setCurrentLang = (lang: ELang) => {
         i18n.changeLanguage(lang as string);
         setLangCookie(lang);

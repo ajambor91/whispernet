@@ -10,11 +10,13 @@ import SecondaryHeader from "../../../shared/components/elements/secondary-heade
 import Button from "../../../shared/components/elements/button/Button";
 import {useDispatch, useSelector} from "react-redux";
 import {GetServerSideProps} from "next";
-import {getLangFromCookies, setLangCookie} from "@/core/cookie";
-import {setLang} from "@/store/slice";
+import {getLangFromCookies, setLangCookie} from "@/helpers/cookie";
+import {setLang, settings} from "@/store/slice";
 import { useTranslation } from 'next-i18next';
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import { useRouter } from 'next/router';
+import {useAppSelector} from "@/store/store";
+import {appURL} from "@/api/consts";
 
 
 
@@ -36,7 +38,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 export default function Home({ lang }: { lang: ELang }) {
   const { t, i18n  } = useTranslation("translation");
-  const langFromStore = useSelector(state => state.lang);
+  const langFromStore = useAppSelector(state => state.settings.lang);
   const dispatch = useDispatch();
   const router = useRouter();
   const [ pageData, setPageData] = useState<IHero | null>(null);
@@ -46,7 +48,8 @@ export default function Home({ lang }: { lang: ELang }) {
     router.push('/features');
   }
   const goToChat = () => {
-
+    console.log("APP", appURL);
+    window.open(appURL);
   }
   useEffect(() => {
     let currentLang: ELang;
@@ -79,7 +82,7 @@ export default function Home({ lang }: { lang: ELang }) {
               <p>{pageData.description}</p>
             </div>
             <div className={styles['main-page__button-container']}>
-              <Button style={{width: '250px'}} className={"button-primary"}>{t('start-chat')}</Button>
+              <Button onClick={goToChat} style={{width: '250px'}} className={"button-primary"}>{t('start-chat')}</Button>
               <Button onClick={goToFeatures} style={{width: '250px'}} className={"button-primary"}>{t('learn-more')}</Button>
             </div>
           </div>

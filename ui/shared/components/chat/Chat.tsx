@@ -19,7 +19,10 @@ interface IChatComponentProps {
 }
 
 const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
-    const encoder: React.Ref<MessageEncoder> = useRef(new MessageEncoder(peerState.secretKey));
+    if (!peerState) {
+        throw new Error("Null peerState provided");
+    }
+    const encoder: React.Ref<MessageEncoder> = useRef(new MessageEncoder(peerState.secretKey as string));
     const [messages, setMessages] = useState<IWebrtcLocalMessage[]>([]);
     const [messageInputHeight, setMessageInputHeight] = useState<number>(0)
     const [trigger, setTrigger] = useState<number>(0)
@@ -45,7 +48,10 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
         return JSON.parse(msg);
     }
     const sendMessage = async (content: IWebrtcLocalMessage) => {
-        const msg: IWasmEncoded = encoder.current.encodeMessage(content.content);
+        if (!encoder.current) {
+            throw new Error("Null encoded provided");
+        }
+        const msg: IWasmEncoded = (encoder.current as MessageEncoder).encodeMessage(content.content);
         sendWebRTCMessage(stringfyWebRTCPeerMsg({iv: msg.iv, encryptedMsg: msg.encryptedMsg, sessionId: peerState.sessionToken as string}))
         addMessage({
             content: msg.sanitazedMsg,
@@ -59,9 +65,12 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
     useEffect(() => {
 
         onMessage((event) => {
+                if (!encoder.current) {
+                    throw new Error("Null encoded provided");
+                }
                 const incommingMessage: IWebrtcPeerMessage = parseWebRTCPeerMsg(event)
                 const msg: IWebrtcLocalMessage = {
-                    content: encoder.current.decodeMessage(incommingMessage.encryptedMsg, incommingMessage.iv).decryptedMessage,
+                    content: (encoder.current as MessageEncoder).decodeMessage(incommingMessage.encryptedMsg, incommingMessage.iv).decryptedMessage,
                     messageId: incommingMessage.messageId,
                     type: 'incoming',
                     sessionId: incommingMessage.sessionId
@@ -74,7 +83,7 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
         <div className="full-screen relative">
             <div className={styles.chatContainer}>
                 <div className={styles.messageContainer}>
-                    <ScrollContainer resize={messageInputHeight} trigger={trigger}>
+                    <ScrollContainer resize={messageInputHeight}>
                         {messages.map(msg => (
                                <div key={msg.messageId}>
                                    <Message message={msg}/>

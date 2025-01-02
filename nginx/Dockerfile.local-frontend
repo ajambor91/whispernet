@@ -1,0 +1,9 @@
+FROM nginx:alpine
+
+COPY ./server.crt /etc/nginx/certs/server.crt
+COPY ./server.key /etc/nginx/certs/server.key
+COPY ./nginx.local-frontend.conf /etc/nginx/nginx.conf
+COPY ./fastcgi-symfony.conf /etc/nginx/snippets/fastcgi-symfony.conf
+EXPOSE 80:80
+EXPOSE 443:443
+CMD ["nginx", "-g", "daemon off;"]

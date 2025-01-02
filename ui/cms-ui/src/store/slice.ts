@@ -8,16 +8,16 @@ export interface IAppSettingsState  {
 const initialState: IAppSettingsState = {
     lang: ELang.EN
 }
-export const appSlice = createSlice({
-    name: 'appSlice',
+export const settings = createSlice({
+    name: 'settings',
     initialState,
     reducers: {
         setLang: (state, action: PayloadAction<IAppSettingsState>) => {
-            state.value = action.payload.lang;
+            state.lang = action.payload.lang;
         },
     },
 });
 
-export const { setLang } = appSlice.actions;
+export const { setLang } = settings.actions;
 
-export default appSlice.reducer;
+export default settings.reducer;

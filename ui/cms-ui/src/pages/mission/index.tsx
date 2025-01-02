@@ -7,12 +7,13 @@ import PrimaryHeader from "../../../../shared/components/elements/primary-header
 import SecondaryHeader from "../../../../shared/components/elements/secondary-header/SecondaryHeader";
 import {useDispatch, useSelector} from "react-redux";
 import {GetServerSideProps} from "next";
-import {getLangFromCookies, setLangCookie} from "@/core/cookie";
-import {setLang} from "@/store/slice";
+import {getLangFromCookies, setLangCookie} from "@/helpers/cookie";
+import {setLang, settings} from "@/store/slice";
 import { useTranslation } from 'next-i18next';
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {IMission} from "@/models/mission.model";
 import getMissionPage from "@/api/get-mission";
+import {useAppSelector} from "@/store/store";
 
 
 
@@ -34,7 +35,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 export default function Mission({ lang }: { lang: ELang }) {
   const { t, i18n} = useTranslation("translation");
-  const langFromStore = useSelector(state => state.lang);
+  const langFromStore = useAppSelector(state => state.settings.lang);
   const dispatch = useDispatch();
   const [ missionData, setMissionData] = useState<IMission | null>(null);
   const [newLang, setNewLang] = useState<ELang | null>(null);

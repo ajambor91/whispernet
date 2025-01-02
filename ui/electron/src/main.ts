@@ -46,4 +46,4 @@ app.on("window-all-closed", () => {
 });
 
 // In this file you can include the rest of your app"s specific main process
-// core. You can also put them in separate files and require them here.
+// helpers. You can also put them in separate files and require them here.

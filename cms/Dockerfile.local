@@ -14,4 +14,4 @@ RUN chmod 755 /var/www/html/whispernet-cms/ -R
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 WORKDIR /var/www/html/whispernet-cms
-RUN cd whispernet-cms && composer install
+RUN composer install

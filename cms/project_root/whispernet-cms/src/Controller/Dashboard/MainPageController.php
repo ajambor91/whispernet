@@ -6,8 +6,6 @@ use App\Entity\Main;
 use App\Form\MainPageType;
 use App\Repository\MainRepository;
 use App\Service\MainPageService;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

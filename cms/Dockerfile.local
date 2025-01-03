@@ -10,10 +10,8 @@ COPY ./project_root/whispernet-cms/.env.local /var/www/html/whispernet-cms/.env
 
 RUN chown www-data:www-data /var/www/html/whispernet-cms -R
 RUN chmod 755 /var/www/html/whispernet-cms/ -R
-RUN chmod 775 /var/www/html/whispernet-cms/var /var/www/html/whispernet-cms/public -R
-
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-WORKDIR /var/www/html
-#RUN cd whispernet-cms && composer install
+WORKDIR /var/www/html/whispernet-cms
+RUN cd whispernet-cms && composer install

@@ -119,20 +119,20 @@ Backend (Symfony) --> Database (mariadb)
    cd whispernet
    ```
 2. **Generate ssl server.crt and server.key files and replace server_dummy files in nginx directory**
-
-3. **Run containers stack**
+3. **For CMS move to /cms/project_root/whispernet-cms and copy .env.local and remove .local suffix then run composer install, CMS is not requried to run main application**
+4. **Run containers stack**
     ```bash
     docker-compose build
     docker-compose up -d
    ```
-4. **Run frontend app**
+5. **Run frontend app**
     ```bash
     cd ui
     npm install or yarn install *
     cd ui/wb
     npm run start
     
-5. **Run CMS frontend**
+6. **Run CMS frontend**
     ```bash
    cd ui
    npm install or yarn install *

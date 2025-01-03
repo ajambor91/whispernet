@@ -29,9 +29,6 @@ yarn.lock
 *.tsbuildinfo
 *.tscache
 
-*.jar
-*.war
-*.ear
 
 coverage/
 

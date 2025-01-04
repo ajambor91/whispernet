@@ -1,10 +1,8 @@
 FROM openjdk:22-jdk
+
 WORKDIR /app
 RUN microdnf install findutils dos2unix
 COPY cfg/application.properties /usr/app/application.properties
-
-COPY gradlew .
-COPY gradle gradle
 COPY . .
 RUN dos2unix ./gradlew
 RUN chmod +x ./gradlew

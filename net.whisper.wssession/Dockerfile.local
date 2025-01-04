@@ -4,10 +4,9 @@ WORKDIR /app
 COPY cfg/application.properties.local /usr/app/application.properties
 
 RUN microdnf install findutils dos2unix
-COPY gradlew .
-COPY gradle gradle
+
 COPY . .
 RUN dos2unix ./gradlew
 RUN chmod +x ./gradlew
 RUN ./gradlew build --no-daemon
-ENTRYPOINT ["java", "-jar", "build/libs/wssession-0.0.1-SNAPSHOT.jar",  "--spring.config.additional-location=/usr/app/application.properties"]
+ENTRYPOINT ["java", "-jar", "build/libs/wssession.jar",  "--spring.config.additional-location=/usr/app/application.properties"]

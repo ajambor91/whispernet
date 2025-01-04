@@ -163,12 +163,20 @@ MariaDB instance in cms-db service has two example users - root and exampleUser,
 4. **Generate your SSL certificates and replace whispernet_dummy and chat-whispernet_dummy with the new ones. Then, remove the _dummy suffix from the file names.**
 5. **Run containers stack**
     ```bash
-    docker-compose -f ./docker-compose.local-frontend build
-    docker-compose -f ./docker-compose.local-frontend up -d
+    docker-compose -f ./docker-compose.local-frontend.yml build
+    docker-compose -f ./docker-compose.local-frontend.yml up -d
    ```
 Open your web browser with https://whispernet.local for main page or https://chat.whispernet.local, frontend for both cms and app is included in docker
 ***SSL is required for the app because user tokens, needed to connect sessions, are stored in secure cookies only***
 
+### QA Environment
+You can also use QA Environment. You should reneme all Dockerfile.example.qa in their respective dirs and create configs by duplicating existing *.example.* files and renaming them (e.g., redis.example.qa.conf → redis.qa.conf). Adjust the values as needed. QA Environments is similar to Local Test
+Then run:
+```bash
+docker-compose -f ./docker-compose.qa.yml build
+docker-compose -f ./docker-compose.qa.yml up -d
+```
+In this version you have to set loki data source in grafana as http://loki:3100, in CMS you should create your admin in CMS container: php bin/console app:make-admin login@domain.example password, and next create your content in dashboard.
 ### Monitoring - Grafana
 
 Open your web browser and type http://localhost:3000. Example credentials are user: admin, password: examplePassword; apps to explore are:

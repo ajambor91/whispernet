@@ -7,7 +7,6 @@ plugins {
 System.setProperty('https.protocols', 'TLSv1.2,TLSv1.3')
 
 group = 'net.whisper.session'
-version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {

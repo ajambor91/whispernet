@@ -7,11 +7,12 @@ RUN apk add --no-cache bash git unzip curl && \
 RUN docker-php-ext-install pdo pdo_mysql
 COPY ./project_root/whispernet-cms /var/www/html/whispernet-cms
 COPY ./project_root/whispernet-cms/.env.local /var/www/html/whispernet-cms/.env
+WORKDIR /var/www/html/whispernet-cms
 
-RUN chown www-data:www-data /var/www/html/whispernet-cms -R
-RUN chmod 755 /var/www/html/whispernet-cms/ -R
+RUN rm -f ./.env.*
+RUN chown www-data:www-data . -R
+RUN chmod 755 . -R
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-WORKDIR /var/www/html/whispernet-cms
 RUN composer install

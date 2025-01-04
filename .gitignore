@@ -49,7 +49,8 @@ Dockerfile.prod
 .vs/
 x64/
 wasm/
-grafana/data/
+data_grafana_local/
+data_grafana_qa/
 grafana.db
 
 vendor/
@@ -64,3 +65,11 @@ whispernet.key
 turn_server_pkey.pem
 turn_server_cert.pem
 grafana.ini
+grafana.qa.ini
+cms_qa_data/
+
+init.qa.sql
+application.properties.qa
+redis.qa.conf
+data_qa/
+nginx.qa.conf

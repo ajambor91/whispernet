@@ -1,0 +1,3 @@
+CREATE USER IF NOT EXISTS 'userName'@'%' IDENTIFIED BY 'userPassword';
+CREATE DATABASE cms;
+GRANT ALL PRIVILEGES ON cms.* TO 'userName'@'%' IDENTIFIED BY 'userPassword';

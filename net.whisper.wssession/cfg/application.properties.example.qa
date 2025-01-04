@@ -1,0 +1,22 @@
+spring.kafka.bootstrap-servers=broker:9092
+spring.kafka.consumer.auto-offset-reset=earliest
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer
+spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer
+spring.kafka.consumer.properties.group.instance.id=consumer-wsession
+spring.kafka.consumer.session.timeout.ms=60000
+spring.kafka.consumer.heartbeat.interval.ms=20000
+
+spring.data.redis.host=cache
+spring.data.redis.port=6379
+spring.data.redis.database=1
+spring.data.redis.timeout=60000
+spring.data.redis.connect-timeout=60000
+spring.data.redis.password=JkeF7FE5SAD56fdfDvcrha34f
+
+logging.level.org.springframework.data.redis=DEBUG
+io.lettuce.core.RedisClient
+
+#spring.main.lazy-initialization=true
+#management.endpoints.web.exposure.exclude=metrics, trace

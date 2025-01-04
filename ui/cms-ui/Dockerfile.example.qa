@@ -1,0 +1,16 @@
+FROM node:22
+
+WORKDIR /app
+COPY ./package.json ./package.json
+RUN npm install
+COPY ./cms-ui ./web
+COPY ./cms-ui/.env.qa ./web/.env
+
+COPY ./shared ./shared
+
+WORKDIR /app/web
+
+RUN npm install && npm run build
+
+
+CMD ["npm","run","start"]

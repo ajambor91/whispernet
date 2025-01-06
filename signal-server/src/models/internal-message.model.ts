@@ -1,8 +1,8 @@
 import {IncomingMessage} from "http";
-import {IOutgoingMessage} from "./ws-message.model";
+import {IIncomingMessage, IOutgoingMessage, ITechnicalMessage} from "./ws-message.model";
 import {EInternalMessageType} from "../enums/internal-message-type.enum";
 
 export interface IInternalMessage {
     status: EInternalMessageType;
-    clientMessage?: IncomingMessage | IOutgoingMessage;
+    clientMessage?: IIncomingMessage | IOutgoingMessage;
 }

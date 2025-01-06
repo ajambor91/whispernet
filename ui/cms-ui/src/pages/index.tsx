@@ -48,7 +48,6 @@ export default function Home({ lang }: { lang: ELang }) {
     router.push('/features');
   }
   const goToChat = () => {
-    console.log("APP", appURL);
     window.open(appURL);
   }
   useEffect(() => {

@@ -26,6 +26,10 @@ export interface IOutgoingMessage extends  IBaseMessage{
     peerRole?: PeerRole
 }
 
+export interface ITechnicalMessage {
+    userToken: string;
+}
+
 
 export interface ISignalMessage extends Pick<IBaseMessage, 'type' | 'sessionToken'> {}
 

@@ -1,3 +1,7 @@
+import {ISession} from "./session.model";
+import {EKafkaMessageSendTypes} from "../enums/kafka-message-send-types.enum";
+
 export interface IKafkaMessage {
-    message: string;
+    message: ISession;
+    type: EKafkaMessageSendTypes;
 }

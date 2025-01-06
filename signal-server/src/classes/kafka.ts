@@ -4,8 +4,8 @@ import {SessionController} from "../controllers/session-controller";
 import {logError, logInfo} from "../error-logger/error-looger";
 import {IKafkaMessage} from "../models/kafka-message.model";
 import {ISession} from "../models/session.model";
-import {IHeaders} from "../managers/headers.model";
-import {EKafkaMessageTypes} from "../enums/kafka-message-types.enum";
+import {IHeaders} from "../models/headers.model";
+import {EKafkaMessageReceivedTypes} from "../enums/kafka-message-received-types.enum";
 
 const kafkaConfig: KafkaConfig = {
     clientId: 'consumer-wsserver',
@@ -19,8 +19,7 @@ class KafkaWS {
     private static _instance: KafkaWS;
     private _isInitialized = false;
     private readonly _sessionTopic = 'request-websocket-session-topic';
-    // private readonly _sessionUpdateTopic: string = 'request-session-update-topic'
-    // private readonly _sessionRemoveTopic = 'request-session-remove-topic';
+    private readonly _sessionSignalTopic: string = 'request-session-signal-topic'
     private readonly _kafka: Kafka = new Kafka(kafkaConfig);
     private readonly _consumer: Consumer = this._kafka.consumer({ groupId: 'whispernet-node-group', partitionAssigners: [PartitionAssigners.roundRobin] });
     private readonly _producer: Producer = this._kafka.producer();
@@ -50,11 +49,19 @@ class KafkaWS {
             return;
         }
         try {
-            await this._producer.send({
-                topic: this._sessionTopic,
-                messages: [{ value: JSON.stringify(message) }]
+            const result = await this._producer.send({
+                topic: this._sessionSignalTopic,
+                messages: [{ value: JSON.stringify(message.message), headers: {
+                    type: message.type
+                    }}]
             });
-            logInfo({ event: 'Kafka:sendMessage', message: 'Message sent successfully' });
+            if (result && result.length > 0) {
+                logInfo({ event: 'Kafka:sendMessage', message: `Message sent successfully offset = ${result[result.length].offset} sessionToken=${message.message.sessionToken}` });
+
+            } else  {
+                logError({ event: 'Kafka:sendMessage', message: `Messege didn\'t send sessionToken=${message.message.sessionToken}` });
+
+            }
         } catch (error) {
             logError({ event: 'Kafka:sendMessage', message: error });
         }
@@ -87,10 +94,10 @@ class KafkaWS {
                     const stringMessage:  string = message.value.toString();
                     try {
                         switch (this._headers?.type) {
-                            case EKafkaMessageTypes.NEW_SESSION:
+                            case EKafkaMessageReceivedTypes.NEW_SESSION:
                                 this._createSession(stringMessage);
                                 break;
-                            case EKafkaMessageTypes.ADD_CLIENT_TO_SESSION:
+                            case EKafkaMessageReceivedTypes.ADD_CLIENT_TO_SESSION:
                                 this._updateSession(stringMessage);
 
                         }
@@ -108,7 +115,7 @@ class KafkaWS {
     }
 
     private _createSession(message: string): void {
-        const session: ISession = JSON.parse(JSON.parse(message));
+        const session: ISession = JSON.parse(message);
         if (!session || !session.sessionToken) {
             throw new Error('Invalid session')
         }
@@ -125,7 +132,7 @@ class KafkaWS {
     }
 
     private _updateSession(message: string): void {
-        const incommingSession: ISession = JSON.parse(JSON.parse(message));
+        const incommingSession: ISession = JSON.parse(message);
         if (!incommingSession || !incommingSession.sessionToken) {
             throw new Error('Invalid session')
         }

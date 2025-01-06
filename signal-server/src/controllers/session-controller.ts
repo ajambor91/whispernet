@@ -7,6 +7,13 @@ import {IPeerSession, ISession} from "../models/session.model";
 import {PeerRole} from "../enums/peer-role.enum";
 import {Session} from "../classes/session";
 import {ESessionStatus} from "../enums/session-status.enum";
+import {IInternalMessage} from "../models/internal-message.model";
+import {EInternalMessageType} from "../enums/internal-message-type.enum";
+import {IIncomingMessage, IOutgoingMessage, ITechnicalMessage} from "../models/ws-message.model";
+import {EClientConnectionStatus} from "../enums/client-connection-status.enum";
+import {sendKafkaMessage} from "../classes/kafka";
+import {EKafkaMessageSendTypes} from "../enums/kafka-message-send-types.enum";
+import {EClientStatus} from "../enums/client-status.enum";
 
 type PeerState = {
     client: Peer;
@@ -17,7 +24,7 @@ type PeerState = {
 export class SessionController extends Session {
     private readonly _maxPeersPerSession: number = 2
     private readonly _clientMap: Map<string, PeerState> = new Map();
-
+    private readonly _disconnectTimeout: number = 10000;
 
     constructor(session: ISession) {
         super();
@@ -25,58 +32,161 @@ export class SessionController extends Session {
         this._sessionToken = session.sessionToken;
         this._addUser(session.peerClients)
     }
-
-    // private _initSession(session: ISession): void {
-    //     this._session = session;
-    //     session.peerClients.forEach(peer => {
-    //         this.addUser(peer)
-    //     })
-    // }
-
-
     public initializePeerConnection(peer: Peer, appEvent: AppEvent): void {
         try {
             logInfo({ event: "InitializePeerConnection", message: "Initializing peer connection", userToken: peer.userToken });
             peer.initClient(appEvent);
+            const existingClients: Peer[] = this.getUsersSkipped(peer.userToken) as Peer[];
+            existingClients.forEach(existingClient => {
+                if(!existingClient.hasPartner(peer)) {
+                    existingClient.onStatus(internalMessage => this._peerOnStatus(internalMessage, peer, existingClient));
+                    existingClient.onCloseConnection(technicalMsg => this._peerOnCloseDisconnect(technicalMsg, peer, existingClient))
+                }
+
+                if (!peer.hasPartner(existingClient)) {
+                    peer.addParmter(existingClient);
+                    peer.onStatus(internalMessage => this._peerOnStatus(internalMessage,existingClient, peer));
+                    peer.onCloseConnection(technicalMsg => this._peerOnCloseDisconnect(technicalMsg, existingClient, peer))
+                }
+
+            });
+            peer.emitStatus({ status: EInternalMessageType.Added });
+
+            this._dataMessageHandler(peer);
+            this._closeConnectionHandler(peer)
+            this._startPing(peer);
             appEvent.sendDataMessage({
                 sessionToken: peer.session.sessionToken,
                 type: EWebSocketEventType.Connect
             });
-            const existingClients: Peer[] = this.getUsersSkipped(peer.userToken) as Peer[];
-            peer.addPartner(existingClients);
-            existingClients.forEach(existingClient => {
-                existingClient.addPartner(peer);
-            });
         } catch (e) {
             logError({ event: "InitializePeerConnectionError", message: "Error initializing peer connection", error: e });
         }
     }
 
-    public closePeerConnection(peer: Peer, appEvent: AppEvent): void {
+    private _peerOnCloseDisconnect(message: ITechnicalMessage, peer: Peer, partnerPeer: Peer): void {
         try {
-            logInfo({ event: "InitializePeerConnection", message: "Initializing peer connection", userToken: peer.userToken });
-            appEvent.close();
-            peer.initClient(appEvent);
+            peer.conn.sendCloseConnectionMessage();
+            this._startDisconnectTimeout(peer, partnerPeer);
+            if (!this._sessionToken) {
+                throw new Error("Session token is undefined")
+            }
+            sendKafkaMessage({
+                type: EKafkaMessageSendTypes.DISCONNECT_USER,
+                message: {
+                    sessionToken: this._sessionToken,
+                    sessionStatus: ESessionStatus.Break,
+                    peerClients: [{
+                        peerRole: partnerPeer.peerRole,
+                        userToken: partnerPeer.userToken,
+                        status: EClientStatus.DisconnectedFail,
+                        userId: partnerPeer.userId
+                    }]
+                }})
+            logInfo({ event: "SendCloseConnectionMessage", message: "Message that partner closed connection was send" });
+        } catch (e: any) {
+            logError({ event: "CloseConnectionError", message: e.message, userToken: peer.userToken });
 
-            const existingClients: Peer[] = this.getUsersSkipped(peer.userToken) as Peer[];
-            peer.addPartner(existingClients);
-            existingClients.forEach(existingClient => {
-                existingClient.addPartner(peer);
-            });
-        } catch (e) {
-            logError({ event: "InitializePeerConnectionError", message: "Error initializing peer connection", error: e });
         }
     }
+
+    private _onNoReconnect(peer: Peer, partnerPeer: Peer): void {
+        try {
+            peer.conn.sendCloseConnectionMessage();
+            partnerPeer.destroyPeer();
+            this._clientMap.delete(peer.userToken);
+            if (!this._sessionToken) {
+                throw new Error("Session token is undefined")
+            }
+            sendKafkaMessage({
+                type: EKafkaMessageSendTypes.REMOVE_USER,
+                message: {
+                    sessionToken: this._sessionToken,
+                    sessionStatus: ESessionStatus.Interrupted,
+                    peerClients: [{
+                        peerRole: partnerPeer.peerRole,
+                        userToken: partnerPeer.userToken,
+                        status: EClientStatus.Gone,
+                        userId: partnerPeer.userId
+                    }]
+                }})
+            logInfo({ event: "SendCloseConnectionMessage", message: "Message that partner closed connection was send" });
+        } catch (e: any) {
+            logError({ event: "CloseConnectionError", message: e.message, userToken: peer.userToken });
+
+        }
+    }
+
+    private _peerOnStatus(internalMessage: IInternalMessage, peer: Peer, partner: Peer): void {
+        try {
+            logInfo({
+                event: "ListenPeers",
+                message: "Listening to peer status updates",
+                internalMessage,
+                peerRole: peer.peerRole,
+                partnerRole: partner.peerRole
+            });
+            if (internalMessage.status === EInternalMessageType.Added) {
+                peer.emitStatus({status: EInternalMessageType.Join});
+            }
+            if (internalMessage.status === EInternalMessageType.Join) {
+                try {
+                    if(partner.peerRole as string === "INITIATOR") {
+                        this._sendSessionOffer(peer);
+
+                    }
+                } catch (e) {
+                    logError({event: "SendQueuedMessagesError", message: "Error sending queued messages", error: e});
+                }
+            }
+            this._handleOffer(internalMessage.clientMessage as IIncomingMessage);
+            if (internalMessage.status === EInternalMessageType.Data) {
+                peer.conn?.sendDataMessage(internalMessage.clientMessage as IOutgoingMessage);
+            }
+        } catch (e: any) {
+            logError({ event: "OnStatusError", message: e.message, userToken: peer.userToken });
+
+        }
+    }
+    private _dataMessageHandler(peer: Peer): void {
+
+        if (!peer.conn) {
+            logError({ event: "DataMessageError", message: "No connection available for data messages", userToken: peer.userToken });
+            return;
+        }
+
+        peer.conn.on('dataMessage', (data: IIncomingMessage) => {
+            logInfo({ event: "DataMessageReceived", message: "Data message received", data });
+            this._handleOffer(data)
+            logInfo({ event: "DataMessageQueued", message: "Data message queued as no partners are connected", data });
+            peer.emitStatus({ status: EInternalMessageType.Data, clientMessage: data });
+        });
+    }
+
+    private _closeConnectionHandler(peer: Peer): void {
+        if (!peer.conn) {
+            logError({ event: "CloseConnectionError", message: "No connection available for data messages", userToken: peer.userToken });
+            return;
+        }
+
+        peer.conn.on('close', () => {
+            peer.emitCloseConnection({userToken: peer.userToken});
+        })
+    }
+    private _handleOffer(internalMessage: IIncomingMessage): void {
+        if (internalMessage?.type === 'offer') {
+            this._sessionOffer = internalMessage;
+        }
+    }
+
+    private _sendSessionOffer(peer: Peer) : void {
+        peer.conn.sendDataMessage(this._sessionOffer);
+    }
+
 
     public getUsers(): Peer[] {
         logInfo({ event: "GetUsers", message: "Retrieving all users in session" });
         return Array.from(this._clientMap.values()).map(state => state.client);
-    }
-
-    public ifUserExists(userToken: string): boolean {
-        const exists = this._clientMap.has(userToken);
-        logInfo({ event: "CheckUserExists", message: `Checking if user exists`, userToken, exists });
-        return exists;
     }
 
     public getUsersSkipped(userToken: string): Peer[] {
@@ -100,52 +210,11 @@ export class SessionController extends Session {
         this._addUser(session.peerClients)
     }
 
-    public removeUser(userToken: string): void {
-        const removed = this._clientMap.delete(userToken);
-        logInfo({ event: "RemoveUser", message: "User removed from session", userToken, success: removed });
-    }
-
-    public getOppositeUser(userToken: string): Peer | undefined {
-        const oppositeUser = Array.from(this._clientMap.values())
-            .find(state => state.client.userToken !== userToken)?.client;
-        logInfo({ event: "GetOppositeUser", message: "Retrieving opposite user", userToken, found: !!oppositeUser });
-        return oppositeUser;
-    }
-
-    public setPendingOffer(userToken: string, isPending: boolean): void {
-        const peerState = this._clientMap.get(userToken);
-        if (peerState) {
-            peerState.pendingOffer = isPending;
-            logInfo({ event: "SetPendingOffer", message: "Set pending offer status", userToken, isPending });
-        } else {
-            logWarning({ event: "SetPendingOfferWarning", message: "User not found to set pending offer", userToken });
-        }
-    }
-
-    public isPendingOffer(userToken: string): boolean {
-        const peerState = this._clientMap.get(userToken);
-        const isPending = peerState ? peerState.pendingOffer : false;
-        logInfo({ event: "IsPendingOffer", message: "Checking if user has pending offer", userToken, isPending });
-        return isPending;
-    }
-
-    public setInitiator(userToken: string): void {
-        this._clientMap.forEach((state, token) => {
-            state.isInitiator = (token === userToken);
-            logInfo({ event: "SetInitiator", message: "Setting initiator", userToken: token, isInitiator: state.isInitiator });
-        });
-    }
-
     public isInitiator(userToken: string): boolean {
         const peerState = this._clientMap.get(userToken);
         const isInitiator = peerState ? peerState.isInitiator : false;
         logInfo({ event: "IsInitiator", message: "Checking if user is initiator", userToken, isInitiator });
         return isInitiator;
-    }
-
-    public endSession(): void {
-        logInfo({ event: "EndSession", message: "Ending session and clearing all users" });
-        this._clientMap.clear();
     }
 
     private _addUser(peers: IInitialPeer[]): void {
@@ -157,6 +226,7 @@ export class SessionController extends Session {
                     sessionToken: this._sessionToken as string
                 }
                 const client = new Peer(peer, session);
+                this.peerClients.push(client);
                 this._clientMap.set(peer.userToken, {
                     client,
                     pendingOffer: false,
@@ -168,5 +238,57 @@ export class SessionController extends Session {
                 logWarning({ event: "AddUserWarning", message: errorMessage });
             }
         });
+    }
+    private readonly _pingIntervalDuration: number = 2000;
+    private readonly _timeLimit: number = 6000;
+    private _startPing(peer: Peer): void {
+
+        const sendPing = () => {
+            try {
+                if (!peer.conn) {
+                    logWarning({
+                        event: "PingError",
+                        message: "No connection available for ping",
+                        userToken: peer.userToken
+                    });
+                    return;
+                }
+                logInfo({event: "PingSent", message: "Sending ping message", session: this._sessionToken});
+                peer.conn.sendPingMessage(this._sessionToken as string);
+                peer.pingInterval = setTimeout(() => {
+                    peer.connectionStatus = EClientConnectionStatus.DisconnectedFail;
+                    peer.conn?.close();
+                    peer.emitCloseConnection({userToken: peer.userToken});
+                    peer.pingInterval = null;
+                    logError({
+                        event: "PingTimeout",
+                        message: "Ping timeout, connection closed",
+                        userToken: peer.userToken
+                    });
+                }, this._timeLimit);
+
+                peer.conn.once('signal', data => {
+                    if (data.type === EWebSocketEventType.Pong) {
+                        clearTimeout(peer.pingInterval as NodeJS.Timeout);
+                        peer.pingInterval = null;
+                        logInfo({event: "PongReceived", message: "Pong received from peer", userToken: peer.userToken});
+                        setTimeout(sendPing, this._pingIntervalDuration);
+                    }
+                });
+            }
+            catch (e: any) {
+                logError({ event: "PingError", message: e.message, userToken: peer.userToken });
+            }
+        };
+
+        if (!peer.pingInterval) {
+            sendPing();
+        }
+    }
+
+    private _startDisconnectTimeout(peer: Peer, partner: Peer): void {
+        peer.disconnectTimeout = setTimeout(() => {
+            this._onNoReconnect(peer, partner);
+        }, this._disconnectTimeout)
     }
 }

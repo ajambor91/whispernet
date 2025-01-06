@@ -1,1 +1,1 @@
-export type TEventName = 'clientMessage'
+export type TEventName = 'clientMessage' | 'closeConnection'

@@ -11,6 +11,5 @@ function App() {
     );
 }
 
-console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 // Renderuj aplikację React w kontenerze `div#root`
 ReactDOM.render(<App/>, document.getElementById('root'));

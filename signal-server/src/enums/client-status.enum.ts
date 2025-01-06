@@ -1,4 +1,5 @@
 export enum EClientStatus {
+    Gone = 'gone',
     Created = 'created',
     NotConnected = 'not-connected',
     Initialization = 'init',

@@ -6,7 +6,6 @@ import net.whisper.sessionGateway.enums.EPeerRole;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
 import net.whisper.sessionGateway.models.IncomingClient;
-import net.whisper.sessionGateway.templates.KafkaClientMessage;
 
 public class TestFactory {
     public static final String TEST_SESSION_TOKEN = "7c944fc9-ad51-4392-bde2-f4b6126ea62e";
@@ -16,16 +15,6 @@ public class TestFactory {
     public static final String TEST_SESSION_TOKEN_JOINER = "8c08d064-abbc-4e7a-8818-1365a1fb27de";
     public static final String TEST_USER_TOKEN_JOINER = "7c944fc9-ad51-4392-bde2-f4b6126ea62e";
     public static final String TEST_USER_ID_JOINER = "d14077c2-b9ee-4cca-acac-3e4fba130f51";
-
-    public static KafkaClientMessage createKafkaClientMessage() {
-        KafkaClientMessage kafkaClientMessage = new KafkaClientMessage();
-        kafkaClientMessage.setSessionToken(TEST_SESSION_TOKEN);
-        kafkaClientMessage.setUserToken(TEST_USER_TOKEN);
-        kafkaClientMessage.setClientConnectionStatus(EClientConnectionStatus.CREATED);
-        kafkaClientMessage.setUserId(TEST_USER_ID);
-        kafkaClientMessage.setPeerRole(EPeerRole.INITIATOR);
-        return kafkaClientMessage;
-    }
 
     public static Client createClient() {
         Client client = new Client();

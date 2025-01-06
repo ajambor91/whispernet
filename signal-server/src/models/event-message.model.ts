@@ -6,5 +6,5 @@ import {
 
 export interface IEventMessage {
     event: string;
-    data: IIncomingMessage | IOutgoingMessage | IAuthMessage | ISignalMessage;
+    data: IIncomingMessage | IOutgoingMessage | IAuthMessage | ISignalMessage | null;
 }

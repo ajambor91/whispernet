@@ -1,12 +1,12 @@
 import WebSocket from "ws";
-import { IncomingMessage } from "http";
-import { getSessionManager, SessionManager } from "../managers/session-manager";
-import { AppEvent } from "../classes/app-event";
-import { AuthController } from "./auth.controller";
-import { SessionController } from "./session-controller";
-import { Peer } from "../classes/peer";
-import { getCookie } from "../functions/helpers";
-import { logWarning, logError, logInfo } from "../error-logger/error-looger";
+import {IncomingMessage} from "http";
+import {getSessionManager, SessionManager} from "../managers/session-manager";
+import {AppEvent} from "../classes/app-event";
+import {AuthController} from "./auth.controller";
+import {SessionController} from "./session-controller";
+import {Peer} from "../classes/peer";
+import {getCookie} from "../functions/helpers";
+import {logError, logInfo, logWarning} from "../error-logger/error-looger";
 
 export class WebSocketConnectionController {
     private ws: WebSocket;
@@ -39,10 +39,8 @@ export class WebSocketConnectionController {
     private initialize(): void {
         logInfo({ event: "InitializeWebSocket", message: "Initializing WebSocket connection", userToken: this.userToken });
         this.appEvent.once('auth', (data) => this.handleAuth(data));
-        this.ws.on('close', () => this.handleClose());
         this.ws.on('error', (error) => this.handleError(error));
         this.appEvent.once('goodMorning', () => this.handleGoodMorningMessage());
-        this.appEvent.once('goodBye', () => this.handleGoodByeMessage())
     }
 
     private handleAuth(data: any): void {
@@ -58,16 +56,12 @@ export class WebSocketConnectionController {
             if (!currentPeer) {
                 throw new Error("No peer found");
             }
-
             const authController: AuthController = new AuthController(this.userToken, currentPeer, data, this.appEvent);
             authController.authorize();
-
             this.isAuthorized = true;
             this.currentPeer = currentPeer;
             this.currentSession = currentSession;
-
             logInfo({ event: "HandleAuth", message: "User authorized", userToken: this.userToken });
-
             this.appEvent.on('dataMessage', (data) => {
                 logInfo({ event: "DataMessageReceived", message: "Data message received", userToken: this.userToken, data });
             });
@@ -85,22 +79,10 @@ export class WebSocketConnectionController {
         }
     }
 
-    private handleGoodByeMessage(): void {
-            logInfo({ event: "HandleGoodByeMessage", message: "Handling initial message for authorized user", userToken: this.userToken });
-            this.currentSession.removeUser(this.currentPeer.userToken);
-            this.appEvent.close();
-            this.destroy();
-    }
-
-    private handleClose(): void {
-        logInfo({ event: "ConnectionClosed", message: "WebSocket connection closed", userToken: this.userToken });
-    }
-
     private handleError(error: Error): void {
         logError({ event: "WebSocketError", message: "WebSocket error occurred", error, userToken: this.userToken });
     }
 
-    //TODO added destroy session
     private destroy(): void {
         if (this.currentSession.getUsers().length === 0) {
             this.sessionManager.removeSession(this.currentSession.sessionToken)

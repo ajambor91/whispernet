@@ -4,15 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.sessionGateway.enums.EKafkaMessageTypes;
 import net.whisper.sessionGateway.enums.EKafkaTopic;
-import net.whisper.sessionGateway.factories.ClientFactory;
-import net.whisper.sessionGateway.factories.KafkaTemplatesFactory;
 import net.whisper.sessionGateway.interfaces.IBaseClient;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
 import net.whisper.sessionGateway.models.IncomingClient;
-import net.whisper.sessionGateway.templates.KafkaClientMessage;
-import net.whisper.sessionGateway.templates.KafkaClientWithoutSessionMessage;
-import net.whisper.sessionGateway.templates.KafkaIncomingClientMessage;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +47,7 @@ public class KafkaService {
         logger.info("Received kafka message from wssession service to create a new session message={}", message);
         IncomingClient client = null;
         try {
-            client = this.getClient(message);
+            client =  objectMapper.readValue(message, IncomingClient.class);
 
         } catch (JsonProcessingException e) {
             logger.error(String.valueOf(e));
@@ -85,8 +80,7 @@ public class KafkaService {
     }
 
     public void sendNewClient(ClientWithoutSession client) throws JsonProcessingException {
-        KafkaClientWithoutSessionMessage clientWithoutSessionMessage = KafkaTemplatesFactory.createNewClientTemplate(client);
-        String kafkaMessageString = this.objectMapper.writeValueAsString(clientWithoutSessionMessage);
+        String kafkaMessageString = this.objectMapper.writeValueAsString(client);
         logger.info("Sending new client session using Kafka to wssession");
         sendKafkaMsg(
                 kafkaMessageString,
@@ -98,18 +92,12 @@ public class KafkaService {
     }
 
     public void sendJoinlient(Client client) throws JsonProcessingException {
-        KafkaClientMessage clientTemplate = KafkaTemplatesFactory.creatJoinClientTemplate(client);
-        String kafkaMessageString = this.objectMapper.writeValueAsString(clientTemplate);
+        String kafkaMessageString = this.objectMapper.writeValueAsString(client);
         logger.info("Sending joining client session using Kafka to wssession");
         sendKafkaMsg(kafkaMessageString, EKafkaTopic.CLIENT_TOPIC.getTopicName(), EKafkaMessageTypes.ADD_CLIENT.getMessageType());
         logger.info("Joining client message was send");
 
 
-    }
-
-    private IncomingClient getClient(String message) throws JsonProcessingException {
-        KafkaIncomingClientMessage client = objectMapper.readValue(message, KafkaIncomingClientMessage.class);
-        return ClientFactory.createClientFromTemplate(client);
     }
 
     private void sendKafkaMsg(String parsedObject, String topic, String type) {

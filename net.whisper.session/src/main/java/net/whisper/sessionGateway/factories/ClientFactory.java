@@ -5,7 +5,6 @@ import net.whisper.sessionGateway.enums.EPeerRole;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
 import net.whisper.sessionGateway.models.IncomingClient;
-import net.whisper.sessionGateway.templates.KafkaIncomingClientMessage;
 
 public class ClientFactory {
     public static Client createClient(String userToken, String userId, String sessionToken, EPeerRole peerRole, EClientConnectionStatus connectionStatus) {
@@ -25,9 +24,5 @@ public class ClientFactory {
         client.setUserId(userId);
         client.setClientConnectionStatus(connectionStatus);
         return client;
-    }
-
-    public static IncomingClient createClientFromTemplate(KafkaIncomingClientMessage kafkaClientMessage) {
-        return new IncomingClient(kafkaClientMessage);
     }
 }

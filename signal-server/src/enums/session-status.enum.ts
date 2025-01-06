@@ -3,5 +3,6 @@ export enum ESessionStatus {
     Initialized = 'initialized',
     PeersConnected = 'peers-connected',
     Interrupted = 'interrupted',
-    Disconnected = 'disconnected'
+    Disconnected = 'disconnected',
+    Break = 'break'
 }

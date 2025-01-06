@@ -5,8 +5,6 @@ import lombok.Setter;
 import net.whisper.sessionGateway.enums.EClientConnectionStatus;
 import net.whisper.sessionGateway.enums.EPeerRole;
 import net.whisper.sessionGateway.interfaces.IBaseClient;
-import net.whisper.sessionGateway.templates.KafkaClientMessage;
-import net.whisper.sessionGateway.templates.KafkaIncomingClientMessage;
 
 
 @Getter
@@ -23,20 +21,6 @@ public abstract class BaseClient implements IBaseClient {
 
 
     public BaseClient(Client client) {
-        this.userToken = client.getUserToken();
-        this.userId = client.getUserId();
-        this.clientConnectionStatus = client.getClientConnectionStatus();
-        this.peerRole = client.getPeerRole();
-    }
-
-    public BaseClient(KafkaClientMessage client) {
-        this.userToken = client.getUserToken();
-        this.userId = client.getUserId();
-        this.clientConnectionStatus = client.getClientConnectionStatus();
-        this.peerRole = client.getPeerRole();
-    }
-
-    public BaseClient(KafkaIncomingClientMessage client) {
         this.userToken = client.getUserToken();
         this.userId = client.getUserId();
         this.clientConnectionStatus = client.getClientConnectionStatus();

@@ -1,32 +1,33 @@
-import {IInitialPeer} from "../models/peer.model";
+import {IInitialPeer, IPeer} from "../models/peer.model";
 import { PeerRole } from "../enums/peer-role.enum";
-import {IPeerSession, ISession} from "../models/session.model";
+import {IPeerSession} from "../models/session.model";
 import { EClientConnectionStatus } from "../enums/client-connection-status.enum";
-import { IClientCallbacks } from "../models/client-callbacks.model";
 import { EClientStatus } from "../enums/client-status.enum";
-import { EWebSocketEventType } from "../enums/ws-message.enum";
 import { AppEvent } from "./app-event";
-import { IIncomingMessage, IOutgoingMessage } from "../models/ws-message.model";
-import { MessageQueue } from "./message-queue";
-import { EInternalMessageType } from "../enums/internal-message-type.enum";
-import { PeerEmitter } from "./peer-emitter.abstract";
-import { logWarning, logError, logInfo } from "../error-logger/error-looger";
 
-export class Peer extends PeerEmitter {
-    private readonly _pingIntervalDuration: number = 2000;
-    private readonly _timeLimit: number = 6000;
+import { PeerEmitter } from "./peer-emitter.abstract";
+import { logInfo } from "../error-logger/error-looger";
+
+
+export class Peer extends PeerEmitter implements IPeer{
+
     private _peerRole: PeerRole;
-    //TODO FIX SESSIO AUTH
     private _session: IPeerSession;
     private _status: EClientStatus;
     private _userId: string;
     private _userToken: string;
     private _pingInterval: NodeJS.Timeout | null = null;
+    private _disconnectTimeout: NodeJS.Timeout | null = null;
     private _conn: AppEvent | undefined;
     private _connectionStatus: EClientConnectionStatus = EClientConnectionStatus.NotConnected;
-    private _callbacks: IClientCallbacks | null = null;
-    private _partnerPeers: Map<string, Peer> = new Map<string, Peer>();
-    private _messagesQueue: MessageQueue<IIncomingMessage> = new MessageQueue<IIncomingMessage>();
+    private _peerPartners: Peer[] = []
+    public get userId(): string {
+        return this._userId;
+    }
+
+    public get status(): EClientStatus {
+        return this._status;
+    }
 
     public get userToken(): string {
         return this._userToken;
@@ -43,12 +44,39 @@ export class Peer extends PeerEmitter {
         return this._conn;
     }
 
+    public addParmter(peer: Peer): void {
+        this._peerPartners.push(peer)
+    }
+
+    public hasPartner(peer: Peer): boolean {
+        return this._peerPartners.some(partner => peer.userToken === partner.userToken);
+    }
+
     public get peerRole(): PeerRole {
         return this._peerRole;
     }
 
     public get connectionStatus(): EClientConnectionStatus {
         return this._connectionStatus;
+    }
+
+    public set connectionStatus(status: EClientConnectionStatus) {
+        this._connectionStatus = status;
+    }
+
+    public set disconnectTimeout(timeout: NodeJS.Timeout) {
+        this._disconnectTimeout = timeout;
+    }
+
+    public get disconnectTimeout(): NodeJS.Timeout | null {
+        return this._disconnectTimeout;
+    }
+    public get pingInterval(): NodeJS.Timeout | null {
+        return this._pingInterval;
+    }
+
+    public set pingInterval(timeout: NodeJS.Timeout | null) {
+        this._pingInterval = timeout;
     }
 
     public get disconnected(): boolean {
@@ -64,15 +92,12 @@ export class Peer extends PeerEmitter {
         this._status = initialClient.status;
         this._peerRole = initialClient.peerRole;
         this._session = session;
-
         logInfo({ event: "PeerCreated", message: "New Peer instance created", userId: this._userId, userToken: this._userToken, peerRole: this._peerRole });
     }
 
     public initClient(ws: AppEvent): void {
         logInfo({ event: "ClientInit", message: "Initializing client", userToken: this._userToken });
         this._createClient(ws);
-        this._dataMessageHandler();
-        this._startPing();
     }
 
     private _createClient(ws: AppEvent): void {
@@ -82,111 +107,11 @@ export class Peer extends PeerEmitter {
         logInfo({ event: "ClientCreated", message: "Client connection created", userToken: this._userToken, connectionStatus: this._connectionStatus });
     }
 
-    public addPartner(peer: Peer | Peer[]): void {
-        if (Array.isArray(peer)) {
-            peer.forEach(newPeer => this._addPartnerIfAbsent(newPeer));
-        } else {
-            this._addPartnerIfAbsent(peer);
-        }
-        this.emitStatus({ status: EInternalMessageType.Added });
-        logInfo({ event: "PartnerAdded", message: "Partner added to peer", userToken: this._userToken, partnerCount: this._partnerPeers.size });
+    public destroyPeer(): void {
+        this._conn?.close();
+        this._conn?.terminate();
+        this._conn = undefined;
+        this.removeAllListeners();
     }
 
-    private _isSomeoneConnected(): boolean {
-        return Array.from(this._partnerPeers.values()).some(partner => !partner.disconnected);
-    }
-
-    private _addPartnerIfAbsent(peer: Peer): void {
-        if (this._partnerPeers.has(peer._userToken)) {
-            logWarning({ event: "DuplicatePartner", message: `Peer ${peer._userToken} already exists`, userToken: this._userToken });
-            return;
-        }
-        logInfo({ event: "NewPartnerAdded", message: "New partner added", partnerUserToken: peer._userToken });
-        this._addPartnerWithCallback(peer);
-    }
-
-    private _addPartnerWithCallback(peer: Peer): void {
-        this._partnerPeers.set(peer._userToken, peer);
-
-        peer.onStatus(internalMessage => {
-            logInfo({ event: "ListenPeers", message: "Listening to peer status updates", internalMessage, peerRole: this._peerRole, partnerRole: peer.peerRole });
-            if (internalMessage.status === EInternalMessageType.Added) {
-                this.emitStatus({ status: EInternalMessageType.Join });
-            }
-            if (internalMessage.status === EInternalMessageType.Join && !this._messagesQueue.isEmpty()) {
-                try {
-                    this._sendQueuedMessages(peer);
-                } catch (e) {
-                    logError({ event: "SendQueuedMessagesError", message: "Error sending queued messages", error: e });
-                }
-            }
-            if (internalMessage.status === EInternalMessageType.Data) {
-                this._conn?.sendDataMessage(internalMessage.clientMessage as IOutgoingMessage);
-            }
-        });
-    }
-
-    private _generateMessageId(): string {
-        return Math.random().toString(36).substr(2, 9);
-    }
-
-    private _sendQueuedMessages(peer: Peer): void {
-        while (!this._messagesQueue.isEmpty()) {
-            const message = this._messagesQueue.dequeue();
-            logInfo({ event: "SendQueuedMessage", message: "Sending queued message", userToken: this._userToken, messageData: message });
-            peer.conn.sendDataMessage(message as IIncomingMessage);
-        }
-    }
-
-    private _dataMessageHandler(): void {
-        if (!this._conn) {
-            logError({ event: "DataMessageError", message: "No connection available for data messages", userToken: this._userToken });
-            return;
-        }
-
-        this._conn.on('dataMessage', (data: IIncomingMessage) => {
-            this._status = data.peerStatus;
-            logInfo({ event: "DataMessageReceived", message: "Data message received", data });
-
-            if (!this._isSomeoneConnected()) {
-                this._messagesQueue.enqueue(data);
-                logInfo({ event: "DataMessageQueued", message: "Data message queued as no partners are connected", data });
-            }
-
-            this.emitStatus({ status: EInternalMessageType.Data, clientMessage: data });
-        });
-    }
-
-    private _startPing(): void {
-        const sendPing = () => {
-            if (!this._conn) {
-                logWarning({ event: "PingError", message: "No connection available for ping", userToken: this._userToken });
-                return;
-            }
-
-            logInfo({ event: "PingSent", message: "Sending ping message", session: this._session });
-            this._conn.sendPingMessage(this._session.sessionToken);
-
-            this._pingInterval = setTimeout(() => {
-                this._connectionStatus = EClientConnectionStatus.DisconnectedFail;
-                this._conn?.close();
-                this._callbacks?.onDisconnectErr();
-                this._pingInterval = null;
-                logError({ event: "PingTimeout", message: "Ping timeout, connection closed", userToken: this._userToken });
-            }, this._timeLimit);
-
-            this._conn.once('signal', data => {
-                if (data.type === EWebSocketEventType.Pong) {
-                    clearTimeout(this._pingInterval as NodeJS.Timeout);
-                    this._pingInterval = null;
-                    logInfo({ event: "PongReceived", message: "Pong received from peer", userToken: this._userToken });
-                    setTimeout(sendPing, this._pingIntervalDuration);
-                }
-            });
-        };
-
-        if (!this._pingInterval) {
-            sendPing();
-        }
-    }
 }

@@ -17,7 +17,9 @@ public abstract class BaseSession implements Serializable {
     }
 
     public BaseSession(String sessionToken) {
+
         this.sessionToken = sessionToken;
+        this.sessionStatus = ESessionStatus.CREATED;
     }
 
     public BaseSession(PeerSession peerSession) {

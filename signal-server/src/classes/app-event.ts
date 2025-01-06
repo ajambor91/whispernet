@@ -3,7 +3,6 @@ import { EventEmitter } from 'events';
 import { IOutgoingMessage } from "../models/ws-message.model";
 import { decodeMessage } from "../functions/helpers";
 import { IEventMessage } from "../models/event-message.model";
-import {IPeerSession, ISession} from "../models/session.model";
 import { EWebSocketEventType } from "../enums/ws-message.enum";
 import { logInfo, logError } from "../error-logger/error-looger";
 
@@ -33,11 +32,14 @@ export class AppEvent extends EventEmitter {
                 code,
                 reason: reason.toString(),
             });
+            this.emit('close', reason.toString())
         });
 
         this.close = this._ws.close.bind(this._ws);
+        this.terminate = this._ws.terminate.bind(this._ws);
     }
 
+    public terminate;
     public close;
 
     public sendPingMessage(sessionToken: string): void {
@@ -50,6 +52,7 @@ export class AppEvent extends EventEmitter {
         };
         this.sendMessageWithLogging(message, "sendPingMessage");
     }
+
 
     public sendAuthorizeMessage(sessionToken: string): void {
         const message: IEventMessage = {
@@ -76,6 +79,22 @@ export class AppEvent extends EventEmitter {
         const msg: IEventMessage = {
             event: 'dataMessage',
             data: wsMsg
+        };
+        this.sendMessageWithLogging(msg, "sendDataMessage");
+    }
+
+    public sendCloseConnectionMessage(): void {
+        const msg: IEventMessage = {
+            event: 'closeConnection',
+            data: null
+        };
+        this.sendMessageWithLogging(msg, "sendDataMessage");
+    }
+
+    public sendRemovedPartnerMessage(): void {
+        const msg: IEventMessage = {
+            event: 'removedPartner',
+            data: null
         };
         this.sendMessageWithLogging(msg, "sendDataMessage");
     }

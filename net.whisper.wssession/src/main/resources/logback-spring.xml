@@ -11,9 +11,20 @@
                 <pattern>%-5level [%.5(${HOSTNAME})] %.10thread %logger{20} | %msg %ex</pattern>
             </message>
         </format>
+        <batch maxItems="500" maxSizeBytes="512000" timeoutMs="2000" />
     </appender>
 
-    <root level="DEBUG">
-        <appender-ref ref="LOKI"/>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{20} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.springframework.kafka" level="DEBUG" additivity="false">
+        <appender-ref ref="LOKI" />
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="LOKI" />
     </root>
 </configuration>

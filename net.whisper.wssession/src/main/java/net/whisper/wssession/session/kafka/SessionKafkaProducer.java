@@ -26,7 +26,6 @@ public class SessionKafkaProducer {
         this.objectMapper = objectMapper;
         this.logger = LoggerFactory.getLogger(SessionKafkaProducer.class);
     }
-    //TODO CHANGE PEER SESSION FOR KAFKA SESSION TEMPLATE
     public void sendSession(PeerSession peerSession, EKafkaMessageTypes type)  {
         try {
             String message = this.objectMapper.writeValueAsString(peerSession);

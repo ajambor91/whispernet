@@ -44,6 +44,12 @@ import {IPeer} from "../interfaces/peer.interface";
             this._auth = getAuth(this)
             this._ping = getPingPong()
             this._initClient();
+            this._appEvent.on('reconnected', () => {
+                logInfo({message: "Reconnected to websocket"})
+
+                this._auth.authorize(this.sessionToken);
+            })
+
         } catch (e) {
             console.error(e);
             throw new Error("Peer initialization failed due to missing dependencies.");
@@ -95,7 +101,6 @@ import {IPeer} from "../interfaces/peer.interface";
             this._setOwnStatus(EClientStatus.Authorized);
         } catch (e) {
             this._setOwnStatus(EClientStatus.DisconnectedFail);
-            console.error('Authorization failed:', e);
             throw e;
         }
         this._setOwnStatus(EClientStatus.Connected);
@@ -144,7 +149,6 @@ import {IPeer} from "../interfaces/peer.interface";
             }
 
             this._appEvent.sendWSMessage(rtcOffer)
-            // }
     }
 
     private _handleIceCandidate(event: RTCPeerConnectionIceEvent): void {
@@ -218,11 +222,11 @@ import {IPeer} from "../interfaces/peer.interface";
 
             this._rtcState.peerConnection.onconnectionstatechange = () => {
                 if (this._rtcState.peerConnection.connectionState === 'failed') {
-                    console.error('WebRTC connection failed - check ICE configuration.');
+                    logError({message: 'WebRTC connection failed - check ICE configuration.'});
                 }
             };
         } catch (error) {
-            console.error('Error setting remote description:', error);
+            logError({message: 'Error setting remote description:', error});
         }
     }
 
@@ -242,12 +246,10 @@ import {IPeer} from "../interfaces/peer.interface";
             const webRTCInitizalizationMessage: IInitialWebRTCMessage = JSON.parse(message);
             if (webRTCInitizalizationMessage.type === EWebSocketEventType.WebRTCInitializationMessage) {
                 this._setOwnStatus(EClientStatus.PeersConnected)
-                // this._appEvent.sendGoodByeMessage();
             }
         } catch (e) {
             logError({message: e.message, error: e})
         }
-
     }
 
     private _setupDataChannel(): void {
@@ -266,11 +268,7 @@ import {IPeer} from "../interfaces/peer.interface";
             logInfo({message: "WebRTC Session was closed:" + this._sessionToken + " for peer: " + this._peerRole  })
         };
     }
-
-
 }
-
-
 
 export const initializePeer = (peerState: IPeerState): IPeer  => {
      try {

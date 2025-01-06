@@ -16,8 +16,5 @@ export interface IInitialPeer extends IBasePeer {
 }
 export interface IPeer extends IBasePeer {
     conn?: AppEvent;
-    partnerPeer: any;
-    session: IPeerSession;
-
 }
 

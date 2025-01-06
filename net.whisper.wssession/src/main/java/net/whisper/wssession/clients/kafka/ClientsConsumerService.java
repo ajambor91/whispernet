@@ -33,7 +33,6 @@ public class ClientsConsumerService {
         try {
             String message = record.value();
             String type = this.getHeaderValue(record, "type");
-
             if (type == null || message == null) {
                 return;
             }

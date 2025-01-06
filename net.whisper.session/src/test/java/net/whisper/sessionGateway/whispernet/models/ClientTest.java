@@ -3,7 +3,6 @@ package net.whisper.sessionGateway.whispernet.models;
 import net.whisper.sessionGateway.enums.EClientConnectionStatus;
 import net.whisper.sessionGateway.enums.EPeerRole;
 import net.whisper.sessionGateway.models.Client;
-import net.whisper.sessionGateway.templates.KafkaClientMessage;
 import net.whisper.sessionGateway.whispernet.utils.TestFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,16 +23,4 @@ public class ClientTest {
 
     }
 
-    @Test
-    @DisplayName("Should set all fields using setters with KafkaClientMessage object")
-    public void testConstructorWithKafkaMessage() {
-        KafkaClientMessage kafkaClientMessage = TestFactory.createKafkaClientMessage();
-
-        Client client = new Client(kafkaClientMessage);
-        assertEquals(TEST_SESSION_TOKEN, client.getSessionToken());
-        assertEquals(TEST_USER_TOKEN, client.getUserToken());
-        assertEquals(EClientConnectionStatus.CREATED, client.getClientConnectionStatus());
-        assertEquals(TEST_USER_ID, client.getUserId());
-        assertEquals(EPeerRole.INITIATOR, client.getPeerRole());
-    }
 }

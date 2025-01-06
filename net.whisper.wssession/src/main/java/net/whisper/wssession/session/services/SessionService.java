@@ -3,7 +3,7 @@ package net.whisper.wssession.session.services;
 
 import net.whisper.wssession.core.coordinatos.ClientSessionCoordinator;
 import net.whisper.wssession.core.enums.EKafkaMessageTypes;
-import net.whisper.wssession.managers.SessionManager;
+import net.whisper.wssession.session.managers.SessionManager;
 import net.whisper.wssession.session.kafka.SessionKafkaProducer;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;

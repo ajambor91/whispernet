@@ -3,10 +3,10 @@ package net.whisper.wssession.clients.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.clients.enums.EKafkaMessageClientTypes;
+import net.whisper.wssession.clients.models.Client;
+import net.whisper.wssession.clients.models.ClientWithoutSession;
 import net.whisper.wssession.clients.services.ClientsService;
-import net.whisper.wssession.clients.templates.KafkaClientMessage;
-import net.whisper.wssession.clients.templates.KafkaClientWithoutSessionMessage;
-import net.whisper.wssession.core.interfaces.IKafkaMessage;
+import net.whisper.wssession.core.interfaces.IBaseClient;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -36,18 +36,19 @@ public class ClientsConsumerService {
             if (type == null || message == null) {
                 return;
             }
-            IKafkaMessage kafkaMessage = mapMessage(type, message);
+            IBaseClient kafkaMessage = mapMessage(type, message);
 
-            if (kafkaMessage instanceof KafkaClientWithoutSessionMessage) {
-                logger.info("Received kafka message for new client, userToken={}", ((KafkaClientWithoutSessionMessage) kafkaMessage).getUserToken());
-                clientsService.processNewClient((KafkaClientWithoutSessionMessage) kafkaMessage);
-            } else if (kafkaMessage instanceof KafkaClientMessage) {
-                clientsService.processJoiningClient((KafkaClientMessage) kafkaMessage);
-                logger.info("Received kafka message for joining client, userToken={}, sessionToken={}", ((KafkaClientMessage) kafkaMessage).getUserToken(), ((KafkaClientMessage) kafkaMessage).getSessionToken());
+            if (kafkaMessage instanceof ClientWithoutSession) {
+                logger.info("Received kafka message for new client, userToken={}", ((ClientWithoutSession) kafkaMessage).getUserToken());
+                clientsService.processNewClient((ClientWithoutSession) kafkaMessage);
+            } else if (kafkaMessage instanceof Client) {
+                clientsService.processJoiningClient((Client) kafkaMessage);
+                logger.info("Received kafka message for joining client, userToken={}, sessionToken={}", ((Client) kafkaMessage).getUserToken(), ((Client) kafkaMessage).getSessionToken());
             }
             logger.error("Error: Received an empty kafka message");
         } catch (Exception e) {
             System.err.println("Error processing message");
+            System.err.println(e.getMessage());
             logger.error("Error processing message={}", e.getMessage());
         }
     }
@@ -61,12 +62,12 @@ public class ClientsConsumerService {
         return null;
     }
 
-    private IKafkaMessage mapMessage(String type, String message) throws JsonProcessingException {
+    private IBaseClient mapMessage(String type, String message) throws JsonProcessingException {
         if (EKafkaMessageClientTypes.NEW_CLIENT.getMessageType().equals(type)) {
 
-            return objectMapper.readValue(message, KafkaClientWithoutSessionMessage.class);
+            return objectMapper.readValue(message, ClientWithoutSession.class);
         } else if (EKafkaMessageClientTypes.ADD_CLIENT.getMessageType().equals(type)) {
-            return objectMapper.readValue(message, KafkaClientMessage.class);
+            return objectMapper.readValue(message, Client.class);
         } else {
             throw new RuntimeException("Unknown message type: " + type);
         }

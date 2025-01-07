@@ -8,5 +8,4 @@ public class PeerFactory {
         return new PeerClient(clientTemplate);
     }
 
-//    public static SessionTemplate createSessionTemplate(PeerSession peerSession)
 }

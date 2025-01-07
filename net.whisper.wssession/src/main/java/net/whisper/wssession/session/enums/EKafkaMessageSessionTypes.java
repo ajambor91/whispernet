@@ -1,11 +1,8 @@
 package net.whisper.wssession.session.enums;
 
 public enum EKafkaMessageSessionTypes {
-    CREATE_SESSION("create-session"),
-    REMOVE_SESSION("remove-session"),
-    ADD_USER("add-user"),
     REMOVE_USER("remove-user"),
-    UPDATE_STATUS("update-status");
+    DISCONNECT_USER("disconnect-user");
 
     private final String messageType;
 

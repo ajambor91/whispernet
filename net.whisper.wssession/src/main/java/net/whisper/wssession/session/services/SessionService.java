@@ -41,7 +41,14 @@ public class SessionService {
             PeerSession peerSession = this.sessionManager.addPeerToExistingSession(sessionToken, peerClient);
             this.sessionKafkaProducer.sendSession(peerSession, EKafkaMessageTypes.ADD_CLIENT_TO_SESSION);
             this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);
-
-
     }
+
+    public void updateSession(PeerSession peerSession) {
+        this.sessionManager.updateSession(peerSession);
+    }
+
+    public void removeClientFromSession(PeerSession peerSession) {
+        this.sessionManager.removeClientFromSession(peerSession);
+    }
+
 }

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,39 @@ public class SessionManager {
         logger.info("Peer added to session, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
         return peerSession;
 
+    }
+
+    public void removeClientFromSession(PeerSession peerSession) {
+        PeerSession existingSession = this.sessionRepository.getSession(peerSession.getSessionToken());
+        List<PeerClient> peers = existingSession.getPeerClients();
+        peerSession.getPeerClients().forEach(peer -> {
+            int index = peers.indexOf(peer);
+            if (index != -1) {
+                peers.remove(index);
+            } else {
+                logger.warn("Peer cannot remove - peer not found in existing session, sessionToken={}, userToken={}", peerSession.getSessionToken(), peer.getUserToken());
+            }
+        });
+        existingSession.setSessionStatus(peerSession.getSessionStatus());
+        this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);
+        logger.info("Peer has successfullly removed from session, sessionToken={}", peerSession.getSessionToken());
+    }
+
+    public void updateSession(PeerSession peerSession) {
+        PeerSession existingSession = this.sessionRepository.getSession(peerSession.getSessionToken());
+        List<PeerClient> peers = existingSession.getPeerClients();
+        peerSession.getPeerClients().forEach(peer -> {
+            int index = peers.indexOf(peer);
+            if (index != -1) {
+                PeerClient foundPeer = peers.get(index);
+                foundPeer.setClientConnectionStatus(peer.getClientConnectionStatus());
+            } else {
+                logger.warn("Peer cannot update - peer not found in existing session, sessionToken={}, userToken={}", peerSession.getSessionToken(), peer.getUserToken());
+            }
+        });
+        existingSession.setSessionStatus(peerSession.getSessionStatus());
+        this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);
+        logger.info("Session has successfullly updated, sessionToken={}", peerSession.getSessionToken());
     }
 
     private String createAESSecret(){

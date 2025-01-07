@@ -14,12 +14,6 @@
         <batch maxItems="500" maxSizeBytes="512000" timeoutMs="2000" />
     </appender>
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{20} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
     <logger name="org.springframework.kafka" level="DEBUG" additivity="false">
         <appender-ref ref="LOKI" />
     </logger>

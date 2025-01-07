@@ -1,6 +1,5 @@
 package net.whisper.wssession.core.coordinatos;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.clients.factories.ClientFactory;
 import net.whisper.wssession.clients.models.Client;
 import net.whisper.wssession.clients.services.ClientsService;

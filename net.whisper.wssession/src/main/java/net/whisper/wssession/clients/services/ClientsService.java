@@ -27,22 +27,30 @@ public class ClientsService {
     }
 
     public void processNewClient(ClientWithoutSession clientWithoutSession) {
+        if (clientWithoutSession == null) {
+            throw new IllegalArgumentException("ClientWithoutSession cannot be null");
+        }
+
         PeerClient peerClient = ClientFactory.createPeerClient(clientWithoutSession);
         this.clientSessionCoordinator.processClientWithoutSession(peerClient);
         logger.info("Pass new user to coordinator, userToken={}", peerClient.getUserToken());
     }
 
     public void processJoiningClient(Client client) {
+        if (client == null) {
+            throw new IllegalArgumentException("Client cannot be null");
+        }
         PeerClient peerClient = ClientFactory.createPeerClient(client);
         this.clientSessionCoordinator.processClient(client.getSessionToken(), peerClient);
         logger.info("Pass joining client to coordinator, userToken={}, sessionToken={}", client.getUserToken(), client.getSessionToken());
     }
 
     public void returnDataToUser(Client client) {
+        try {
             this.clientsKafkaProducer.returnNewUser(client);
-
-
-
+        } catch (Exception e) {
+            logger.error("ReturnDataToUser, sessionToken={}, userToken={}, message={}", client.getSessionToken(), client.getUserToken(), e.getMessage());
+        }
     }
 
 

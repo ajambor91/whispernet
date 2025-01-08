@@ -25,6 +25,9 @@ public class ClientsKafkaProducer {
     }
 
     public void returnNewUser(Client userClient) {
+        if (userClient == null) {
+            throw new IllegalArgumentException("Client cannot be null");
+        }
         try {
             String message = this.objectMapper.writeValueAsString(userClient);
             this.sendKafkaMsg(message, EKafkaTopic.RETURN_CLIENT_TOPIC.getTopicName());

@@ -33,11 +33,16 @@ public class ClientsConsumerService {
         try {
             String message = record.value();
             String type = this.getHeaderValue(record, "type");
-            if (type == null || message == null) {
+            if (type == null) {
+                logger.error("Type is null");
+                return;
+            }
+            if (message == null) {
+                logger.error("Message is null");
                 return;
             }
             IBaseClient kafkaMessage = mapMessage(type, message);
-
+            System.out.println(message);
             if (kafkaMessage instanceof ClientWithoutSession) {
                 logger.info("Received kafka message for new client, userToken={}", ((ClientWithoutSession) kafkaMessage).getUserToken());
                 clientsService.processNewClient((ClientWithoutSession) kafkaMessage);
@@ -47,8 +52,6 @@ public class ClientsConsumerService {
             }
             logger.error("Error: Received an empty kafka message");
         } catch (Exception e) {
-            System.err.println("Error processing message");
-            System.err.println(e.getMessage());
             logger.error("Error processing message={}", e.getMessage());
         }
     }

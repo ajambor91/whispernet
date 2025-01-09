@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClientSessionCoordinator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">wssession</a> &gt; <a href="index.source.html" class="el_package">net.whisper.wssession.core.coordinatos</a> &gt; <span class="el_source">ClientSessionCoordinator.java</span></div><h1>ClientSessionCoordinator.java</h1><pre class="source lang-java linenums">package net.whisper.wssession.core.coordinatos;
+
+import net.whisper.wssession.clients.factories.ClientFactory;
+import net.whisper.wssession.clients.models.Client;
+import net.whisper.wssession.clients.services.ClientsService;
+import net.whisper.wssession.session.models.PeerClient;
+import net.whisper.wssession.session.models.PeerSession;
+import net.whisper.wssession.session.services.SessionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Component
+public class ClientSessionCoordinator {
+
+    private final ClientsService clientsService;
+    private final SessionService sessionService;
+    private final Logger logger;
+
+    @Autowired()
+<span class="fc" id="L23">    public ClientSessionCoordinator(@Lazy ClientsService clientsService, @Lazy SessionService sessionService) {</span>
+<span class="fc" id="L24">        this.clientsService = clientsService;</span>
+<span class="fc" id="L25">        this.sessionService = sessionService;</span>
+<span class="fc" id="L26">        this.logger = LoggerFactory.getLogger(ClientSessionCoordinator.class);</span>
+<span class="fc" id="L27">    }</span>
+
+    public void processClientWithoutSession(PeerClient newClient) {
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (newClient == null) {</span>
+<span class="fc" id="L31">            logger.error(&quot;ClientSessionCoordinator:processClientWithoutSession newClient cannot be null&quot;);</span>
+<span class="fc" id="L32">            return;</span>
+        }
+        try {
+<span class="nc" id="L35">            this.sessionService.processNewClient(newClient);</span>
+<span class="fc" id="L36">        } catch (java.lang.Exception e) {</span>
+<span class="fc" id="L37">            logger.error(&quot;ClientSessionCoordinator:processClientWithoutSession Error with process client without session, userToken={}, errorMessage={}&quot;, newClient.getUserToken(), e.getMessage());</span>
+<span class="nc" id="L38">        }</span>
+<span class="fc" id="L39">    }</span>
+
+    public void processClient(String sessionToken, PeerClient client) {
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (sessionToken == null) {</span>
+<span class="fc" id="L43">            logger.error(&quot;ClientSessionCoordinator:processClient sessionToken cannot be null&quot;);</span>
+<span class="fc" id="L44">            return;</span>
+        }
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (client == null) {</span>
+<span class="fc" id="L47">            logger.error(&quot;ClientSessionCoordinator:processClient client cannot be null&quot;);</span>
+<span class="fc" id="L48">            return;</span>
+        }
+        try {
+
+<span class="nc" id="L52">            this.sessionService.processJoinClient(sessionToken, client);</span>
+<span class="fc" id="L53">        } catch (java.lang.Exception e) {</span>
+<span class="fc" id="L54">            logger.error(&quot;ClientSessionCoordinator:processClient Error with process joining client session, userToken={}, sessionToken={}, errorMessage={}&quot;, client.getUserToken(), sessionToken, e.getMessage());</span>
+<span class="nc" id="L55">        }</span>
+<span class="fc" id="L56">    }</span>
+
+    public void returnDataToUser(PeerSession peerSession, PeerClient peerClient) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (peerSession == null) {</span>
+<span class="fc" id="L60">            logger.error(&quot;ClientSessionCoordinator:returnDataToUser peerSession cannot be null&quot;);</span>
+<span class="fc" id="L61">            return;</span>
+        }
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (peerClient == null) {</span>
+<span class="fc" id="L64">            logger.error(&quot;ClientSessionCoordinator:returnDataToUser peerClient cannot be null&quot;);</span>
+<span class="fc" id="L65">            return;</span>
+        }
+<span class="fc" id="L67">        Client client = ClientFactory.createClientFromPeerSesion(peerSession, peerClient);</span>
+<span class="fc" id="L68">        this.clientsService.returnDataToUser(client);</span>
+<span class="fc" id="L69">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -27,25 +27,43 @@ public class ClientSessionCoordinator {
     }
 
     public void processClientWithoutSession(PeerClient newClient) {
-
+        if (newClient == null) {
+            logger.error("ClientSessionCoordinator:processClientWithoutSession newClient cannot be null");
+            return;
+        }
         try {
             this.sessionService.processNewClient(newClient);
         } catch (java.lang.Exception e) {
-            logger.error("Error with process client without session, userToken={}, errorMessage={}", newClient.getUserToken(), e.getMessage());
+            logger.error("ClientSessionCoordinator:processClientWithoutSession Error with process client without session, userToken={}, errorMessage={}", newClient.getUserToken(), e.getMessage());
         }
     }
 
     public void processClient(String sessionToken, PeerClient client) {
-
+        if (sessionToken == null) {
+            logger.error("ClientSessionCoordinator:processClient sessionToken cannot be null");
+            return;
+        }
+        if (client == null) {
+            logger.error("ClientSessionCoordinator:processClient client cannot be null");
+            return;
+        }
         try {
 
             this.sessionService.processJoinClient(sessionToken, client);
         } catch (java.lang.Exception e) {
-            logger.error("Error with process joining client session, userToken={}, sessionToken={}, errorMessage={}", client.getUserToken(), sessionToken, e.getMessage());
+            logger.error("ClientSessionCoordinator:processClient Error with process joining client session, userToken={}, sessionToken={}, errorMessage={}", client.getUserToken(), sessionToken, e.getMessage());
         }
     }
 
     public void returnDataToUser(PeerSession peerSession, PeerClient peerClient) {
+        if (peerSession == null) {
+            logger.error("ClientSessionCoordinator:returnDataToUser peerSession cannot be null");
+            return;
+        }
+        if (peerClient == null) {
+            logger.error("ClientSessionCoordinator:returnDataToUser peerClient cannot be null");
+            return;
+        }
         Client client = ClientFactory.createClientFromPeerSesion(peerSession, peerClient);
         this.clientsService.returnDataToUser(client);
     }

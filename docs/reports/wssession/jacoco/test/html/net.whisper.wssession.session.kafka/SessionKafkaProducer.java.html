@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SessionKafkaProducer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">wssession</a> &gt; <a href="index.source.html" class="el_package">net.whisper.wssession.session.kafka</a> &gt; <span class="el_source">SessionKafkaProducer.java</span></div><h1>SessionKafkaProducer.java</h1><pre class="source lang-java linenums">package net.whisper.wssession.session.kafka;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whisper.wssession.core.enums.EKafkaMessageTypes;
+import net.whisper.wssession.core.enums.EKafkaTopic;
+import net.whisper.wssession.session.models.PeerSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+@Component
+public class SessionKafkaProducer {
+
+    private final Logger logger;
+    private final KafkaTemplate&lt;String, String&gt; kafkaTemplate;
+    private final ObjectMapper objectMapper;
+
+    @Autowired
+<span class="fc" id="L24">    public SessionKafkaProducer(ObjectMapper objectMapper, KafkaTemplate&lt;String, String&gt; kafkaTemplate) {</span>
+<span class="fc" id="L25">        this.kafkaTemplate = kafkaTemplate;</span>
+<span class="fc" id="L26">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L27">        this.logger = LoggerFactory.getLogger(SessionKafkaProducer.class);</span>
+<span class="fc" id="L28">    }</span>
+    public void sendSession(PeerSession peerSession, EKafkaMessageTypes type)  {
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (peerSession == null) {</span>
+<span class="fc" id="L31">            logger.error(&quot;SessionKafkaProducer:sendSession - PeerSession cannot be null&quot;);</span>
+<span class="fc" id="L32">            return;</span>
+        }
+        try {
+<span class="fc" id="L35">            String message = this.objectMapper.writeValueAsString(peerSession);</span>
+<span class="fc" id="L36">            this.sendKafkaMsg(message, EKafkaTopic.WEBSOCKET_SESSION_TOPIC.getTopicName(), type);</span>
+<span class="fc" id="L37">            logger.info(&quot;SessionKafkaProducer:sendSession - Kafka message with session to webscoket was send, sessionToken={}&quot;, peerSession.getSessionToken());</span>
+<span class="fc" id="L38">        } catch (JsonProcessingException e) {</span>
+<span class="fc" id="L39">            logger.error(&quot;SessionKafkaProducer:sendSession - JSON process session message failed, sessionToken={}, message={}&quot;, peerSession.getSessionToken(), e.getMessage());</span>
+<span class="fc" id="L40">        }</span>
+
+<span class="fc" id="L42">    }</span>
+
+    private void sendKafkaMsg(String parsedObject, String topic, EKafkaMessageTypes type) {
+<span class="fc" id="L45">        Message&lt;String&gt; message = MessageBuilder</span>
+<span class="fc" id="L46">                .withPayload(parsedObject)</span>
+<span class="fc" id="L47">                .setHeader(KafkaHeaders.TOPIC, topic)</span>
+<span class="fc" id="L48">                .setHeader(&quot;type&quot;, type.getMessageType())</span>
+<span class="fc" id="L49">                .build();</span>
+<span class="fc" id="L50">        kafkaTemplate.send(message);</span>
+
+<span class="fc" id="L52">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

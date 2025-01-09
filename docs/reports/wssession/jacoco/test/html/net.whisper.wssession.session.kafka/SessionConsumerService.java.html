@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SessionConsumerService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">wssession</a> &gt; <a href="index.source.html" class="el_package">net.whisper.wssession.session.kafka</a> &gt; <span class="el_source">SessionConsumerService.java</span></div><h1>SessionConsumerService.java</h1><pre class="source lang-java linenums">package net.whisper.wssession.session.kafka;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whisper.wssession.session.enums.EKafkaMessageSessionTypes;
+import net.whisper.wssession.session.models.PeerSession;
+import net.whisper.wssession.session.services.SessionService;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+import org.slf4j.Logger;
+
+
+@Service
+public class SessionConsumerService {
+
+    private final ObjectMapper objectMapper;
+    private final SessionService sessionService;
+    private final Logger logger;
+    @Autowired
+<span class="fc" id="L23">    public SessionConsumerService(SessionService sessionService, ObjectMapper objectMapper) {</span>
+<span class="fc" id="L24">        this.sessionService = sessionService;</span>
+<span class="fc" id="L25">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L26">        this.logger = LoggerFactory.getLogger(SessionConsumerService.class);</span>
+<span class="fc" id="L27">    }</span>
+    @KafkaListener(topics = {&quot;request-session-signal-topic&quot;}, groupId = &quot;whispernet-wsession-session-group&quot;)
+    public void handleTokenEvent(ConsumerRecord&lt;String, String&gt; record) {
+
+        try {
+<span class="fc" id="L32">            String type = this.getHeaderValue(record, &quot;type&quot;);</span>
+<span class="fc" id="L33">            String message = record.value();</span>
+<span class="fc" id="L34">            PeerSession peerSession = this.objectMapper.readValue(message, PeerSession.class);</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">            if (EKafkaMessageSessionTypes.DISCONNECT_USER.getMessageType().equals(type)) {</span>
+<span class="nc" id="L36">                this.sessionService.updateSession(peerSession);</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">            } else if (EKafkaMessageSessionTypes.REMOVE_USER.getMessageType().equals(type)) {</span>
+<span class="nc" id="L38">                this.sessionService.removeClientFromSession(peerSession);</span>
+            } else {
+<span class="fc" id="L40">                this.logger.warn(&quot;Message header not known - SessionService:handleTokenEvent&quot;);</span>
+            }
+
+<span class="fc" id="L43">        } catch (Exception e) {</span>
+<span class="fc" id="L44">            this.logger.error(&quot;Processing message error - SessionService:handleTokenEvent&quot;);</span>
+
+<span class="fc" id="L46">        }</span>
+<span class="fc" id="L47">    }</span>
+
+    private String getHeaderValue(ConsumerRecord&lt;String, String&gt; record, String headerKey) {
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (record.headers() != null) {</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">            return record.headers().lastHeader(headerKey) != null</span>
+<span class="fc" id="L52">                    ? new String(record.headers().lastHeader(headerKey).value())</span>
+<span class="nc" id="L53">                    : null;</span>
+        }
+<span class="fc" id="L55">        return null;</span>
+    }}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

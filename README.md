@@ -190,18 +190,19 @@ Open your web browser and type http://localhost:3000. Example credentials are us
 
 Currently, tests have been implemented for the **Session-Service** microservice, with the following coverage statistics:
 
-| Service           | Test Coverage | Notes                              |
-|--------------------|---------------|------------------------------------|
-| **Session-Service** | 81%           | Unit and integration tests completed using Jacoco. |
-| WSSession          | Not yet tested | Planned for future coverage.      |
-| Signal-Server      | Not yet tested | Planned for future coverage.      |
+| Service             | Test Coverage  | Notes                              |
+|---------------------|----------------|------------------------------------|
+| **Session-Service** | 81%            | Unit and integration tests completed using Jacoco. |
+| **WSSession**       | 91%            | Planned for future coverage.      |
+| Signal-Server       | Not yet tested | Planned for future coverage.      |
 
 ### Coverage Report
 
 The coverage report for **Session-Service** has been generated using [Jacoco](https://www.jacoco.org/).  
 You can find the HTML report in the `target/site/jacoco` directory or access it via the link below:
 
-- [Session-Service Coverage Report](https://ajambor91.github.io/whispernet/reports/jacoco/test/html/index.html)
+- [Session-Service Coverage Report](https://ajambor91.github.io/whispernet/reports/session/jacoco/test/html/index.html)
+- [WSSession-Service Coverage Report](https://ajambor91.github.io/whispernet/reports/wssession/jacoco/test/html/index.html)
 
 
 ## Future Enhancements

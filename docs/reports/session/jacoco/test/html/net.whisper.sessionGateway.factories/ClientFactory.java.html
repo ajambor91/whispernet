@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClientFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">whispernet</a> &gt; <a href="index.source.html" class="el_package">net.whisper.sessionGateway.factories</a> &gt; <span class="el_source">ClientFactory.java</span></div><h1>ClientFactory.java</h1><pre class="source lang-java linenums">package net.whisper.sessionGateway.factories;
+
+import net.whisper.sessionGateway.enums.EClientConnectionStatus;
+import net.whisper.sessionGateway.enums.EPeerRole;
+import net.whisper.sessionGateway.models.Client;
+import net.whisper.sessionGateway.models.ClientWithoutSession;
+import net.whisper.sessionGateway.templates.KafkaClientMessage;
+
+<span class="nc" id="L9">public class ClientFactory {</span>
+    public static Client createClient(String userToken, String userId, String sessionToken, EPeerRole peerRole, EClientConnectionStatus connectionStatus) {
+<span class="fc" id="L11">        Client client = new Client();</span>
+<span class="fc" id="L12">        client.setUserToken(userToken);</span>
+<span class="fc" id="L13">        client.setUserId(userId);</span>
+<span class="fc" id="L14">        client.setPeerRole(peerRole);</span>
+<span class="fc" id="L15">        client.setClientConnectionStatus(connectionStatus);</span>
+<span class="fc" id="L16">        client.setSessionToken(sessionToken);</span>
+<span class="fc" id="L17">        return client;</span>
+    }
+
+    public static ClientWithoutSession createClientWithoutSession(String userToken, String userId, EPeerRole peerRole, EClientConnectionStatus connectionStatus) {
+<span class="fc" id="L21">        ClientWithoutSession client = new ClientWithoutSession();</span>
+<span class="fc" id="L22">        client.setUserToken(userToken);</span>
+<span class="fc" id="L23">        client.setPeerRole(peerRole);</span>
+<span class="fc" id="L24">        client.setUserId(userId);</span>
+<span class="fc" id="L25">        client.setClientConnectionStatus(connectionStatus);</span>
+<span class="fc" id="L26">        return client;</span>
+    }
+
+    public static Client createClientFromTemplate(KafkaClientMessage kafkaClientMessage) {
+<span class="fc" id="L30">        return new Client(kafkaClientMessage);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

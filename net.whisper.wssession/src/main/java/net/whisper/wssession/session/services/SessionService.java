@@ -30,6 +30,9 @@ public class SessionService {
     }
 
     public void processNewClient(PeerClient peerClient) {
+            if(peerClient == null) {
+                throw new IllegalArgumentException("PeerClient for new client processing cannot be null");
+            }
             PeerSession peerSession = this.sessionManager.createSession(peerClient);
             this.sessionKafkaProducer.sendSession(peerSession, EKafkaMessageTypes.NEW_SESSION);
             this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);
@@ -38,16 +41,31 @@ public class SessionService {
     }
 
     public void processJoinClient(String sessionToken, PeerClient peerClient) {
+            if (sessionToken == null) {
+                throw new IllegalArgumentException("sessionToken for joining client processing cannot be null");
+            }
+
+            if (peerClient == null) {
+                throw new IllegalArgumentException("PeerClient for joining client processing cannot be null");
+            }
+
             PeerSession peerSession = this.sessionManager.addPeerToExistingSession(sessionToken, peerClient);
             this.sessionKafkaProducer.sendSession(peerSession, EKafkaMessageTypes.ADD_CLIENT_TO_SESSION);
             this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);
     }
 
     public void updateSession(PeerSession peerSession) {
+        if (peerSession == null) {
+            throw new IllegalArgumentException("PeerSession cannot be null when updating session");
+        }
         this.sessionManager.updateSession(peerSession);
     }
 
     public void removeClientFromSession(PeerSession peerSession) {
+        if (peerSession == null) {
+            throw new IllegalArgumentException("PeerSession cannot be null when removing peer");
+
+        }
         this.sessionManager.removeClientFromSession(peerSession);
     }
 

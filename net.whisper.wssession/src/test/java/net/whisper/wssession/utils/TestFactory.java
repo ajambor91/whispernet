@@ -4,6 +4,12 @@ import net.whisper.wssession.clients.enums.EClientConnectionStatus;
 import net.whisper.wssession.clients.enums.EPeerRole;
 import net.whisper.wssession.clients.models.Client;
 import net.whisper.wssession.clients.models.ClientWithoutSession;
+import net.whisper.wssession.session.enums.ESessionStatus;
+import net.whisper.wssession.session.models.PeerClient;
+import net.whisper.wssession.session.models.PeerSession;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestFactory {
 
@@ -33,5 +39,42 @@ public class TestFactory {
         client.setSessionToken(SESSION_TOKEN_JOINER);
         client.setClientConnectionStatus(EClientConnectionStatus.CREATED);
         return client;
+    }
+
+    public static PeerClient createPeerClientInitiator() {
+        PeerClient peerClient = new PeerClient();
+        peerClient.setClientConnectionStatus(EClientConnectionStatus.CREATED);
+        peerClient.setPeerRole(EPeerRole.INITIATOR);
+        peerClient.setUserId(USER_ID_INITIATOR);
+        peerClient.setUserToken(USER_TOKEN_INITIATOR);
+        return peerClient;
+    }
+
+    public static PeerClient createPeerClientJoiner() {
+        PeerClient peerClient = new PeerClient();
+        peerClient.setUserToken(USER_TOKEN_JOINER);
+        peerClient.setUserId(USER_ID_JOINER);
+        peerClient.setPeerRole(EPeerRole.JOINER);
+        peerClient.setClientConnectionStatus(EClientConnectionStatus.CREATED);
+        return peerClient;
+    }
+
+    public static PeerSession createPeerSession() {
+        PeerSession peerSession = new PeerSession();
+        peerSession.setSessionStatus(ESessionStatus.CREATED);
+        peerSession.setSessionToken(SESSION_TOKEN_JOINER);
+        peerSession.setSecretKey("SECRET");
+        List<PeerClient> peers = new ArrayList<>();
+        peers.add(TestFactory.createPeerClientInitiator());
+        peerSession.setPeerClients(peers);
+        return peerSession;
+    }
+
+    public static PeerSession createEmptyPeerSession() {
+        PeerSession peerSession = new PeerSession();
+        peerSession.setSessionStatus(ESessionStatus.CREATED);
+        peerSession.setSessionToken(SESSION_TOKEN_JOINER);
+        peerSession.setSecretKey("SECRET");
+        return peerSession;
     }
 }

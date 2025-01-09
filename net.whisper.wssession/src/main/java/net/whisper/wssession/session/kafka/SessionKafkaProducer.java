@@ -21,23 +21,23 @@ public class SessionKafkaProducer {
     private final ObjectMapper objectMapper;
 
     @Autowired
-    SessionKafkaProducer(ObjectMapper objectMapper, KafkaTemplate<String, String> kafkaTemplate) {
+    public SessionKafkaProducer(ObjectMapper objectMapper, KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
         this.logger = LoggerFactory.getLogger(SessionKafkaProducer.class);
     }
     public void sendSession(PeerSession peerSession, EKafkaMessageTypes type)  {
+        if (peerSession == null) {
+            logger.error("SessionKafkaProducer:sendSession - PeerSession cannot be null");
+            return;
+        }
         try {
             String message = this.objectMapper.writeValueAsString(peerSession);
             this.sendKafkaMsg(message, EKafkaTopic.WEBSOCKET_SESSION_TOPIC.getTopicName(), type);
-            logger.info("Kafka message with session to webscoket was send, sessionToken={}", peerSession.getSessionToken());
+            logger.info("SessionKafkaProducer:sendSession - Kafka message with session to webscoket was send, sessionToken={}", peerSession.getSessionToken());
         } catch (JsonProcessingException e) {
-            logger.error("JSON process session message failed, sessionToken={}, message={}", peerSession.getSessionToken(), e.getMessage());
+            logger.error("SessionKafkaProducer:sendSession - JSON process session message failed, sessionToken={}, message={}", peerSession.getSessionToken(), e.getMessage());
         }
-
-    }
-
-    private void setupMessage(PeerSession peerSession) {
 
     }
 

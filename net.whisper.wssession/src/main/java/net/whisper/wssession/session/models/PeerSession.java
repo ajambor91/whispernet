@@ -22,6 +22,10 @@ public class PeerSession extends BaseSession {
     }
 
     public void addPeerClient(PeerClient peerClient) {
-        peerClients.add(peerClient);
+        if (peerClients.stream().noneMatch(existingPeer -> existingPeer.getUserId().equals(peerClient.getUserId()))) {
+            peerClients.add(peerClient);
+        } else {
+            throw new IllegalArgumentException(String.format("PeerClient is duplicated when adding to session, sessionToken=%s", this.sessionToken));
+        }
     }
 }

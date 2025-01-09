@@ -20,8 +20,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-public class ClientsServiceTest {
+@SpringBootTest(properties = {
+        "spring.kafka.bootstrap-servers=localhost:9095",
+        "spring.kafka.consumer.auto-offset-reset=earliest",
+        "spring.kafka.listener.missing-topics-fatal=false"
+})public class ClientsServiceTest {
 
 
     private final ClientsService clientsService;

@@ -1,5 +1,6 @@
 package net.whisper.wssession.session.managers;
 
+import net.whisper.wssession.session.enums.ESessionStatus;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.repositories.SessionRepository;
@@ -9,10 +10,8 @@ import org.springframework.stereotype.Service;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 @Service
@@ -28,15 +27,24 @@ public class SessionManager {
 
 
     public PeerSession createSession(PeerClient peerClient) {
+        if (peerClient == null) {
+            throw new IllegalArgumentException("PeerClient in createSession cannot be null");
+        }
         return this.setupPeerSession(peerClient);
     }
 
     public PeerSession addPeerToExistingSession(String sessionToken, PeerClient peerClient) {
         PeerSession peerSession = this.sessionRepository.getSession(sessionToken);
-        peerSession.addPeerClient(peerClient);
-        this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);
-        logger.info("Peer added to session, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
-        return peerSession;
+        try {
+            peerSession.addPeerClient(peerClient);
+            this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);
+            logger.info("Peer added to session, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
+            return peerSession;
+        } catch (IllegalArgumentException e) {
+            logger.error(e.getMessage());
+            return peerSession;
+        }
+
     }
 
     private PeerSession setupPeerSession(PeerClient peerClient) {
@@ -52,32 +60,43 @@ public class SessionManager {
     }
 
     public void removeClientFromSession(PeerSession peerSession) {
+        if (peerSession == null) {
+            throw new IllegalArgumentException("PeerSession in remove session is null");
+        }
+
+        if (peerSession.getPeerClients().isEmpty()) {
+            throw new NoSuchElementException("Peers to remove list is empty");
+        }
         PeerSession existingSession = this.sessionRepository.getSession(peerSession.getSessionToken());
-        List<PeerClient> peers = existingSession.getPeerClients();
-        peerSession.getPeerClients().forEach(peer -> {
-            int index = peers.indexOf(peer);
-            if (index != -1) {
-                peers.remove(index);
-            } else {
-                logger.warn("Peer cannot remove - peer not found in existing session, sessionToken={}, userToken={}", peerSession.getSessionToken(), peer.getUserToken());
-            }
-        });
-        existingSession.setSessionStatus(peerSession.getSessionStatus());
+        List<PeerClient> existingPeers = existingSession.getPeerClients();
+        List<PeerClient> newPeers = peerSession.getPeerClients();
+        Iterator<PeerClient> iterator = newPeers.iterator();
+        while (iterator.hasNext()) {
+            PeerClient peer = iterator.next();
+            PeerClient foundPeer = existingPeers
+                    .stream()
+                    .filter(existingPeer -> existingPeer.getUserId().equals(peer.getUserId()))
+                    .findFirst()
+                    .orElseThrow(() -> new NoSuchElementException("Peer to remove doesn't exist"));
+            existingPeers.remove(foundPeer);
+        }
+        existingSession.setSessionStatus(ESessionStatus.INTERRUPTED);
         this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);
         logger.info("Peer has successfullly removed from session, sessionToken={}", peerSession.getSessionToken());
     }
 
     public void updateSession(PeerSession peerSession) {
+        if (peerSession == null) {
+            throw new IllegalArgumentException("PeerSession cannot be null when updating session");
+        }
         PeerSession existingSession = this.sessionRepository.getSession(peerSession.getSessionToken());
         List<PeerClient> peers = existingSession.getPeerClients();
         peerSession.getPeerClients().forEach(peer -> {
-            int index = peers.indexOf(peer);
-            if (index != -1) {
-                PeerClient foundPeer = peers.get(index);
+            PeerClient foundPeer = peers.stream()
+                    .filter(existingPeer -> existingPeer.getUserId().equals(peer.getUserId()))
+                    .findFirst()
+                    .orElseThrow(() -> new NoSuchElementException("Peer not found"));
                 foundPeer.setClientConnectionStatus(peer.getClientConnectionStatus());
-            } else {
-                logger.warn("Peer cannot update - peer not found in existing session, sessionToken={}, userToken={}", peerSession.getSessionToken(), peer.getUserToken());
-            }
         });
         existingSession.setSessionStatus(peerSession.getSessionStatus());
         this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);

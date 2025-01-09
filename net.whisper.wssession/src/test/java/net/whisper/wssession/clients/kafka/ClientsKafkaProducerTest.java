@@ -23,7 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.kafka.bootstrap-servers=localhost:9095",
+        "spring.kafka.consumer.auto-offset-reset=earliest",
+        "spring.kafka.listener.missing-topics-fatal=false"
+})
 public class ClientsKafkaProducerTest {
 
     private final ClientsKafkaProducer clientsKafkaProducer;

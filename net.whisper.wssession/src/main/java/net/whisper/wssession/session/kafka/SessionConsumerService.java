@@ -37,12 +37,11 @@ public class SessionConsumerService {
             } else if (EKafkaMessageSessionTypes.REMOVE_USER.getMessageType().equals(type)) {
                 this.sessionService.removeClientFromSession(peerSession);
             } else {
-                this.logger.warn("Message header not known");
+                this.logger.warn("Message header not known - SessionService:handleTokenEvent");
             }
 
-
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            this.logger.error("Processing message error - SessionService:handleTokenEvent");
 
         }
     }

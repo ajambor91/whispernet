@@ -123,6 +123,16 @@ services:
       - "3478:3478/tcp"
       - "5349:5349/udp"
       - "5349:5349/tcp"
+  app-db:
+    build:
+      context: './app-db'
+      dockerfile: './Dockerfile.qa'
+    hostname: app-db.whisper.net
+    container_name: app-db
+    networks:
+      - whispernet-security
+    volumes:
+      - './app-db/app_data:/var/lib/mysql'
   cms-db:
     build:
       context: './cms-db'
@@ -168,11 +178,16 @@ networks:
     ipam:
       config:
         - subnet: 173.19.0.0/28
+  whispernet-security:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 174.19.0.0/28
   whispernet-ui:
     driver: bridge
     ipam:
       config:
-        - subnet: 174.19.0.0/16
+        - subnet: 175.19.0.0/16
 volumes:
   cache:
     driver: local

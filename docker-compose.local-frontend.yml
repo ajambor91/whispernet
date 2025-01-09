@@ -133,6 +133,18 @@ services:
       - whispernet-cms
     volumes:
       - './cms-db/cms_data:/var/lib/mysql'
+  app-db:
+    build:
+      context: './app-db'
+      dockerfile: './Dockerfile.local'
+    hostname: app-db.whisper.net
+    container_name: app-db
+    networks:
+      - whispernet-security
+    volumes:
+      - './app-db/app_data:/var/lib/mysql'
+    ports:
+      - 3307:3306
   cms:
     build:
       context: './cms'
@@ -168,11 +180,16 @@ networks:
     ipam:
       config:
         - subnet: 173.19.0.0/28
+  whispernet-security:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 174.19.0.0/28
   whispernet-ui:
     driver: bridge
     ipam:
       config:
-        - subnet: 174.19.0.0/16
+        - subnet: 175.19.0.0/16
 volumes:
   cache:
     driver: local

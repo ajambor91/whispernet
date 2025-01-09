@@ -130,7 +130,7 @@ Backend (Symfony) --> Database (mariadb)
     cd ui
     npm install or yarn install *
     cd ui/wb
-    npm run start
+    npm run dev
     
 6. **Run CMS frontend**
     ```bash
@@ -190,11 +190,11 @@ Open your web browser and type http://localhost:3000. Example credentials are us
 
 Currently, tests have been implemented for the **Session-Service** microservice, with the following coverage statistics:
 
-| Service             | Test Coverage  | Notes                              |
-|---------------------|----------------|------------------------------------|
-| **Session-Service** | 81%            | Unit and integration tests completed using Jacoco. |
-| **WSSession**       | 91%            | Planned for future coverage.      |
-| Signal-Server       | Not yet tested | Planned for future coverage.      |
+| Service             | Test Coverage  | Notes                                                      |
+|---------------------|----------------|------------------------------------------------------------|
+| **Session-Service** | 81%            | Mostly integration or hybrid tests completed using Jacoco. |
+| **WSSession**       | 91%            | Mostly integration or hybrid tests completed using Jacoco.                               |
+| Signal-Server       | Not yet tested | Planned for future coverage.                               |
 
 ### Coverage Report
 

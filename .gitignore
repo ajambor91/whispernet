@@ -73,3 +73,6 @@ application.properties.qa
 redis.qa.conf
 data_qa/
 nginx.qa.conf
+Dockerfile.qa
+localhost.crt
+localhost.key

@@ -190,6 +190,18 @@ services:
       - whispernet-ui
     hostname: cms-ui.whisper.net
     container_name: cms-ui
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    hostname: portainer.whisper.net
+    restart: always
+    networks:
+      - whispernet-admin
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
 networks:
   whispernet:
     driver: bridge
@@ -211,10 +223,17 @@ networks:
     ipam:
       config:
         - subnet: 175.19.0.0/16
+  whispernet-admin:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 176.19.0.0/16
 volumes:
   redis-security:
     driver: local
   cache:
     driver: local
   kafka:
+    driver: local
+  portainer-data:
     driver: local

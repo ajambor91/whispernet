@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import React, {FormEvent} from "react";
+import {a} from "vite/dist/node/types.d-aGj9QkWt";
 
 const StyledInput = styled.input`
     overflow: hidden;
@@ -7,7 +8,7 @@ const StyledInput = styled.input`
     border: 2px solid var(--border-color); 
     color: #eaeaea;
     padding: 5px;
-    height: 47px;
+    height: 60px;
     border-radius: 8px;
     transition: background-color 0.3s ease, border-color 0.3s ease;
     min-width: 1ch;
@@ -44,11 +45,13 @@ interface IInputProps {
     required?: boolean;
     readOnly?: boolean;
     autoComplete?: "on" | "off";
+    style: any;
 }
 
 const Input: React.FC<IInputProps> = ({...props}) => {
     return (
         <StyledInput
+            style={props.style}
             type={props.type}
             value={props.value}
             onChange={props.onChange}

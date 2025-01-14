@@ -27,7 +27,6 @@ public class SessionConsumerService {
     }
     @KafkaListener(topics = {"request-session-signal-topic"}, groupId = "whispernet-wsession-session-group")
     public void handleTokenEvent(ConsumerRecord<String, String> record) {
-
         try {
             String type = this.getHeaderValue(record, "type");
             String message = record.value();
@@ -37,11 +36,11 @@ public class SessionConsumerService {
             } else if (EKafkaMessageSessionTypes.REMOVE_USER.getMessageType().equals(type)) {
                 this.sessionService.removeClientFromSession(peerSession);
             } else {
-                this.logger.warn("Message header not known - SessionService:handleTokenEvent");
+                this.logger.warn("Message header not known - SessionConsumerService:handleTokenEvent");
             }
 
         } catch (Exception e) {
-            this.logger.error("Processing message error - SessionService:handleTokenEvent");
+            this.logger.error("Processing message error - SessionConsumerService:handleTokenEvent");
 
         }
     }

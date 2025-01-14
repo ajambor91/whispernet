@@ -56,7 +56,7 @@ class KafkaWS {
                     }}]
             });
             if (result && result.length > 0) {
-                logInfo({ event: 'Kafka:sendMessage', message: `Message sent successfully offset = ${result[result.length].offset} sessionToken=${message.message.sessionToken}` });
+                logInfo({ event: 'Kafka:sendMessage', message: `Message sent successfullytys sessionToken=${message.message.sessionToken}` });
 
             } else  {
                 logError({ event: 'Kafka:sendMessage', message: `Messege didn\'t send sessionToken=${message.message.sessionToken}` });

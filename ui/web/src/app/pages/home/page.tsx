@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import useNewChat from "../../../../../shared/hooks/useNewChat";
@@ -10,21 +10,44 @@ import {
     setCreatePeerState
 } from "../../../../../shared/slices/createSession.slice";
 import { logInfo, logError } from "../../../../../shared/error-logger/web";
-
+import {IISLoginState} from "../../../../../shared/slices/is-login.slize";
+import {useAppSelector} from "../../../../../shared/store/store";
+import styles from "./Home.module.scss";
+import useNewSignedChat from "../../../../../shared/hooks/useNewSignedChat";
+import {useToasts} from "../../../../../shared/providers/toast-provider";
 export default function Home() {
-    const { createNewChat, response, error, loading } = useNewChat();
+    const [isForceSigned, setIsForceSigned] = useState<boolean>(false);
+    const { createNewChat, response, newChatError, loading } = useNewChat();
+    const {createNewSignedChat, signedResponse} = useNewSignedChat();
     const router = useNavigate();
     const dispatch = useDispatch();
+    const {addToast} = useToasts();
 
+    const loginData: IISLoginState = useAppSelector(state => state.isLoginState);
     const goToWaitingPage = () => {
         logInfo({ message: "Navigating to waiting page" });
         router('/waiting');
     };
 
+
     const goToJoiningPage = () => {
         logInfo({ message: "Navigating to joining page" });
         router('/join');
     };
+
+    const handleForce = (isForce: boolean) => {
+        setIsForceSigned(isForce);
+        if (!loginData.isLogin) {
+            logInfo({ message: "Navigating to login page" });
+            addToast({
+                title: "Info",
+                autoClose: true,
+                description: "You have to sign in to create signed session",
+                type: "info"
+            });
+            router("/login");
+        }
+    }
 
     useEffect(() => {
         logInfo({ message: "Home component mounted" });
@@ -35,31 +58,46 @@ export default function Home() {
             secretKey: response ? response.secretKey : null
         }));
 
-        if (response && !error) {
+        if (response || signedResponse) {
             logInfo({ message: "Received response from createNewChat", response });
             goToWaitingPage();
         }
 
-        if (error) {
-            logError({ message: "Error in createNewChat", error });
+        if (newChatError) {
+            addToast({
+                autoClose: false,
+                title: "Error",
+                type: 'error',
+                description: "Cannot create new chat. Please try again later."
+            })
+            logError({ message: "Error in createNewChat" });
         }
 
         return () => {
             logInfo({ message: "Home component unmounted" });
         };
-    }, [response, error, loading]);
+    }, [response,signedResponse, newChatError, loading]);
 
+    const goToLogin = () => router("/initialize-login");
+    const goToRegister = () => router("/register");
     const handleNewChatClick = async () => {
         logInfo({ message: "New chat button clicked" });
 
-        dispatch(setCreatePeerState({
-            sessionToken: null,
-            error: null,
-            loading: true
-        } as IPeerState));
 
         try {
-            await createNewChat();
+            if (!isForceSigned) {
+                await createNewChat();
+
+            } else  {
+                await createNewSignedChat();
+            }
+
+            dispatch(setCreatePeerState({
+                sessionToken: null,
+                error: null,
+                loading: true,
+                isSigned: isForceSigned
+            } as IPeerState));
             logInfo({ message: "createNewChat called successfully" });
         } catch (err) {
             logError({ message: "Error calling createNewChat", error: err });
@@ -73,9 +111,21 @@ export default function Home() {
 
     return (
         <div>
+            <div className={styles["authorization-container"]}>
+                {loginData.isLogin ? <div className={styles["authorization-info"]}>
+                        <p className={styles["authorization-info__text"]}>Signed as: {loginData.username}</p>
+                    </div>
+                    :
+                    <div className={styles["authorization-links"]}>
+                        <a href="#" className={styles["authorization-links__link-item"]} onClick={goToRegister}>Register</a>
+                        <a href="#" className={styles["authorization-links__link-item"]} onClick={goToLogin}>Login</a>
+                    </div>
+                }
+            </div>
             <Centered>
                 <Header />
                 <ChatActions
+                    setIsForceSigned={handleForce}
                     onChatJoin={handleJoinChatClick}
                     onChatCreate={handleNewChatClick}
                     loading={loading}

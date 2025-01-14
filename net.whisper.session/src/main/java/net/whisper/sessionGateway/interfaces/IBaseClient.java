@@ -3,14 +3,8 @@ package net.whisper.sessionGateway.interfaces;
 import net.whisper.sessionGateway.enums.EClientConnectionStatus;
 import net.whisper.sessionGateway.enums.EPeerRole;
 
-public interface IBaseClient {
-    String getUserToken();
+public interface IBaseClient extends IBasicClient {
 
-    void setUserToken(String userToken);
-
-    String getUserId();
-
-    void setUserId(String userId);
 
     EClientConnectionStatus getClientConnectionStatus();
 

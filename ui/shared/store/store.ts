@@ -1,10 +1,13 @@
 import {configureStore} from '@reduxjs/toolkit';
 import peerState from "../slices/createSession.slice";
 import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
-
+import loginState from '../slices/login.slice'
+import isLoginState from '../slices/is-login.slize'
 export const store = configureStore({
     reducer: {
-        peerState: peerState
+        peerState: peerState,
+        loginState: loginState,
+        isLoginState: isLoginState
     }
 })
 

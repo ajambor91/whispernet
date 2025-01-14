@@ -1,0 +1,12 @@
+.login-container {
+  text-align: center;
+  width: 400px;
+  &__input {
+    margin: 10px 0;
+  }
+
+  &__buttons {
+    padding: 20px 2px;
+    text-align: right;
+  }
+}

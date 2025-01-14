@@ -9,6 +9,10 @@ export default defineConfig({
     server: {
         port: 3200,
         proxy: {
+            "/api/security": {
+                target: 'http://localhost:8099',
+                changeOrigin: true,
+            },
             '/api/signal': {
                 target: 'ws://localhost:8099',
                 changeOrigin: true,

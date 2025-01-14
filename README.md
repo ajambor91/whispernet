@@ -13,8 +13,9 @@ WhisperNet is a decentralized communication platform designed to provide private
 - **Real-Time Monitoring**: Includes Grafana, Loki, and Promtail for application logs and metrics.
 - **Cross-Platform**: Frontend built in React.
 - **WebRTC**: Session signaling with a test TURN server.
-- **WebAssembly**: Message sanitizing and AES 256 encoding and decoding for higher security and customizability
-- **CMS**: Landing page built with PHP and Symfony
+- **WebAssembly**: Message sanitizing and AES 256 encoding and decoding for higher security and customizability.
+- **PGP Authorization**: Signing and requiring session signatures from receivers.
+- **CMS**: Landing page built with PHP and Symfony.
 
 ---
 
@@ -25,22 +26,25 @@ WhisperNet is a decentralized communication platform designed to provide private
     - Spring Boot 3.3.4 microservices:
         - **Session**: Handles user creation and management.
         - **WSSession**: Creates and manages WebRTC sessions.
+        - **Security**: User register, login and verifying
     - Node.js microservice:
         - **WebSocket Service**: Pairs users for communication.
     - Kafka: Handles asynchronous communication between microservices.
     - Redis: Stores session data for quick access.
-    
+    - Security Redis: Stores JWT token and currently signed-in users, also stores initialized login user data 
+    - Security DB: MariaDB which stores user data as username and PGP Public Key
 - **Frontend**:
     - React: A modern, responsive UI for the chat platform.
     - WebAssembly: C++ with emscripten
 
 - **Infrastructure**:
+    - Gateway: Nginx server as gateway to all docker application 
     - Grafana + Loki + Promtail: For real-time monitoring and logging.
     - Docker: Containerized deployment of all services.
     - TURN Server: Coturn server for WebRTC signaling (currently in testing).
+    - Isolated networks for app - whispernet, security - whisperner-security, cms - whispernet-cms and frontend - whispernet-ui
 
 - **CMS**
-  - Isolated network and service for CMS
   - PHP 8.2 with Symfony 7.2 framework for higher performance
 
 ---
@@ -51,12 +55,20 @@ WhisperNet is a decentralized communication platform designed to provide private
 
 #### Main application
 ```plaintext
-Frontend (React)
+Frontend (React) --> Security --> Security Redis
+    |                   |
+    |                   v
+    |                Security DB
     |
     v
 Session(Spring Boot)
     |
-    +-- Kafka --> WSSession (Spring Boot) <-- Kafka --> Signal-Server (Node.js)
+    |         Security --> Security DB
+    |         ^     |
+    |         |     v 
+    |         |     Security Redis 
+    |         |     
+    +------ Kafka --> WSSession (Spring Boot) <-- Kafka --> Signal-Server (Node.js)
     |                  |
     |                  +--> Redis
     v
@@ -87,6 +99,9 @@ Backend (Symfony) --> Database (mariadb)
 
 - **WSSession (Spring Boot)**:  
   Manages WebSocket sessions, interacts with Redis for session data, and sends messages to Signal-Server via Kafka.
+
+- **Security (Spring Boot)**
+  Manages users resister, login, and verification
 
 - **Signal-Server (Node.js)**:  
   Handles WebRTC signaling and connects directly to the frontend. Optionally interacts with Redis for connection state management.
@@ -119,20 +134,21 @@ Backend (Symfony) --> Database (mariadb)
    cd whispernet
    ```
 2. **Generate ssl server.crt and server.key files and replace server_dummy files in nginx directory**
-3. **For CMS move to /cms/project_root/whispernet-cms and copy .env.local and remove .local suffix then run composer install, CMS is not requried to run main application**
-4. **Run containers stack**
+3. **Genereate JWT token and replace login.jwt.secret in net.whisper.security/cfg/application.properties**
+4. **For CMS move to /cms/project_root/whispernet-cms and copy .env.local and remove .local suffix then run composer install, CMS is not requried to run main application**
+5. **Run containers stack**
     ```bash
     docker-compose build
     docker-compose up -d
    ```
-5. **Run frontend app**
+6. **Run frontend app**
     ```bash
     cd ui
     npm install or yarn install *
     cd ui/wb
     npm run dev
     
-6. **Run CMS frontend**
+7. **Run CMS frontend**
     ```bash
    cd ui
    npm install or yarn install *
@@ -158,10 +174,11 @@ MariaDB instance in cms-db service has two example users - root and exampleUser,
    git clone https://github.com/ajambor91/whispernet.git
    cd whispernet
    ```
-2. **Generate ssl server.crt and server.key files and replace server_dummy files in nginx directory** 
-3. **Copy nginx.example.conf from nginx-host directory, or create similar configuration for nginx or apache**
-4. **Generate your SSL certificates and replace whispernet_dummy and chat-whispernet_dummy with the new ones. Then, remove the _dummy suffix from the file names.**
-5. **Run containers stack**
+2. **Generate ssl server.crt and server.key files and replace server_dummy files in nginx directory**
+3. **Genereate JWT token and replace login.jwt.secret in net.whisper.security/cfg/application.properties.local**
+4. **Copy nginx.example.conf from nginx-host directory, or create similar configuration for nginx or apache**
+5. **Generate your SSL certificates and replace whispernet_dummy and chat-whispernet_dummy with the new ones. Then, remove the _dummy suffix from the file names.**
+6. **Run containers stack**
     ```bash
     docker-compose -f ./docker-compose.local-frontend.yml build
     docker-compose -f ./docker-compose.local-frontend.yml up -d
@@ -170,7 +187,7 @@ Open your web browser with https://whispernet.local for main page or https://cha
 ***SSL is required for the app because user tokens, needed to connect sessions, are stored in secure cookies only***
 
 ### QA Environment
-You can also use QA Environment. You should reneme all Dockerfile.example.qa in their respective dirs and create configs by duplicating existing *.example.* files and renaming them (e.g., redis.example.qa.conf → redis.qa.conf). Adjust the values as needed. QA Environments is similar to Local Test
+You can also use QA Environment. You should reneme all Dockerfile.example.qa in their respective dirs and create configs by duplicating existing *.example.* files and renaming them (e.g., redis.example.qa.conf → redis.qa.conf), and make all steps from Local test environment like generating SSL or JWT. Adjust the values as needed. QA Environments is similar to Local Test
 Then run:
 ```bash
 docker-compose -f ./docker-compose.qa.yml build
@@ -192,9 +209,10 @@ Currently, tests have been implemented for the **Session-Service** microservice,
 
 | Service             | Test Coverage  | Notes                                                      |
 |---------------------|----------------|------------------------------------------------------------|
-| **Session-Service** | 81%            | Mostly integration or hybrid tests completed using Jacoco. |
-| **WSSession**       | 91%            | Mostly integration or hybrid tests completed using Jacoco.                               |
-| Signal-Server       | Not yet tested | Planned for future coverage.                               |
+| **Session-Service** | 88%            | Mostly integration or hybrid tests completed using Jacoco. |
+| **WSSession**       | 91%            | Mostly integration or hybrid tests completed using Jacoco. |
+| **Security**        | Not yet testet | Planned for future coverage.                               |
+| **Signal-Server**   | Not yet tested | Planned for future coverage.                               |
 
 ### Coverage Report
 
@@ -204,7 +222,11 @@ You can find the HTML report in the `target/site/jacoco` directory or access it 
 - [Session-Service Coverage Report](https://ajambor91.github.io/whispernet/reports/session/jacoco/test/html/index.html)
 - [WSSession-Service Coverage Report](https://ajambor91.github.io/whispernet/reports/wssession/jacoco/test/html/index.html)
 
-
+## In progress
+1. **Finishing PGP signing sessions flow**
+2. **Security service testing**
+3. **Rejoining to session**
+4. **Frontend adjustments**
 ## Future Enhancements
 
 Here are the planned improvements and features for WhisperNet:
@@ -215,28 +237,22 @@ Here are the planned improvements and features for WhisperNet:
 2. **Enhanced Test Coverage**:
     - Increase test coverage beyond 81% with additional unit, integration, and end-to-end tests.
 
-3. **User Authentication**:
-    - Add a another mariadb instance.
-    - Add user authentication to session service.
-    - Use Hibernate for secure and scalable user data management.
-    - Implement authentication mechanisms such as JWT or OAuth2.
+3. **PGP Key-Based User Verification**:
+    - Allow users to requiring sign session from their conversation partner 
 
-4. **PGP Key-Based User Verification**:
-    - Allow users to verify the identity of their chat partners using PGP keys.
-
-5. **Improved Monitoring and Performance Metrics**:
+4. **Improved Monitoring and Performance Metrics**:
     - Add advanced metrics and alerts in Grafana for real-time system health tracking.
     - Integrate Prometheus for detailed performance monitoring and analysis.
 
-6. **Mobile Application**:
+5. **Mobile Application**:
     - Build a mobile-friendly version of the application using React Native.
 
-7. **Desktop Application**:
+6. **Desktop Application**:
     - Develop a desktop version of the application using Electron for a native-like experience.
 
-8. **Group Chat Support** (Optional):
+7. **Group Chat Support** (Optional):
     - Extend the application to support multi-user group chats with dynamic room creation.
-9. **zkSNARK Integration** (Optional):
+8. **zkSNARK Integration** (Optional):
     - Explore the possibility of using zkSNARKs for advanced cryptographic features, such as zero-knowledge proofs.
 
 ## Contributing ##

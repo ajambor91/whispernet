@@ -1,6 +1,6 @@
 import { ELokiLogs } from "../enums/loki-logs.enum";
 import { isProduction } from "../config/config";
-import {LogInfoArgs} from "../models/error.model";
+import {LogInfoArgs} from "../models/log-info-args.model";
 
 class WebErrorLogger {
     private static _instance: WebErrorLogger;

@@ -53,15 +53,15 @@ public class KafkaService {
             logger.error(String.valueOf(e));
             return;
         }
-        BlockingQueue<IncomingClient> queue = responseMap.get(client.getUserToken());
-        if (queue != null) {
-            try {
+        BlockingQueue<IncomingClient>  queue = responseMap.computeIfAbsent(client.getUserToken(), k -> new LinkedBlockingQueue<>());
+
+        try {
                 queue.put(client);
-            } catch (InterruptedException e) {
+        } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 logger.error(String.valueOf(e));
             }
-        }
+
     }
 
     public IncomingClient waitForMessage(IBaseClient client, long timeoutInSeconds) throws InterruptedException {

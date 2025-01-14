@@ -66,7 +66,21 @@ export class SessionController extends Session {
 
     private _peerOnCloseDisconnect(message: ITechnicalMessage, peer: Peer, partnerPeer: Peer): void {
         try {
-            peer.conn.sendCloseConnectionMessage();
+            peer.conn.sendDataMessage({
+                sessionToken: this._sessionToken as string,
+                type: EWebSocketEventType.SessionInfo,
+                payload: "Partner disconnected"
+            });
+            if (partnerPeer.pingInterval) {
+                clearTimeout(partnerPeer.pingInterval)
+                partnerPeer.pingInterval = null;
+            }
+
+            if (partnerPeer.sendPingTimeout) {
+                clearTimeout(partnerPeer.sendPingTimeout);
+                partnerPeer.sendPingTimeout = null;
+            }
+
             this._startDisconnectTimeout(peer, partnerPeer);
             if (!this._sessionToken) {
                 throw new Error("Session token is undefined")
@@ -92,8 +106,11 @@ export class SessionController extends Session {
 
     private _onNoReconnect(peer: Peer, partnerPeer: Peer): void {
         try {
-            peer.conn.sendCloseConnectionMessage();
-            partnerPeer.destroyPeer();
+            peer.conn.sendDataMessage({
+                sessionToken: this._sessionToken as string,
+                type: EWebSocketEventType.SessionInfo,
+                payload: "Partner removed from session. Please create new session."
+            });            partnerPeer.destroyPeer();
             this._clientMap.delete(peer.userToken);
             if (!this._sessionToken) {
                 throw new Error("Session token is undefined")
@@ -272,7 +289,7 @@ export class SessionController extends Session {
                         clearTimeout(peer.pingInterval as NodeJS.Timeout);
                         peer.pingInterval = null;
                         logInfo({event: "PongReceived", message: "Pong received from peer", userToken: peer.userToken});
-                        setTimeout(sendPing, this._pingIntervalDuration);
+                        peer.sendPingTimeout = setTimeout(sendPing, this._pingIntervalDuration);
                     }
                 });
             }

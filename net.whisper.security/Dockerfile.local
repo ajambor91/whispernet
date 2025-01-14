@@ -1,0 +1,10 @@
+FROM openjdk:22-jdk
+WORKDIR /app
+RUN microdnf install findutils dos2unix
+COPY cfg/application.properties.local /usr/app/application.properties
+COPY . .
+RUN dos2unix ./gradlew
+RUN chmod +x ./gradlew
+RUN ./gradlew clean build -x test --no-daemon
+
+ENTRYPOINT ["java", "-jar", "build/libs/whispernet.jar", "--spring.config.additional-location=/usr/app/application.properties"]

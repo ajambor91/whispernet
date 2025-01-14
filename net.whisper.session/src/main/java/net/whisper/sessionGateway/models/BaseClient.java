@@ -9,28 +9,12 @@ import net.whisper.sessionGateway.interfaces.IBaseClient;
 
 @Getter
 @Setter
-public abstract class BaseClient implements IBaseClient {
-    private String userToken;
-    private String userId;
+public abstract class BaseClient extends BasicClient implements IBaseClient {
+
     private EClientConnectionStatus clientConnectionStatus;
     private EPeerRole peerRole;
 
     public BaseClient() {
 
-    }
-
-
-    public BaseClient(Client client) {
-        this.userToken = client.getUserToken();
-        this.userId = client.getUserId();
-        this.clientConnectionStatus = client.getClientConnectionStatus();
-        this.peerRole = client.getPeerRole();
-    }
-
-    public BaseClient(ClientWithoutSession client) {
-        this.userToken = client.getUserToken();
-        this.userId = client.getUserId();
-        this.clientConnectionStatus = client.getClientConnectionStatus();
-        this.peerRole = client.getPeerRole();
     }
 }

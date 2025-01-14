@@ -25,7 +25,7 @@ docker-compose.override.yml
 
 package-lock.json
 yarn.lock
-
+net.whisper.security/test_data
 *.tsbuildinfo
 *.tscache
 

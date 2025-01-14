@@ -1,8 +1,4 @@
-export interface LogInfoArgs {
+export interface IError {
+    status?: number;
     message: string;
-    source?: string;
-    lineno?: number;
-    colno?: number;
-    error?: Error;
-    [key: string]: any;
 }

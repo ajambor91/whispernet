@@ -18,12 +18,12 @@ interface IBaseMessage {
     metadata?: any;
 }
 export interface IIncomingMessage extends IBaseMessage{
-    peerStatus: EClientStatus;
 
 }
 
 export interface IOutgoingMessage extends  IBaseMessage{
     peerRole?: PeerRole
+
 }
 
 export interface ITechnicalMessage {

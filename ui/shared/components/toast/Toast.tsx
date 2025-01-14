@@ -16,7 +16,7 @@ const Toast: React.FC = () => {
     }, [toasts]);
 
     return (
-        <div className={styles.toastsContainer}>
+        <div className={styles["toasts-container"]}>
             {existingToasts.map((toast, index) => (
                 <div
                     key={toast.id}
@@ -24,19 +24,30 @@ const Toast: React.FC = () => {
                         top: `${index * 80}px`,
                         transition: 'top 0.3s ease-in-out',
                     }}
-                    className={`${styles.toastsContainer__toastWrapper} ${
+                    className={`${styles["toasts-container__toast-wrapper"]} ${
                         closingToasts[toast.id] ? styles.fadeOut : styles.fadeIn
                     } ${
-                        toast.type === 'success' ? styles.toastSuccess
-                            : toast.type === 'error' ? styles.toastError
-                                : toast.type === 'info' ? styles.toastInfo
+                        toast.type === 'success' ? styles["toast-success"]
+                            : toast.type === 'error' ? styles["toast-error"]
+                                : toast.type === 'info' ? styles["toast-info"]
                                     : ''
                     }`}
                     onAnimationEnd={() => {
                         if (toast.autoClose) removeToast(toast.id);
                     }}
                 >
-                    <p>{toast.id}</p>
+                    <div className={styles["toast-body"]}>
+                        <div className={styles["toast-body__close"]}>
+                            <button onClick={() => removeToast(toast.id)} className={styles['close']}>&times;</button>
+                        </div>
+                        <div className={styles["toast-body__header"]}>
+                            <h4>{toast.title}</h4>
+                        </div>
+                        <div className={styles["toast-body__description"]}>
+                            <p>{toast.description}</p>
+                        </div>
+                    </div>
+
                 </div>
             ))}
         </div>

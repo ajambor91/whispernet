@@ -68,6 +68,7 @@ services:
       - '8099:80'
       - '8098:443'
     networks:
+      - whispernet-security
       - whispernet
       - whispernet-cms
     hostname: gateway.whisper.net
@@ -89,7 +90,20 @@ services:
     container_name: broker
     networks:
       - whispernet
+      - whispernet-security
     hostname: broker.whisper.net
+  cache-security:
+    build:
+      context: './redis-security'
+      dockerfile: './Dockerfile.dev'
+    restart: always
+    command: redis-server --loglevel warning
+    volumes:
+      - redis-security:/data
+    networks:
+      - whispernet-security
+    ports:
+      - '6379:6379'
   cache:
     build:
       context: './redis'
@@ -137,6 +151,17 @@ services:
       - './app-db/app_data:/var/lib/mysql'
     ports:
       - 3307:3306
+  security:
+    build:
+      context: 'net.whisper.security'
+      dockerfile: './Dockerfile.dev'
+    networks:
+      - whispernet-security
+    hostname: security.whisper.net
+    container_name: security
+    depends_on:
+      - broker
+      - loki
   cms-db:
     build:
       context: './cms-db'
@@ -175,6 +200,8 @@ networks:
       config:
         - subnet: 174.19.0.0/28
 volumes:
+  redis-security:
+    driver: local
   cache:
     driver: local
   kafka:

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import React from "react";
 import '../../../styles/vars.scss'
+import {a} from "vite/dist/node/types.d-aGj9QkWt";
 
 const StyledTertiaryHeader = styled.h3`
     font-size: var(--tertiary-header-font-size);
@@ -10,6 +11,7 @@ const StyledTertiaryHeader = styled.h3`
 `;
 interface IHeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
     children: string;
+    style: any;
 }
 const TertiaryHeader: React.FC<IHeaderProps> = ( {children, ...props }) => {
     return (

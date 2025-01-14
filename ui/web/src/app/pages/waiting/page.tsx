@@ -11,7 +11,7 @@ import TertiaryHeader from "../../../../../shared/components/elements/tertiary-h
 const ChatWaiting: React.FC = () => {
     const [status, setStatus] = useState<string>("Connecting");
     const peerState: IPeerState = useAppSelector(state => state?.peerState);
-    const onStatus = useWebSocket(peerState);
+    const {onStatus} = useWebSocket(peerState);
     const router = useNavigate();
     useEffect(() => {
         logInfo({ message: "ChatWaiting component mounted" });

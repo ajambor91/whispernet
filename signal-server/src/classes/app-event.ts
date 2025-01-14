@@ -1,10 +1,10 @@
-import { WebSocket } from "ws";
-import { EventEmitter } from 'events';
-import { IOutgoingMessage } from "../models/ws-message.model";
-import { decodeMessage } from "../functions/helpers";
-import { IEventMessage } from "../models/event-message.model";
-import { EWebSocketEventType } from "../enums/ws-message.enum";
-import { logInfo, logError } from "../error-logger/error-looger";
+import {WebSocket} from "ws";
+import {EventEmitter} from 'events';
+import {IOutgoingMessage} from "../models/ws-message.model";
+import {decodeMessage} from "../functions/helpers";
+import {IEventMessage} from "../models/event-message.model";
+import {EWebSocketEventType} from "../enums/ws-message.enum";
+import {logError, logInfo} from "../error-logger/error-looger";
 
 export class AppEvent extends EventEmitter {
     private _ws: WebSocket;
@@ -79,22 +79,6 @@ export class AppEvent extends EventEmitter {
         const msg: IEventMessage = {
             event: 'dataMessage',
             data: wsMsg
-        };
-        this.sendMessageWithLogging(msg, "sendDataMessage");
-    }
-
-    public sendCloseConnectionMessage(): void {
-        const msg: IEventMessage = {
-            event: 'closeConnection',
-            data: null
-        };
-        this.sendMessageWithLogging(msg, "sendDataMessage");
-    }
-
-    public sendRemovedPartnerMessage(): void {
-        const msg: IEventMessage = {
-            event: 'removedPartner',
-            data: null
         };
         this.sendMessageWithLogging(msg, "sendDataMessage");
     }

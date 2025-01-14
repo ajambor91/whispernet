@@ -30,7 +30,8 @@ export enum EWebSocketEventType {
     GoodMorningMessage = 'good-morning-message',
     GoodByeMessage = 'good-bye-message',
     Unauthorized = 'unauthorized',
-    WebRTCInitializationMessage = 'web-rtc-initialization-message'
+    WebRTCInitializationMessage = 'web-rtc-initialization-message',
+    SessionInfo = 'session-info'
 
 
 }

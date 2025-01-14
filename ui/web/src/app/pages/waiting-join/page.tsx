@@ -12,7 +12,7 @@ import {useNavigate} from "react-router-dom";
 const ChatWaitingJoin: React.FC = () => {
     const [status, setStatus] = useState<string>("Connecting");
     const peerState: IPeerState = useAppSelector(state => state.peerState);
-    const onStatus = useWebSocket(peerState);
+    const {onStatus} = useWebSocket(peerState);
     const router = useNavigate();
     useEffect(() => {
         logInfo({ message: "ChatWaitingJoin component mounted" });

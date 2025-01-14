@@ -1,0 +1,21 @@
+.login-container {
+  .options {
+    padding-top: 20px;
+      &__item {
+        .options__description {
+          text-align: left;
+          font-size: 1.1rem;
+          font-weight: 500;
+          padding: 10px 2px;
+        }
+      }
+
+
+
+    &__buttons {
+      padding: 20px 2px;
+      text-align: right;
+    }
+  }
+}
+

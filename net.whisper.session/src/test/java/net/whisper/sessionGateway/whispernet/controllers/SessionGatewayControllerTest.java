@@ -1,5 +1,6 @@
 package net.whisper.sessionGateway.whispernet.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.Cookie;
 import net.whisper.sessionGateway.controllers.SessionGatewayController;
 import net.whisper.sessionGateway.models.IncomingClient;
@@ -39,7 +40,7 @@ public class SessionGatewayControllerTest {
     private Cookie mockCookie;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws InterruptedException, JsonProcessingException {
         this.mockClient = TestFactory.createIncomingClient();
         this.mockCookie = TestFactory.createCookie(this.mockClient);
         when(cookiesService.getCookie(mockClient, this.cookieTimeToLive)).thenReturn(mockCookie);

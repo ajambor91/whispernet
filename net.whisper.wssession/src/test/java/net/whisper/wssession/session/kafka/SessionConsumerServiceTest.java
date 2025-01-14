@@ -88,7 +88,7 @@ public class SessionConsumerServiceTest {
         String message = this.objectMapper.writeValueAsString(this.peerSession);
         ConsumerRecord<String, String> record = this.createRecord(message, null);
         this.sessionConsumerService.handleTokenEvent(record);
-        verify(logger).warn(eq("Message header not known - SessionService:handleTokenEvent"));
+        verify(logger).warn(eq("Message header not known - SessionConsumerService:handleTokenEvent"));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class SessionConsumerServiceTest {
         this.peerSession.addPeerClient(this.joinPeer);
         ConsumerRecord<String, String> record = this.createRecord(null, EKafkaMessageSessionTypes.DISCONNECT_USER.getMessageType());
         this.sessionConsumerService.handleTokenEvent(record);
-        verify(logger).error(eq("Processing message error - SessionService:handleTokenEvent"));
+        verify(logger).error(eq("Processing message error - SessionConsumerService:handleTokenEvent"));
     }
 
     private ConsumerRecord<String, String> createRecord(String message, String type) {

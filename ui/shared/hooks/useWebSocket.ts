@@ -1,12 +1,12 @@
 import { IPeerState } from "../slices/createSession.slice";
 import { useEffect, useRef, useCallback } from "react";
 import {IPeer} from "../interfaces/peer.interface";
-import {initializePeer} from "../webrtc/peer";
+import {getPeer, initializePeer} from "../webrtc/peer";
 
-const useWebSocket = (peerState: IPeerState) => {
+const useWebSocket = (peerState?: IPeerState) => {
     const peerRef = useRef<IPeer | null>(null);
 
-    const setOnStatus = useCallback(
+    const onStatus = useCallback(
         (callback: (data: string) => void) => {
             if (peerRef.current) {
                 peerRef.current.onStatus(callback);
@@ -15,6 +15,15 @@ const useWebSocket = (peerState: IPeerState) => {
         []
     );
 
+    const onSessionInfo = useCallback(
+        (callback: (data: string) => void) => {
+            if (peerRef.current) {
+                peerRef.current.onSessionInfo(callback);
+            }
+        },
+        []
+    )
+
     useEffect(() => {
         if (!peerRef.current && peerState?.sessionToken && peerState?.peerRole) {
             peerRef.current = initializePeer(peerState);
@@ -22,7 +31,13 @@ const useWebSocket = (peerState: IPeerState) => {
 
     }, [peerState]);
 
-    return setOnStatus;
+    useEffect(() => {
+        if (!peerState && !peerRef.current) {
+            peerRef.current = getPeer();
+        }
+    }, []);
+
+    return {onStatus, onSessionInfo};
 };
 
 export default useWebSocket;

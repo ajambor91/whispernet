@@ -5,7 +5,7 @@ import {IAuth} from "../interfaces/auth.interface";
 import {getAuth} from "./auth";
 import {IPingPong} from "../interfaces/ping-pong.interface";
 import {getPingPong} from "./ping-pong.singleton";
-import {IIncomingMessage, IInitialWebRTCMessage, IOutgoingMessage, ISession} from "../models/ws-message.model";
+import {IIncomingMessage, IInitialWebRTCMessage, IOutgoingMessage} from "../models/ws-message.model";
 import {ConnectionStateModel} from "../models/connection-state.model";
 import {PeerRole} from "../enums/peer-role.enum";
 import {EWebSocketEventType} from "../enums/ws-message.enum";
@@ -13,7 +13,7 @@ import {IPeerState} from "../slices/createSession.slice";
 import {logError, logInfo, logWarning} from "../error-logger/web";
 import {IPeer} from "../interfaces/peer.interface";
 
- class Peer extends EventEmitter implements IPeer{
+class Peer extends EventEmitter implements IPeer{
     private static _instance: Peer;
     private readonly _auth: IAuth;
     private readonly _ping: IPingPong;
@@ -72,6 +72,11 @@ import {IPeer} from "../interfaces/peer.interface";
         return this;
     }
 
+     public onSessionInfo = (fn: (data: string) => void): this => {
+         this.on('sessionInfo', fn)
+         return this;
+     }
+
      public onWebRTCMessage = (fn: (data: string) => void): this => {
          if (!this.listeners('webRTCMessage').includes(fn)) {
              this.on('webRTCMessage', fn);
@@ -92,6 +97,10 @@ import {IPeer} from "../interfaces/peer.interface";
 
     private _onMessage(data: string): void {
         this.emit('webRTCMessage',data)
+    }
+
+    private _emitSessionInfo(data: string): void {
+        this.emit("sessionInfo", data);
     }
 
     private async _initClient(): Promise<void> {
@@ -130,6 +139,8 @@ import {IPeer} from "../interfaces/peer.interface";
         } else if (data.type === EWebSocketEventType.Candidate && data.candidate) {
             await this._handleCandidate(data);
             this._setOwnStatus(EClientStatus.WebRTCInitialization);
+        } else if (data.type === EWebSocketEventType.SessionInfo) {
+            this._emitSessionInfo(data.payload);
         }
     }
 

@@ -9,12 +9,12 @@ import {
 import Centered from "../../../../../shared/components/elements/centered/Centered";
 import { useNavigate } from "react-router-dom";
 import { logInfo, logError } from "../../../../../shared/error-logger/web";
-
+import {useToasts} from "../../../../../shared/providers/toast-provider";
 const ChatJoining: React.FC = () => {
     const router = useNavigate();
-    const { joinChat, response } = useJoinChat();
+    const { joinChat, response, error } = useJoinChat();
     const dispatch = useDispatch();
-
+    const {addToast} = useToasts();
     const navigateToWaiting = () => {
         logInfo({ message: "Navigating to waiting join page" });
         router('/waiting-join');
@@ -28,11 +28,17 @@ const ChatJoining: React.FC = () => {
             dispatch(setCreatePeerState(response));
             navigateToWaiting();
         }
-
+        if (error) {
+            addToast({
+                title: "Error",
+                type: "error",
+                description: error.message
+            });
+        }
         return () => {
             logInfo({ message: "ChatJoining component unmounted" });
         }
-    }, [response]);
+    }, [response, error]);
 
     const onChatSubmit = async (hash: string) => {
         logInfo({ message: "Submitting chat join request", hash });

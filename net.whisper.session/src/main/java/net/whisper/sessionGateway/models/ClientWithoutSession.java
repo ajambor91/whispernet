@@ -7,5 +7,5 @@ import net.whisper.sessionGateway.interfaces.IClientWithoutSession;
 @Getter
 @Setter
 public class ClientWithoutSession extends BaseClient implements IClientWithoutSession {
-
+    public ClientWithoutSession() {}
 }

@@ -18,6 +18,7 @@ export class Peer extends PeerEmitter implements IPeer{
     private _userToken: string;
     private _pingInterval: NodeJS.Timeout | null = null;
     private _disconnectTimeout: NodeJS.Timeout | null = null;
+    private _sendPingTimeout: NodeJS.Timeout | null = null;
     private _conn: AppEvent | undefined;
     private _connectionStatus: EClientConnectionStatus = EClientConnectionStatus.NotConnected;
     private _peerPartners: Peer[] = []
@@ -56,6 +57,13 @@ export class Peer extends PeerEmitter implements IPeer{
         return this._peerRole;
     }
 
+    public set sendPingTimeout(timeout: NodeJS.Timeout | null) {
+        this._sendPingTimeout = timeout;
+    }
+
+    public get sendPingTimeout(): NodeJS.Timeout | null {
+        return this._sendPingTimeout;
+    }
     public get connectionStatus(): EClientConnectionStatus {
         return this._connectionStatus;
     }

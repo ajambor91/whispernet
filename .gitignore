@@ -73,6 +73,16 @@ application.properties.qa
 redis.qa.conf
 data_qa/
 nginx.qa.conf
-Dockerfile.qa
 localhost.crt
 localhost.key
+config.prod.ts
+application.properties.prod
+redis.prod.conf
+grafana.prod.ini
+init.prod.sql
+nginx.prod.conf
+config.prod.yml
+turn_server_cert.pem
+turn_server_pkey.pem
+turnserver.conf
+turnserver.qa.conf

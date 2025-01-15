@@ -3,6 +3,7 @@
     "target": "ESNext",
     "module": "commonjs",
     "types": ["node"],
+    "typeRoots": ["./node_modules/@types"],
     "moduleResolution": "node",
     "lib": ["ESNext"],
     "allowJs": true,
@@ -22,9 +23,7 @@
   "include": [
     "src",
     "node_modules/@types/node/globals.d.ts",
-    "node_modules/@types/node/globals.d.ts",
     "node_modules/@types/node/timers.d.ts",
-    "node_modules/@types/node/timers.d.ts"
   ],
   "exclude": ["node_modules", "dist", "build"]
 }

@@ -41,6 +41,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO registerDTO) {
+        logger.info("AuthController:register, Received register data, username={}", registerDTO.getUsername());
         try {
              this.registerService.setUser(registerDTO);
                 GenericSuccessDTO genericSuccessDTO = new GenericSuccessDTO();
@@ -61,6 +62,7 @@ public class AuthController {
 
     @PostMapping("/initialize-login")
     public ResponseEntity<?> initializeLogin(@RequestBody @Valid LoginDTO loginDTO) {
+        logger.info("AuthController:initializeLogin, Received initialize login request, username={}", loginDTO.getUsername());
         try {
             LoginResponseDTO loginResponseDTO = this.loginService.inituializeLoginUser(loginDTO);
             return ResponseEntity.ok(loginResponseDTO);
@@ -77,6 +79,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginMessageDTO loginMessage) {
+        logger.info("AuthController:login, Received login request, username={}", loginMessage.getUsername());
+
         try {
             LoginResponseDTO loginResponseDTO = this.loginService.loginUser(loginMessage);
             return ResponseEntity.ok(loginResponseDTO);

@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(name = "app_user")
 public class User {
 
     @Id
@@ -16,7 +17,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(length = 8192)
+    @Column(length = 32768, nullable = false, unique = true)
     private String PGPKey;
 
     @Column(nullable = false)

@@ -1,0 +1,20 @@
+FROM openjdk:22-jdk AS build
+
+WORKDIR /app
+COPY . .
+RUN microdnf install findutils dos2unix \
+&& dos2unix ./gradlew \
+&& chmod +x ./gradlew \
+&& ./gradlew build --no-daemon \
+&& microdnf clean all
+
+FROM openjdk:22-jdk AS run
+WORKDIR /app
+COPY cfg/application.properties.prod /usr/app/application.properties
+COPY --from=build /app/build/libs/wssession.jar /app/wssession.jar
+RUN groupadd -r appGroup \
+&& useradd yourUser -M -g yourGroup \
+&& chmod 700 /app -R \
+&& chown yourUser:yourGroup /app -R
+USER yourUser
+ENTRYPOINT ["java", "-jar", "wssession.jar",  "--spring.config.additional-location=/usr/app/application.properties"]

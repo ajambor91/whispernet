@@ -1,0 +1,303 @@
+version: '3'
+services:
+  loki:
+    build:
+      context: './loki'
+      dockerfile: 'Dockerfile.prod'
+    container_name: loki
+    volumes:
+      - './loki/data:/data'
+    hostname: loki.whisper.net
+    networks:
+      - whispernet
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  grafana:
+    build:
+      context: './grafana'
+      dockerfile: './Dockerfile.prod'
+    hostname: grafana.whisper.net
+    container_name: grafana
+    volumes:
+      - grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+    networks:
+      - whispernet
+    security_opt:
+      - no-new-privileges:true
+  promtail:
+    build:
+      context: 'promtail'
+      dockerfile: 'Dockerfile.prod'
+    hostname: promtail.whisper.net
+    container_name: promtail
+    volumes:
+      - "./promtail/logs:/var/log"
+    networks:
+      - whispernet
+    depends_on:
+      - loki
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+  session:
+    build:
+      context: 'net.whisper.session'
+      dockerfile: 'Dockerfile.prod'
+    networks:
+      - whispernet
+    hostname: session.whisper.net
+    container_name: session
+    depends_on:
+      - broker
+      - gateway
+      - loki
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  wssession:
+    build:
+      context: 'net.whisper.wssession'
+      dockerfile: './Dockerfile.prod'
+    networks:
+      - whispernet
+    hostname: wssession.whisper.net
+    container_name: wssession
+    depends_on:
+      - broker
+      - session
+      - loki'
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  security:
+    build:
+      context: 'net.whisper.security'
+      dockerfile: './Dockerfile.prod'
+    networks:
+      - whispernet-security
+    hostname: security.whisper.net
+    container_name: security
+    depends_on:
+      - broker
+      - loki
+      - app-db
+      - cache-security
+      - gateway
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  gateway:
+    build:
+      context: './nginx'
+      dockerfile: './Dockerfile.prod'
+    ports:
+      - '8099:80'
+      - '8098:443'
+    networks:
+      - whispernet
+      - whispernet-cms
+      - whispernet-ui
+      - whispernet-security
+    hostname: gateway.whisper.net
+    container_name: gateway
+    security_opt:
+      - no-new-privileges:true
+  zookeeper:
+    image: zookeeper:latest
+    container_name: zookeeper
+    networks:
+      - whispernet
+    hostname: zookeeper.whisper.net
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  broker:
+    depends_on:
+      - zookeeper
+    build:
+      context: './broker'
+      dockerfile: './Dockerfile.prod'
+    container_name: broker
+    networks:
+      - whispernet-security
+      - whispernet
+    hostname: broker.whisper.net
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  cache-security:
+    build:
+      context: './redis-security'
+      dockerfile: './Dockerfile.prod'
+    restart: always
+    command: redis-server --loglevel warning
+    volumes:
+      - redis-security:/data
+    networks:
+      - whispernet-security
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  cache:
+    build:
+      context: './redis'
+      dockerfile: './Dockerfile.prod'
+    restart: always
+    volumes:
+      - cache:/data
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+    networks:
+      - whispernet
+  wsserver:
+    depends_on:
+      - broker
+      - wssession
+    build:
+      context: './signal-server'
+      dockerfile: './Dockerfile.prod'
+    networks:
+      - whispernet
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  app-db:
+    build:
+      context: './app-db'
+      dockerfile: './Dockerfile.prod'
+    hostname: app-db.whisper.net
+    container_name: app-db
+    networks:
+      - whispernet-security
+    volumes:
+      - app-db:/var/lib/mysql
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  cms-db:
+    build:
+      context: './cms-db'
+      dockerfile: './Dockerfile.prod'
+    hostname: cms-db.whisper.net
+    container_name: cms-db
+    networks:
+      - whispernet-cms
+    volumes:
+      - './cms-db/cms_qa_data:/var/lib/mysql'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+  cms:
+    build:
+      context: './cms'
+      dockerfile: './Dockerfile.prod'
+    hostname: cms.whisper.net
+    container_name: cms
+    networks:
+      - whispernet-cms
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+  frontend:
+    build:
+      context: './ui'
+      dockerfile: './web/Dockerfile.prod'
+    networks:
+      - whispernet-ui
+    hostname: frontend.whisper.net
+    container_name: frontend
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
+    read_only: true
+  cms-ui:
+    build:
+      context: './ui'
+      dockerfile: './cms-ui/Dockerfile.prod'
+    networks:
+      - whispernet-ui
+    hostname: cms-ui.whisper.net
+    container_name: cms-ui
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    hostname: portainer.whisper.net
+    restart: always
+    networks:
+      - whispernet-admin
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    security_opt:
+      - no-new-privileges:true
+networks:
+  whispernet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+  whispernet-cms:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 173.19.0.0/28
+  whispernet-security:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 174.19.0.0/28
+  whispernet-ui:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 175.19.0.0/16
+  whispernet-admin:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 176.19.0.0/16
+volumes:
+  redis-security:
+    driver: local
+  cache:
+    driver: local
+  kafka:
+    driver: local
+  portainer-data:
+    driver: local
+  app-db:
+    driver: local
+  grafana:
+    driver: local

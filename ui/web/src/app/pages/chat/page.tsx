@@ -21,7 +21,7 @@ const Chat: React.FC = () => {
                         type: "info",
                         description: data,
                         title: "Session info",
-                        autoClose: false
+                        autoClose: true
                     });
             })
         }

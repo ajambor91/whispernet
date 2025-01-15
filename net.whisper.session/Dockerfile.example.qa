@@ -9,6 +9,6 @@ RUN ./gradlew clean build --no-daemon
 
 FROM openjdk:22-jdk AS run
 WORKDIR /app
-COPY cfg/application.properties /usr/app/application.properties
+COPY cfg/application.properties.prod /usr/app/application.properties
 COPY --from=build /app/build/libs/whispernet.jar /app/whispernet.jar
 ENTRYPOINT ["java", "-jar", "whispernet.jar", "--spring.config.additional-location=/usr/app/application.properties"]

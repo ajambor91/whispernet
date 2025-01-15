@@ -34,7 +34,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 export default function FeaturesPage({ lang }: { lang: ELang }) {
     const [features, setFeatures] = useState<IFeatures | null>(null);
     const { t, i18n } = useTranslation("translation");
-    const langFromStore = useAppSelector(state => state.settings.lang);
     const [newLang, setNewLang] = useState<ELang | null>(null);
     i18n.on('languageChanged', setNewLang)
     const dispatch = useDispatch();

@@ -45,7 +45,7 @@ export default function Home() {
                 description: "You have to sign in to create signed session",
                 type: "info"
             });
-            router("/login");
+            router("/initialize-login");
         }
     }
 

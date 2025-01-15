@@ -74,7 +74,7 @@ services:
     depends_on:
       - broker
       - session
-      - loki'
+      - loki
     security_opt:
       - no-new-privileges:true
     cap_add:

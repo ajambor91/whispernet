@@ -21,7 +21,7 @@ class Main
     #[ORM\Column(length: 255)]
     private ?string $subtitle = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 1024)]
     private ?string $description = null;
 
     /**

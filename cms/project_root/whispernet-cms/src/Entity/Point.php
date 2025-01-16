@@ -18,7 +18,7 @@ class Point
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 1024)]
     private ?string $subtitle = null;
 
     /**

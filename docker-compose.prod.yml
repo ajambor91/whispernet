@@ -14,7 +14,6 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
-    read_only: true
   grafana:
     build:
       context: './grafana'
@@ -45,7 +44,6 @@ services:
       - loki
     security_opt:
       - no-new-privileges:true
-    read_only: true
   session:
     build:
       context: 'net.whisper.session'
@@ -62,7 +60,6 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
-    read_only: true
   wssession:
     build:
       context: 'net.whisper.wssession'
@@ -79,7 +76,6 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
-    read_only: true
   security:
     build:
       context: 'net.whisper.security'
@@ -98,7 +94,6 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
-    read_only: true
   gateway:
     build:
       context: './nginx'
@@ -125,7 +120,6 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
-    read_only: true
   broker:
     depends_on:
       - zookeeper
@@ -141,7 +135,6 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
-    read_only: true
   cache-security:
     build:
       context: './redis-security'
@@ -184,7 +177,6 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
-    read_only: true
   app-db:
     build:
       context: './app-db'
@@ -199,7 +191,6 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
-    read_only: true
   cms-db:
     build:
       context: './cms-db'
@@ -212,7 +203,6 @@ services:
       - './cms-db/cms_qa_data:/var/lib/mysql'
     security_opt:
       - no-new-privileges:true
-    read_only: true
   cms:
     build:
       context: './cms'
@@ -236,7 +226,6 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
-    read_only: true
   cms-ui:
     build:
       context: './ui'
@@ -247,7 +236,6 @@ services:
     container_name: cms-ui
     security_opt:
       - no-new-privileges:true
-    read_only: true
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer

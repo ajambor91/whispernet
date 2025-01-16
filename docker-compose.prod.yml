@@ -213,7 +213,6 @@ services:
       - whispernet-cms
     security_opt:
       - no-new-privileges:true
-    read_only: true
   frontend:
     build:
       context: './ui'

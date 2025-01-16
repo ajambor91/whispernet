@@ -20,7 +20,7 @@ class MainTranslate
     #[ORM\Column(length: 255)]
     private ?string $subtitle = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 1024, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(enumType: Lang::class)]

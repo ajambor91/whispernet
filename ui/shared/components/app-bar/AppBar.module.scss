@@ -1,5 +1,6 @@
 .app-bar {
   height: 100px;
+  background-color: #14133b;
 
   &__container {
     padding: 15px;
@@ -8,7 +9,7 @@
     &::before {
       content: "";
       position: absolute;
-      bottom: 0;
+      bottom: 15px;
       left: 0;
       right: 0;
       height: 1px;

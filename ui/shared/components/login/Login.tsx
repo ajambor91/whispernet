@@ -71,7 +71,7 @@ const Login: React.FC<ILoginProps> = ({submit, loginState, onFileUpload, submitS
     }
 
     return (
-        <div className={styles["login-container"]} style={{width: '650px'}}>
+        <div className={styles["login-container"]}>
             <SecondaryHeader>Sign In</SecondaryHeader>
             <TertiaryHeader>Sign below message</TertiaryHeader>
             <Input value={loginState.message} type="text" disabled style={{width: '100%', "text-align": "center"}}/>

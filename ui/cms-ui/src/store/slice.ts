@@ -6,7 +6,7 @@ export interface IAppSettingsState  {
     lang: ELang;
 }
 const initialState: IAppSettingsState = {
-    lang: ELang.EN
+    lang: null
 }
 export const settings = createSlice({
     name: 'settings',

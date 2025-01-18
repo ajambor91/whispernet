@@ -3,12 +3,15 @@ import { useAppSelector } from "../../../../../shared/store/store";
 import useWebSocket from "../../../../../shared/hooks/useWebSocket";
 import { IPeerState } from "../../../../../shared/slices/createSession.slice";
 import Hash from "../../../../../shared/components/hash/Hash";
-import { logInfo } from "../../../../../shared/error-logger/web";
+import {logInfo, logWarning} from "../../../../../shared/error-logger/web";
 import {EClientStatus} from "../../../../../shared/enums/client-status.enum";
 import {useNavigate} from "react-router-dom";
 import TertiaryHeader from "../../../../../shared/components/elements/tertiary-header/TertiaryHeader";
+import Centered from "../../../../../shared/components/elements/centered/Centered";
+import {useToasts} from "../../../../../shared/providers/toast-provider";
 
 const ChatWaiting: React.FC = () => {
+    const {addToast} = useToasts();
     const [status, setStatus] = useState<string>("Connecting");
     const peerState: IPeerState = useAppSelector(state => state?.peerState);
     const {onStatus} = useWebSocket(peerState);
@@ -36,17 +39,30 @@ const ChatWaiting: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (!peerState) {
-            router("/")
+        if (!peerState || !peerState.sessionToken) {
+            addToast({
+                title: "Info",
+                type: "info",
+                autoClose: true,
+                description: "Session data is empty"
+            })
+            logWarning({message: "Session data in waiting is empty. Redirecting"});
+            setTimeout(() => {
+                router("/")
+
+            }, 1500);
         }
-    }, [peerState, router]);
+    }, [peerState]);
     return (
         peerState.sessionToken ? (
             <section className="full-screen">
                 <Hash peerState={peerState} sessionStatus={status}/>
             </section>
         ) : (<TertiaryHeader>
-        Redirecting
+            <Centered>
+                <TertiaryHeader>        Redirecting
+                </TertiaryHeader>
+            </Centered>
         </TertiaryHeader>)
 
     );

@@ -5,11 +5,14 @@ import { IPeerState } from "../../../../../shared/slices/createSession.slice";
 import Status from "../../../../../shared/components/status/Status";
 import Indicator from "../../../../../shared/components/indicator/Indicator";
 import Centered from "../../../../../shared/components/elements/centered/Centered";
-import { logInfo } from "../../../../../shared/error-logger/web";
+import {logInfo, logWarning} from "../../../../../shared/error-logger/web";
 import {EClientStatus} from "../../../../../shared/enums/client-status.enum";
 import {useNavigate} from "react-router-dom";
+import TertiaryHeader from "../../../../../shared/components/elements/tertiary-header/TertiaryHeader";
+import {useToasts} from "../../../../../shared/providers/toast-provider";
 
 const ChatWaitingJoin: React.FC = () => {
+    const {addToast} = useToasts();
     const [status, setStatus] = useState<string>("Connecting");
     const peerState: IPeerState = useAppSelector(state => state.peerState);
     const {onStatus} = useWebSocket(peerState);
@@ -38,13 +41,33 @@ const ChatWaitingJoin: React.FC = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (!peerState || !peerState.sessionToken) {
+            addToast({
+                title: "Info",
+                type: "info",
+                autoClose: true,
+                description: "Session data is empty"
+            })
+            logWarning({message: "Session data in waiting join is empty. Redirecting"});
+            setTimeout(() => {
+                router("/")
+
+            }, 1500);
+        }
+    }, [peerState]);
     return (
         <section>
             <Centered>
-                <div>
-                    <Indicator />
-                    <Status sessionStatus={status} />
-                </div>
+                {peerState.sessionToken ?
+                    <div>
+                        <Indicator/>
+                        <Status sessionStatus={status}/>
+                    </div>
+                    :
+                    <TertiaryHeader>Redirecting</TertiaryHeader>
+                }
+
             </Centered>
         </section>
     );

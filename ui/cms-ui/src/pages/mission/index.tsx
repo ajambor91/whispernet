@@ -14,6 +14,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {IMission} from "@/models/mission.model";
 import getMissionPage from "@/api/get-mission";
 import {useAppSelector} from "@/store/store";
+import getFeaturesPage from "@/api/get-features";
 
 
 
@@ -25,36 +26,44 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     setLangCookie(locale as ELang);
 
   }
+  const mission: IMission = await getMissionPage(locale as ELang);
   const translations = await serverSideTranslations(locale, ['translation']);
   return {
     props: {
       ...translations,
-      lang: locale
+      lang: locale,
+      mission: mission
     }
   };
 }
-export default function Mission({ lang }: { lang: ELang }) {
+export default function Mission({ lang, mission }: { lang: ELang, mission: IMission }) {
   const { t, i18n} = useTranslation("translation");
   const langFromStore = useAppSelector(state => state.settings.lang);
   const dispatch = useDispatch();
   const [ missionData, setMissionData] = useState<IMission | null>(null);
   const [newLang, setNewLang] = useState<ELang | null>(null);
-  i18n.on('languageChanged', setNewLang);
   useEffect(() => {
-    let currentLang: ELang;
-    if (!langFromStore) {
-      currentLang = lang;
-      dispatch(setLang({lang: currentLang}))
+    if (mission) setMissionData(mission);
+    if (!lang) {
+      setNewLang(ELang.EN);
+      dispatch(setLang({lang: ELang.EN}))
     } else {
-      currentLang = langFromStore;
+      setNewLang(lang);
+      dispatch(setLang({lang}));
     }
+  }, []);
+
+
+  useEffect(() => {
+    if (!langFromStore || !newLang || newLang === langFromStore) return;
+    setNewLang(langFromStore)
     const getData = async () => {
       setMissionData(null);
-      const data = await getMissionPage(newLang ?? currentLang);
+      const data = await getMissionPage(langFromStore);
       setMissionData(data);
     };
     getData();
-  }, [newLang]);
+  }, [langFromStore]);
   return (
   <div>
     <Centered>

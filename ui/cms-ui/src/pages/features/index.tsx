@@ -1,20 +1,20 @@
-import React from "react";
-import {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {IFeatures} from "@/models/features.model";
 import getFeaturesPage from "@/api/get-features";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {GetServerSideProps} from "next";
 import {getLangFromCookies, setLangCookie} from "@/helpers/cookie";
 import {ELang} from "@/enums/lang.enum";
-import {setLang, settings} from "@/store/slice";
+import {setLang} from "@/store/slice";
 import Centered from "../../../../shared/components/elements/centered/Centered";
 import styles from './Features.module.scss';
-import {useDispatch, useSelector} from "react-redux";
-import {i18n, useTranslation } from 'next-i18next';
+import {useDispatch} from "react-redux";
+import {useTranslation} from 'next-i18next';
 import Indicator from "../../../../shared/components/indicator/Indicator";
 import PrimaryHeader from "../../../../shared/components/elements/primary-header/PrimaryHeader";
 import SecondaryHeader from "../../../../shared/components/elements/secondary-header/SecondaryHeader";
 import {useAppSelector} from "@/store/store";
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
     let locale = getLangFromCookies(context.req);
 
@@ -23,35 +23,50 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         setLangCookie(locale as ELang);
 
     }
+    const features: IFeatures = await getFeaturesPage(locale as ELang);
     const translations = await serverSideTranslations(locale, ['translation']);
     return {
         props: {
             ...translations,
-            lang: locale
+            lang: locale,
+            features
         }
     };
 }
-export default function FeaturesPage({ lang }: { lang: ELang }) {
-    const [features, setFeatures] = useState<IFeatures | null>(null);
+export default function FeaturesPage({ lang, features }: { lang: ELang, features: IFeatures }) {
+    const langFromStore = useAppSelector(state => state.settings.lang);
+    const [pageFeatures, setPageFeatures] = useState<IFeatures | null>(null);
     const { t, i18n } = useTranslation("translation");
     const [newLang, setNewLang] = useState<ELang | null>(null);
-    i18n.on('languageChanged', setNewLang)
     const dispatch = useDispatch();
     useEffect(() => {
+        if (features) setPageFeatures(features);
+        if (!lang) {
+            setNewLang(ELang.EN);
+            dispatch(setLang({lang: ELang.EN}))
+        } else {
+            setNewLang(lang);
+            dispatch(setLang({lang}));
+        }
+    }, []);
 
+    useEffect(() => {
+        if (!langFromStore || !newLang || newLang === langFromStore) return;
+        setNewLang(langFromStore)
         const getData = async () => {
-            const data = await getFeaturesPage(newLang ?? lang);
-            setFeatures(data);
+            setPageFeatures(null);
+            const data = await getFeaturesPage(langFromStore);
+            setPageFeatures(data);
         };
         getData();
-    }, [newLang]);
+    }, [langFromStore]);
     return (
+        <Centered>
+
         <div>
-            {!features ?
+            {!pageFeatures ?
                 <div>
-                    <Centered>
                         <Indicator />
-                    </Centered>
                 </div>
 
                 : <div className={styles['features']}>
@@ -61,7 +76,7 @@ export default function FeaturesPage({ lang }: { lang: ELang }) {
                     </div>
                     <div className={styles['features__points']}>
                       <ul className={styles['points-menu']}>
-                          {features.features.map((feature, index) =>
+                          {pageFeatures.features.map((feature, index) =>
                               <li  className={styles['points-menu__item']} key={index}>
                                   <p  className={styles['points-menu__item__title']}>{feature.title}</p>
                                   <p  className={styles['points-menu__item__subtitle']}>{feature.subtitle}</p>
@@ -71,5 +86,7 @@ export default function FeaturesPage({ lang }: { lang: ELang }) {
                 </div>
             }
         </div>
+        </Centered>
+
     )
 }

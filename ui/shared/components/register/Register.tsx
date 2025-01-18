@@ -13,6 +13,7 @@ export interface IRegisterProps {
     onFileUpload: (file: Blob) => void;
 }
 const Register: React.FC<IRegisterProps> = ({submit, onFileUpload}) => {
+
     const [fileDownloaded, setFileDownloaded] = useState<boolean>(false);
     const options: IRadioOption[] =  [{
         name: "file",
@@ -45,7 +46,7 @@ const Register: React.FC<IRegisterProps> = ({submit, onFileUpload}) => {
         submit(login, keyData);
     }
     return (
-        <div className={styles["register"]} style={{width: '650px'}}>
+        <div className={styles["register"]}>
             <SecondaryHeader style={{"padding": "10px"}}>Sign Up</SecondaryHeader>
             <Input style={{'width': '100%', 'text-align': 'center'}} onChange={setLoginValue}
                    placeholder="Type your username" type="text"/>

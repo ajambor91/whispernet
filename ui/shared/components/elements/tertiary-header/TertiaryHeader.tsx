@@ -11,7 +11,7 @@ const StyledTertiaryHeader = styled.h3`
 `;
 interface IHeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
     children: string;
-    style: any;
+    style?: any;
 }
 const TertiaryHeader: React.FC<IHeaderProps> = ( {children, ...props }) => {
     return (

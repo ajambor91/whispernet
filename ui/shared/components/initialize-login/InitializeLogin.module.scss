@@ -1,6 +1,10 @@
 .login-container {
   text-align: center;
   width: 400px;
+  margin: auto;
+  @media screen and (max-width: 720px){
+    width: calc(100vw - 40px);
+  }
   &__input {
     margin: 10px 0;
   }

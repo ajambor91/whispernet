@@ -1,6 +1,6 @@
 import '../../styles/globals.scss'
 import styles from './Chat.module.scss'
-import React, {Ref, useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState} from "react";
 import Message from "../message/Message";
 import MessageInput from "../message-input/MessageInput";
 import {IWebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
@@ -8,7 +8,6 @@ import {IPeerState} from "../../slices/createSession.slice";
 import {onMessage, sendWebRTCMessage} from "../../webrtc/peer";
 import FullHeight from "../elements/full-height/FullHeight";
 import ScrollContainer from "../elements/scroll-container/ScrollContainer";
-import {useToasts} from "../../providers/toast-provider";
 import {MessageEncoder} from "../../webrtc/wasm";
 import {IWebrtcLocalMessage} from "../../models/webrtc-preparing-message.moidel";
 import {IWasmEncoded} from "../../models/wasm-encoded.model";
@@ -81,8 +80,8 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
     return (
         <FullHeight>
         <div className="full-screen relative">
-            <div className={styles.chatContainer}>
-                <div className={styles.messageContainer}>
+            <div className={styles["chat-container"]}>
+                <div className={styles["message-container"]}>
                     <ScrollContainer resize={messageInputHeight}>
                         {messages.map(msg => (
                                <div key={msg.messageId}>
@@ -91,7 +90,7 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
                         ))}
                     </ScrollContainer>
                 </div>
-                <div className={styles.chatContainer__input}>
+                <div className={styles["chat-container__input"]}>
                     <MessageInput sendMessage={sendMessage} setMessageInput={setMessageInputHeight}/>
                 </div>
             </div>

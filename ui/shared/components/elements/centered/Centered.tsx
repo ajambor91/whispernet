@@ -7,8 +7,8 @@ interface ICenteredProps {
 
 const Centered: React.FC<ICenteredProps> = ({children}) => {
     return (
-        <div className={styles.centeredContainer}>
-            <div className={styles.centeredContainer__content}>
+        <div className={styles["centered-container"]}>
+            <div className={styles["centered-container__content"]}>
                 {children}
             </div>
         </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import styles from './ScrollContainer.module.scss';
 
 interface IScrollContainerProps {
-    children: React.ReactNode;
+    children: React.ReactNode[];
     scroll?: boolean;
     resize?: number;
     wheelOnId?: string;
@@ -33,6 +33,8 @@ const ScrollContainer: React.FC<IScrollContainerProps> = ({ children, resize, sc
 
     useEffect(() => {
         updateScrollbarVisibility();
+        scrollableContent.current.scrollTop += scrollableContent.current.children[scrollableContent.current.children.length - 1]?.clientHeight;
+
         wheelOn.current = document.getElementById(wheelOnId || "scrollable") as HTMLDivElement;
         if (wheelOn.current) {
             wheelOn.current.addEventListener('wheel', handleWheel, { passive: false });
@@ -86,18 +88,18 @@ const ScrollContainer: React.FC<IScrollContainerProps> = ({ children, resize, sc
     };
 
     return (
-        <div id="scrollable" className={styles.scrollableContainer}>
-            <div className={styles.scrollableContainerContentWrapper}>
-                <div ref={scrollableContent} className={styles.scrollableContainerContentWrapper__content}>
+        <div id="scrollable" className={styles["scrollable-container"]}>
+            <div className={styles["scrollable-container-content-wrapper"]}>
+                <div ref={scrollableContent} className={styles["scrollable-container-content-wrapper__content"]}>
                     {children}
                 </div>
             </div>
             {showScrollbar && (
-                <div className={styles.scrollableContainerScrollbarWrapper}>
+                <div className={styles["scrollable-container-scrollbar-wrapper"]}>
                     <div
                         ref={scrollbar}
                         onMouseDown={startDrag}
-                        className={styles.scrollableContainerScrollbarWrapper__scrollbar}
+                        className={styles["scrollable-container-scrollbar-wrapper__scrollbar"]}
                     ></div>
                 </div>
             )}

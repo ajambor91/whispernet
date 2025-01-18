@@ -1,11 +1,11 @@
-.scrollableContainer {
+.scrollable-container {
   position: relative;
   height: 100%;
   display: flex;
   width: calc(100% + 100px);
   overflow: visible;
 
-  &ContentWrapper {
+  .scrollable-container-content-wrapper {
     position: relative;
     width: calc(100% - 100px);
 
@@ -17,21 +17,21 @@
       top: 0;
       overflow-y: scroll;
       transition: transform 0.2s ease-out;
-      scrollbar-width: none; // Ukrywa scrollbar w Firefox
+      scrollbar-width: none;
 
-      &::-webkit-scrollbar { // Ukrywa scrollbar w Chrome, Safari
+      &::-webkit-scrollbar {
         display: none;
       }
     }
   }
 
-  &ScrollbarWrapper {
+  .scrollable-container-scrollbar-wrapper {
     position: relative;
     width: 10px;
     height: 100%;
     background: linear-gradient(to bottom, #2A2A4A, #1D1D37, #141428);
     box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.6), inset -1px -1px 3px rgba(255, 255, 255, 0.1);
-
+    margin-right: 100px;
     &__scrollbar {
       cursor: pointer;
       position: absolute;

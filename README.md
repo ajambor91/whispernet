@@ -112,6 +112,10 @@ Backend (Symfony) --> Database (mariadb)
 - **Redis**:  
   Serves as a fast in-memory store for session data and temporary states.
 
+- **Security Redis**:
+  Stores currently verified or waiting for verifying users
+- **Security DB**:
+  Stores users PGP Key for identity verification
 
 ## Installation
 
@@ -194,13 +198,24 @@ docker-compose -f ./docker-compose.qa.yml build
 docker-compose -f ./docker-compose.qa.yml up -d
 ```
 In this version you have to set loki data source in grafana as http://loki:3100, in CMS you should create your admin in CMS container: php bin/console app:make-admin login@domain.example password, and next create your content in dashboard.
+
+### Production Envrionment
+This environment has similar requirment as QA environments, you should replace all Dockerfile.prod and all config files, but containers and configs are production-ready optimized. In this stack you have to type your domain in cms frontend .env files and type it into nginx-host configuration.
+```bash
+docker-compose -f ./docker-compose.prod.yml build
+docker-compose -f ./docker-compose.prod.yml up -d
+```
+
 ### Monitoring - Grafana
 
 Open your web browser and type http://localhost:3000. Example credentials are user: admin, password: examplePassword; apps to explore are:
 - wssession 
 - session
 - websocket
+- security
 - frontend
+- gateway
+- kafka
 
 
 ## Test Coverage
@@ -226,7 +241,6 @@ You can find the HTML report in the `target/site/jacoco` directory or access it 
 1. **Finishing PGP signing sessions flow**
 2. **Security service testing**
 3. **Rejoining to session**
-4. **Frontend adjustments**
 ## Future Enhancements
 
 Here are the planned improvements and features for WhisperNet:
@@ -249,9 +263,10 @@ Here are the planned improvements and features for WhisperNet:
 
 6. **Desktop Application**:
     - Develop a desktop version of the application using Electron for a native-like experience.
-
+    - 
 7. **Group Chat Support** (Optional):
     - Extend the application to support multi-user group chats with dynamic room creation.
+    - 
 8. **zkSNARK Integration** (Optional):
     - Explore the possibility of using zkSNARKs for advanced cryptographic features, such as zero-knowledge proofs.
 

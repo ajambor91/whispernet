@@ -27,7 +27,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     setLangCookie(locale as ELang);
 
   }
-  const page: IHero = await getMainPage(locale as ELang);
+  const page: IHero = await getMainPage(locale as ELang, true);
   const translations = await serverSideTranslations(locale, ['translation']);
   return {
     props: {

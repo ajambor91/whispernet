@@ -5,7 +5,7 @@ COPY ./package.json ./package.json
 RUN npm install
 COPY ./cms-ui ./web
 COPY ./cms-ui/.env.frontend ./web/.env
-
+COPY ./cms-ui/next.config.docker.mjs /web/next.config.mjs
 COPY ./shared ./shared
 
 WORKDIR /app/web

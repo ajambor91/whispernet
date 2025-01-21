@@ -1,18 +1,27 @@
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
-
+  log_level: debug
 positions:
   filename: /tmp/positions.yaml
 
 clients:
-  - url: loki:3100/loki/api/v1/push
+  - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  - job_name: system
+  - job_name: kafka
     static_configs:
       - targets:
           - localhost
         labels:
-          job: varlogs
-          __path__: /var/log/*log
+          job: kafka
+          app: kafka
+          __path__: /var/log/external/kafka/*
+  - job_name: gateway
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: gateway
+          app: gateway
+          __path__: /var/log/external/nginx/*

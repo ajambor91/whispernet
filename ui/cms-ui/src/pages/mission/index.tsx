@@ -14,7 +14,6 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {IMission} from "@/models/mission.model";
 import getMissionPage from "@/api/get-mission";
 import {useAppSelector} from "@/store/store";
-import getFeaturesPage from "@/api/get-features";
 
 
 
@@ -26,7 +25,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     setLangCookie(locale as ELang);
 
   }
-  const mission: IMission = await getMissionPage(locale as ELang);
+  const mission: IMission = await getMissionPage(locale as ELang, true);
   const translations = await serverSideTranslations(locale, ['translation']);
   return {
     props: {

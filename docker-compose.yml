@@ -17,7 +17,7 @@ services:
     hostname: grafana.whisper.net
     container_name: grafana
     volumes:
-      - './grafana/data_grafana_local:/var/lib/grafana'
+      - './grafana/data-grafana-local:/var/lib/grafana'
     ports:
       - "3000:3000"
     depends_on:
@@ -31,7 +31,8 @@ services:
     hostname: promtail.whisper.net
     container_name: promtail
     volumes:
-      - "./promtail/logs:/var/log"
+      - kafka-log:/var/log/external/kafka:ro
+      - nginx-log:/var/log/external/nginx:ro
     networks:
       - whispernet
     depends_on:
@@ -75,6 +76,7 @@ services:
     container_name: gateway
     volumes:
       - './nginx/nginx.conf:/etc/nginx/nginx.conf'
+      - nginx-log:/var/log/nginx
   zookeeper:
     image: zookeeper:latest
     container_name: zookeeper
@@ -88,6 +90,9 @@ services:
       context: './broker'
       dockerfile: 'Dockerfile.dev'
     container_name: broker
+    user: "1000:1000"
+    volumes:
+      - kafka-log:/var/log/kafka:z
     networks:
       - whispernet
       - whispernet-security
@@ -148,7 +153,8 @@ services:
     networks:
       - whispernet-security
     volumes:
-      - './app-db/app_data:/var/lib/mysql'
+      - './app-db/app-data:/var/lib/mysql'
+      - './app-db/logs:/var/log/mysql'
     ports:
       - 3307:3306
   security:
@@ -171,7 +177,7 @@ services:
     networks:
       - whispernet-cms
     volumes:
-      - './cms-db/cms_data:/var/lib/mysql'
+      - './cms-db/cms-data:/var/lib/mysql'
     ports:
       - 3306:3306
   cms:
@@ -182,7 +188,7 @@ services:
     networks:
       - whispernet-cms
     volumes:
-      - './cms/project_root:/var/www/html'
+      - './cms/project-root:/var/www/html'
 networks:
   whispernet:
     driver: bridge
@@ -205,4 +211,8 @@ volumes:
   cache:
     driver: local
   kafka:
+    driver: local
+  kafka-log:
+    driver: local
+  nginx-log:
     driver: local

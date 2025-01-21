@@ -7,8 +7,8 @@ RUN apk add --no-cache bash git unzip curl && \
 RUN docker-php-ext-install pdo pdo_mysql
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-COPY ./project_root/whispernet-cms /var/www/html/whispernet-cms
-COPY ./project_root/whispernet-cms/.env.prod /var/www/html/whispernet-cms/.env
+COPY ./project-root/whispernet-cms /var/www/html/whispernet-cms
+COPY ./project-root/whispernet-cms/.env.prod /var/www/html/whispernet-cms/.env
 WORKDIR /var/www/html/whispernet-cms
 
 RUN rm -f ./.env.*

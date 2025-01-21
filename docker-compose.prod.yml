@@ -37,7 +37,8 @@ services:
     hostname: promtail.whisper.net
     container_name: promtail
     volumes:
-      - "./promtail/logs:/var/log"
+      - kafka-log:/var/log/external/kafka:ro
+      - nginx-log:/var/log/external/nginx:ro
     networks:
       - whispernet
     depends_on:
@@ -110,6 +111,8 @@ services:
     container_name: gateway
     security_opt:
       - no-new-privileges:true
+    volumes:
+      - nginx-log:/var/log/nginx
   zookeeper:
     image: zookeeper:latest
     container_name: zookeeper
@@ -135,6 +138,8 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
+    volumes:
+      - kafka-log:/var/log/kafka:z
   cache-security:
     build:
       context: './redis-security'
@@ -200,7 +205,7 @@ services:
     networks:
       - whispernet-cms
     volumes:
-      - './cms-db/cms_qa_data:/var/lib/mysql'
+      - './cms-db/cms-qa-data:/var/lib/mysql'
     security_opt:
       - no-new-privileges:true
   cms:
@@ -287,4 +292,8 @@ volumes:
   app-db:
     driver: local
   grafana:
+    driver: local
+  kafka-log:
+    driver: local
+  nginx-log:
     driver: local

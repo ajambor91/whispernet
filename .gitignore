@@ -5,7 +5,9 @@
 node_modules/
 
 *.log
+app-db/app-data/*
 app-db/app_data/*
+
 build/
 dist/
 .next/
@@ -51,6 +53,8 @@ x64/
 wasm/
 data_grafana_local/
 data_grafana_qa/
+data-grafana-local/
+data-grafana-qa/
 grafana.db
 
 vendor/
@@ -72,6 +76,8 @@ init.qa.sql
 application.properties.qa
 redis.qa.conf
 data_qa/
+data-qa/
+
 nginx.qa.conf
 localhost.crt
 localhost.key

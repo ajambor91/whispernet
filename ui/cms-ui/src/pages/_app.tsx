@@ -5,6 +5,7 @@ import {store} from "@/store/store";
 import Navigation from "@/components/navigation/Navigation";
 import '../i18n'
 import { appWithTranslation } from 'next-i18next';
+import '../proto/fetch';
 
 
  function App({ Component, pageProps }: AppProps) {

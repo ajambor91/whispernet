@@ -23,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         setLangCookie(locale as ELang);
 
     }
-    const features: IFeatures = await getFeaturesPage(locale as ELang);
+    const features: IFeatures = await getFeaturesPage(locale as ELang, true);
     const translations = await serverSideTranslations(locale, ['translation']);
     return {
         props: {

@@ -1,7 +1,10 @@
 .centered-container {
   position: relative;
-  min-height: calc(100vh - 120px);
+  min-height: 100vh;
   overflow-y: auto;
+  @media screen and (max-width: 720px){
+    min-height: calc(100vh - 30px);
+  }
   &__content {
     max-width: 100%;
     max-height: 100%;

@@ -14,6 +14,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {IMission} from "@/models/mission.model";
 import getMissionPage from "@/api/get-mission";
 import {useAppSelector} from "@/store/store";
+import AppHead from "@/components/head/AppHead";
 
 
 
@@ -64,26 +65,29 @@ export default function Mission({ lang, mission }: { lang: ELang, mission: IMiss
     getData();
   }, [langFromStore]);
   return (
-  <div>
-    <Centered>
-      {!missionData ?
-          <Indicator />
-          :
-          <div className={styles['main-page']}>
-            <div className={styles['main-page__headers']}>
-              <PrimaryHeader>{missionData.title}</PrimaryHeader>
-              <SecondaryHeader>{missionData.subtitle}</SecondaryHeader>
-            </div>
-            <div className={styles['main-page__description']}>
-              <p>{missionData.description}</p>
-            </div>
-          </div>
-          
-      }
-    </Centered>
+      <div>
+        <AppHead lang={lang}/>
+        <main>
+          <Centered>
+            {!missionData ?
+                <Indicator/>
+                :
+                <div className={styles['main-page']}>
+                  <div className={styles['main-page__headers']}>
+                    <PrimaryHeader>{missionData.title}</PrimaryHeader>
+                    <SecondaryHeader>{missionData.subtitle}</SecondaryHeader>
+                  </div>
+                  <div className={styles['main-page__description']}>
+                    <p>{missionData.description}</p>
+                  </div>
+                </div>
+
+            }
+          </Centered>
 
 
+        </main>
+      </div>
 
-  </div>
   );
 }

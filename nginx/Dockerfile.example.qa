@@ -3,7 +3,9 @@ FROM nginx:alpine
 COPY ./server.crt /etc/nginx/certs/server.crt
 COPY ./server.key /etc/nginx/certs/server.key
 COPY ./nginx.qa.conf /etc/nginx/nginx.conf
-COPY ./fastcgi-symfony.conf /etc/nginx/snippets/fastcgi-symfony.conf
-EXPOSE 80:80
-EXPOSE 443:443
+COPY ./error-pages /var/www/html/whispernet/errors
+
+
+EXPOSE 8099:80
+EXPOSE 8098:443
 CMD ["nginx", "-g", "daemon off;"]

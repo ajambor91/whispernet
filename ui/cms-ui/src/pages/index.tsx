@@ -17,6 +17,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import { useRouter } from 'next/router';
 import {useAppSelector} from "@/store/store";
 import {appURL} from "@/api/consts";
+import AppHead from "@/components/head/AppHead";
 
 
 
@@ -75,6 +76,8 @@ export default function Home({ lang, page }: { lang: ELang, page: IHero }) {
   }, [langFromStore]);
   return (
   <div>
+    <AppHead lang={lang}/>
+    <main>
     <Centered>
       {!pageData ?
           <Indicator />
@@ -95,7 +98,7 @@ export default function Home({ lang, page }: { lang: ELang, page: IHero }) {
           
       }
     </Centered>
-
+    </main>
 
 
   </div>

@@ -81,13 +81,23 @@ services:
       - '8098:443'
     networks:
       - whispernet
-      - whispernet-cms
       - whispernet-ui
       - whispernet-security
     hostname: gateway.whisper.net
     container_name: gateway
     volumes:
       - nginx-log:/var/log/nginx
+  gateway-cms:
+    build:
+      context: './nginx-cms'
+      dockerfile: './Dockerfile.qa'
+    ports:
+      - '9099:80'
+      - '9098:443'
+    networks:
+      - whispernet-cms
+    hostname: gateway-cms.whisper.net
+    container_name: gateway-cms
   zookeeper:
     image: zookeeper:latest
     container_name: zookeeper
@@ -192,7 +202,7 @@ services:
       context: './ui'
       dockerfile: './cms-ui/Dockerfile.qa'
     networks:
-      - whispernet-ui
+      - whispernet-cms
     hostname: cms-ui.whisper.net
     container_name: cms-ui
   portainer:

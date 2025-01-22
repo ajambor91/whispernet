@@ -215,7 +215,7 @@ services:
     networks:
       - whispernet-cms
     volumes:
-      - './cms-db/cms-qa-data:/var/lib/mysql'
+      - cms-db:/var/lib/mysql
     security_opt:
       - no-new-privileges:true
   cms:
@@ -291,6 +291,8 @@ networks:
       config:
         - subnet: 176.19.0.0/16
 volumes:
+  cms-db:
+    driver: local
   redis-security:
     driver: local
   cache:

@@ -14,6 +14,7 @@ import Indicator from "../../../../shared/components/indicator/Indicator";
 import PrimaryHeader from "../../../../shared/components/elements/primary-header/PrimaryHeader";
 import SecondaryHeader from "../../../../shared/components/elements/secondary-header/SecondaryHeader";
 import {useAppSelector} from "@/store/store";
+import AppHead from "@/components/head/AppHead";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     let locale = getLangFromCookies(context.req);
@@ -61,6 +62,10 @@ export default function FeaturesPage({ lang, features }: { lang: ELang, features
         getData();
     }, [langFromStore]);
     return (
+        <div>
+            <AppHead lang={lang}/>
+
+            <main>
         <Centered>
 
         <div>
@@ -87,6 +92,8 @@ export default function FeaturesPage({ lang, features }: { lang: ELang, features
             }
         </div>
         </Centered>
+            </main>
+        </div>
 
     )
 }

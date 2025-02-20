@@ -11,6 +11,7 @@ import {useDispatch} from "react-redux";
 import {useAppDispatch} from "@/store/store";
 import {setLang} from "@/store/slice";
 import { useRouter } from 'next/router';
+import Image from "next/image";
 
 const Navigation: React.FC = () => {
     const { t, i18n  } = useTranslation("translation");
@@ -54,15 +55,34 @@ const Navigation: React.FC = () => {
     }
     return (
         <div className={styles['navigation-container']}>
-            <h1 className={styles['navigation-container__header']}><Link href="/" onClick={(e) => goTo(e,"/")}>WHISPERNET</Link></h1>
-            <div className={styles["navigation-container__mobile-hamburger"]}>
-                <button className={styles["hamburger-button"]} onClick={showMobileMenu}><FontAwesomeIcon size="2x" icon={faBars} /></button>
+            <div className={styles["navigation-container__headers"]}>
+                <Image src="/whispernet_logo_bar_92.png" alt="WhisperNet Logo" width="92" height="92" priority/>
+                <div className={styles["navigation-container__header__container"]}>
+                    <h1 className={styles['navigation-container__header']}><Link href="/"
+                                                                                 onClick={(e) => goTo(e, "/")}>WhisperNet</Link>
+                    </h1>
+                    <h2 className={styles['navigation-container__version']}>0.1.1 BETA
+                    </h2>
+                </div>
 
             </div>
-            <nav ref={mobileMenu} className={`${styles['navigation-container__nav']} ${styles['navigation-container__nav__mobile--disabled']}`}>
+
+
+            <div className={styles["navigation-container__mobile-hamburger"]}>
+                <button className={styles["hamburger-button"]} onClick={showMobileMenu}><FontAwesomeIcon size="2x"
+                                                                                                         icon={faBars}/>
+                </button>
+
+            </div>
+            <nav ref={mobileMenu}
+                 className={`${styles['navigation-container__nav']} ${styles['navigation-container__nav__mobile--disabled']}`}>
                 <ul className={styles['nav-menu']}>
-                    <li className={styles['nav-menu__item']}><Link href="/features" onClick={(e) => goTo(e, "/features")}>{t("features")}</Link></li>
-                    <li className={styles['nav-menu__item']}><Link href="/mission" onClick={(e) => goTo(e,"/mission")}>{t("our-mission")}</Link></li>
+                    <li className={styles['nav-menu__item']}><Link href="/features"
+                                                                   onClick={(e) => goTo(e, "/features")}>{t("features")}</Link>
+                    </li>
+                    <li className={styles['nav-menu__item']}><Link href="/mission"
+                                                                   onClick={(e) => goTo(e, "/mission")}>{t("our-mission")}</Link>
+                    </li>
                     <li className={styles['nav-menu__item']}><Link
                         href='https://github.com/ajambor91/whispernet'>Github</Link></li>
 

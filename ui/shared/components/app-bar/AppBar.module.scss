@@ -1,15 +1,18 @@
+$background-color: #14133b;
+
 .app-bar {
   height: 100px;
-  background-color: #14133b;
-
+  background-color: $background-color;
+  z-index: 100;
   &__container {
+    background-color: $background-color;
     padding: 15px;
     display: flex;
     position: relative;
     &::before {
       content: "";
       position: absolute;
-      bottom: 15px;
+      bottom: 0;
       left: 0;
       right: 0;
       height: 1px;
@@ -17,7 +20,13 @@
     }
   }
 
+  &__logo {
+    display: inline-block;
+
+  }
+
   &__version-wrapper {
+    margin-left: 20px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;

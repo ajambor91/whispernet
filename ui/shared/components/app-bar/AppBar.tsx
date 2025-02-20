@@ -4,7 +4,7 @@ import PrimaryHeader from '../elements/primary-header/PrimaryHeader';
 import TertiaryHeader from '../elements/tertiary-header/TertiaryHeader';
 import Button from "../elements/button/Button";
 import {useNavigate} from "react-router-dom";
-
+import logo from "../../pics/whispernet_logo_bar_92.png"
 interface IAppBarProps {
     isLogin: boolean;
     username: string;
@@ -17,12 +17,14 @@ const AppBar: React.FC<IAppBarProps> = ({isLogin, username}) => {
     return (
         <section className={styles['app-bar']}>
             <div className={styles['app-bar__container']}>
+                <img className={styles["appBar__logo"]} src={logo} alt="WhisperNet Logo"/>
+
                 <div className={styles['app-bar__version-wrapper']}>
-                    <PrimaryHeader style={{fontSize: '20px', marginTop: '-5px'}}>
+                    <PrimaryHeader style={{fontSize: '30px', marginTop: "15px"}}>
                         WhisperNet
                     </PrimaryHeader>
-                    <TertiaryHeader style={{fontSize: '15px', textAlign: 'left'}}>
-                        0.1.0 BETA
+                    <TertiaryHeader style={{fontSize: '15px', marginTop: "-25px", textAlign: 'left'}}>
+                        0.1.1 BETA
                     </TertiaryHeader>
                 </div>
                 <div className={styles["authorization-container"]}>

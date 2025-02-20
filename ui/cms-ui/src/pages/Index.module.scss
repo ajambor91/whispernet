@@ -1,25 +1,36 @@
-.main-page {
-  &__headers {
-    h1 {
-      font-size: 1.8em;
-      margin-bottom: 40px;
-    }
-    h2 {
-      font-size: 1.7em;
-      margin-bottom: 40px;
-    }
+.main-container {
+  @media screen and (min-width: 728px){
+    max-height: calc(100vh - 122px);
   }
+  .main-page {
+    padding-bottom: 120px;
 
-  &__description {
-    font-size: 20px;
-    line-height: 30px;
-    font-style: italic;
-    padding-bottom: 40px;
-  }
+    &__headers {
+      h1 {
+        font-size: 1.8em;
+        margin-bottom: 40px;
+      }
+      h2 {
+        font-size: 1.7em;
+        margin-bottom: 40px;
+      }
+    }
+    &__logo {
+      display: flex;
+      justify-content: center;
+    }
+    &__description {
+      font-size: 20px;
+      line-height: 30px;
+      font-style: italic;
+      padding-bottom: 40px;
+    }
 
-  &__button-container {
-    justify-content: center;
-    display: flex;
-    gap: 10px;
+    &__button-container {
+      justify-content: center;
+      display: flex;
+      gap: 10px;
+    }
   }
 }
+

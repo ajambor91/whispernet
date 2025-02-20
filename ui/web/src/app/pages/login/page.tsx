@@ -8,7 +8,7 @@ import useLogin from "../../../../../shared/hooks/useLogin";
 import {useDispatch} from "react-redux";
 import {setLoginData} from "../../../../../shared/slices/is-login.slize";
 import {useToasts} from "../../../../../shared/providers/toast-provider";
-
+import styles from "./Login.module.scss";
 const LoginPage: React.FC = () => {
     const router = useNavigate();
     const [b65File, setB64File] = useState<string>();
@@ -72,7 +72,10 @@ const LoginPage: React.FC = () => {
     return (
         <section className="full-screen">
             <Centered>
-                <Login loginState={loginState} submit={submit} submitSigned={submitSigned}  onFileUpload={onFileUpload}/>
+                <div className={styles["login-container"]}>
+                    <Login loginState={loginState} submit={submit} submitSigned={submitSigned}  onFileUpload={onFileUpload}/>
+
+                </div>
             </Centered>
         </section>
     )

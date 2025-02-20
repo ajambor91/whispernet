@@ -1,6 +1,13 @@
-# WhisperNet
 
-**A secure and anonymous peer-to-peer chat platform powered by WebRTC, Kafka, and React.**
+<div style="text-align: center; margin: 0">
+<img src="ui/pics/whispernet_logo_256_transparent.png">
+</div>
+<h1 style="text-align: center; font-size: 3em;  margin-top: -30px; margin-bottom: 60px">
+WhisperNet
+</h1> 
+<h2 style="text-align: center; font-size: 1.8em;  margin-top: -50px; margin-bottom: 60px">
+A secure and anonymous peer-to-peer chat platform.
+</h2> 
 
 WhisperNet is a decentralized communication platform designed to provide private and real-time messaging between users. The project is built on a microservices architecture, ensuring scalability, modularity, and fault tolerance.
 

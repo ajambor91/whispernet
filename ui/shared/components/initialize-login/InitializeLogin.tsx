@@ -22,9 +22,9 @@ const InitializeLogin: React.FC<IInitializeLoginProps> = ({submit}) => {
         <div className={styles["login-container"]}>
             <SecondaryHeader>Sign In</SecondaryHeader>
             <div className={styles["login-container__input"]}>
-            <Input style={{'width': '100%', "text-align": "center"}} onChange={setLoginValue} placeholder="Type your username" type="text" />
-            </div>
-            <div className={styles["login-container__buttons"]}>
+            <Input style={{ "text-align": "center"}} onChange={setLoginValue} placeholder="Type your username" type="text" />
+            {/*</div>*/}
+            {/*<div className={styles["login-container__buttons"]}>*/}
                 <Button onClick={initLogin} className="button-primary">
                 Login
             </Button>

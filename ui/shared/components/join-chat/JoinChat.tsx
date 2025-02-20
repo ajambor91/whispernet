@@ -41,7 +41,7 @@ const JoinChat: React.FC<IChatJoiningProps> = ({ onChatSubmit }) => {
                             type="text"
                         />
                         <Button className={`primary ${styles['join-chat__form-button']}`} type="submit">
-                            Submit <FontAwesomeIcon style={{ fontSize: '1.5rem' }} icon={faCopy} />
+                            Submit
                         </Button>
                     </div>
                 </div>

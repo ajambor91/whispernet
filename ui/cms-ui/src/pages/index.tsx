@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 import {useAppSelector} from "@/store/store";
 import {appURL} from "@/api/consts";
 import AppHead from "@/components/head/AppHead";
+import Image from "next/image";
 
 
 
@@ -77,13 +78,16 @@ export default function Home({ lang, page }: { lang: ELang, page: IHero }) {
   return (
   <div>
     <AppHead lang={lang}/>
-    <main>
+    <main className={styles["main-container"]}>
     <Centered>
       {!pageData ?
           <Indicator />
           :
           <div className={styles['main-page']}>
             <div className={styles['main-page__headers']}>
+              <div className={styles["main-page__logo"]}>
+                <Image src="/whispernet_logo_256_transparent.png" alt="WhisperNet Logo" width="256" height="256" priority />
+              </div>
               <PrimaryHeader>{pageData.title}</PrimaryHeader>
               <SecondaryHeader>{pageData.subtitle}</SecondaryHeader>
             </div>

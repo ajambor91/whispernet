@@ -5,6 +5,10 @@ const StyledSecondaryHeader = styled.h2`
     font-size: 30px;
     font-weight: 600;
     text-align: center;
+    @media screen and (max-width: 728px){
+        font-size: 25px;
+
+    }
 `;
 interface IHeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
     children: string;

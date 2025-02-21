@@ -99,7 +99,7 @@ $background-color: #14133b;
         display: flex;
         gap: 10px;
         &__lang {
-          margin-left: auto;
+          //margin-left: auto;
           text-align: right;
           .lang-menu {
             cursor: pointer;
@@ -122,12 +122,37 @@ $background-color: #14133b;
           margin-top: 53px;
 
         }
+        .nav-menu__icon-container {
+          display: inline-block;
+
+          padding-left: 5px;
+          padding-right: 5px;
+
+          .nav-menu__icon {
+            width: auto;
+            height: 35px;
+            @media screen and (max-width: 728px){
+              height: 25px;
+              width: auto;
+            }
+          }
+        }
+
         font-weight: bold;
+      }
+      &__item-social {
+        margin-top: 0;
+        margin-left: auto;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        @media screen and (max-width: 728px){
+          margin: 5px;
+        }
       }
 
       &__lang{
         margin-top: 0px;
-        margin-right: 15px;
         cursor: pointer;
         @media screen and (min-width: 728px){
           font-size: 19px;

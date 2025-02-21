@@ -83,9 +83,20 @@ const Navigation: React.FC = () => {
                     <li className={styles['nav-menu__item']}><Link href="/mission"
                                                                    onClick={(e) => goTo(e, "/mission")}>{t("our-mission")}</Link>
                     </li>
-                    <li className={styles['nav-menu__item']}><Link
-                        href='https://github.com/ajambor91/whispernet'>Github</Link></li>
-
+                    <li className={`${styles['nav-menu__item']} ${styles['nav-menu__item-social']}`}>
+                        <div className={styles["nav-menu__icon-container"]}>
+                            <Link
+                                href='https://github.com/ajambor91/whispernet'>
+                                <img className={styles["nav-menu__icon"]} src="/github.png"/>
+                            </Link>
+                        </div>
+                        <div className={styles["nav-menu__icon-container"]}>
+                            <Link
+                                href='https://www.facebook.com/profile.php?id=61573551596352'>
+                                <img className={styles["nav-menu__icon"]} src="/facebook_35.png"/>
+                            </Link>
+                        </div>
+                    </li>
                     <li onClick={showLangMenu}
                         className={`${styles['nav-menu__item']} ${styles['nav-menu__lang']}`}>{t('language')}
                         <div ref={langMenu} className={`${styles['lang-menu']} ${styles['lang-menu--disabled']}`}>

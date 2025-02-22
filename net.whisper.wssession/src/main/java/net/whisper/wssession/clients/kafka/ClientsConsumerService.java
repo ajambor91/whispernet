@@ -8,11 +8,11 @@ import net.whisper.wssession.clients.models.ClientWithoutSession;
 import net.whisper.wssession.clients.services.ClientsService;
 import net.whisper.wssession.core.interfaces.IBaseClient;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class ClientsConsumerService {
@@ -44,11 +44,12 @@ public class ClientsConsumerService {
             IBaseClient kafkaMessage = mapMessage(type, message);
             System.out.println(message);
             if (kafkaMessage instanceof ClientWithoutSession) {
-                logger.info("Received kafka message for new client, userToken={}", ((ClientWithoutSession) kafkaMessage).getUserToken());
+                logger.info("Received kafka message for new client, userToken={}", kafkaMessage.getUserToken());
                 clientsService.processNewClient((ClientWithoutSession) kafkaMessage);
             } else if (kafkaMessage instanceof Client) {
                 clientsService.processJoiningClient((Client) kafkaMessage);
-                logger.info("Received kafka message for joining client, userToken={}, sessionToken={}", ((Client) kafkaMessage).getUserToken(), ((Client) kafkaMessage).getSessionToken());
+                logger.info("Received kafka message for joining client, userToken={}, sessionToken={}", kafkaMessage.getUserToken(), ((Client) kafkaMessage).getSessionToken());
+
             }
             logger.error("Error: Received an empty kafka message");
         } catch (Exception e) {
@@ -67,7 +68,7 @@ public class ClientsConsumerService {
 
     private IBaseClient mapMessage(String type, String message) throws JsonProcessingException {
         if (EKafkaMessageClientTypes.NEW_CLIENT.getMessageType().equals(type)) {
-
+            logger.info("Client sessionType= {}", message);
             return objectMapper.readValue(message, ClientWithoutSession.class);
         } else if (EKafkaMessageClientTypes.ADD_CLIENT.getMessageType().equals(type)) {
             return objectMapper.readValue(message, Client.class);

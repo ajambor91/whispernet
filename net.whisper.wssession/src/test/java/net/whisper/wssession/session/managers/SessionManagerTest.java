@@ -18,8 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
-
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static net.whisper.wssession.utils.TestFactory.SESSION_TOKEN_JOINER;
@@ -81,13 +79,14 @@ public class SessionManagerTest {
                 eq("Peer added to session, userToken={}, sessionToken={}"),
                 eq(this.newPeerTest.getUserToken()),
                 any(String.class)
-        );    }
+        );
+    }
 
     @DisplayName("Should throw illegal argument exception when null - createSession")
     public void createSessionFailWhenPeerClientNull() {
         PeerClient peerClient = null;
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-           this.sessionManager.createSession(peerClient);
+            this.sessionManager.createSession(peerClient);
         });
         assertEquals("PeerClient in createSession cannot be null", exception.getMessage());
     }
@@ -187,7 +186,7 @@ public class SessionManagerTest {
         PeerSession newPeerSession = TestFactory.createPeerSession();
         newPeerSession.addPeerClient(this.joinerPeerTest);
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
-                this.sessionManager.removeClientFromSession(newPeerSession);
+            this.sessionManager.removeClientFromSession(newPeerSession);
         });
         assertEquals("Peer to remove doesn't exist", exception.getMessage());
     }

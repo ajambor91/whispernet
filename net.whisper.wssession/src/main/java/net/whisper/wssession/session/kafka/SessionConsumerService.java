@@ -5,12 +5,11 @@ import net.whisper.wssession.session.enums.EKafkaMessageSessionTypes;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.services.SessionService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
-import org.slf4j.Logger;
 
 
 @Service
@@ -19,12 +18,14 @@ public class SessionConsumerService {
     private final ObjectMapper objectMapper;
     private final SessionService sessionService;
     private final Logger logger;
+
     @Autowired
     public SessionConsumerService(SessionService sessionService, ObjectMapper objectMapper) {
         this.sessionService = sessionService;
         this.objectMapper = objectMapper;
         this.logger = LoggerFactory.getLogger(SessionConsumerService.class);
     }
+
     @KafkaListener(topics = {"request-session-signal-topic"}, groupId = "whispernet-wsession-session-group")
     public void handleTokenEvent(ConsumerRecord<String, String> record) {
         try {
@@ -52,4 +53,5 @@ public class SessionConsumerService {
                     : null;
         }
         return null;
-    }}
+    }
+}

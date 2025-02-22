@@ -6,11 +6,11 @@ import net.whisper.wssession.clients.services.ClientsService;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.services.SessionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Component
 public class ClientSessionCoordinator {

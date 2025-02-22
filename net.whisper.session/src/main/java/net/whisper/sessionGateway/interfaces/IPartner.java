@@ -1,13 +1,11 @@
 package net.whisper.sessionGateway.interfaces;
 
-public interface ISignedClient extends IBasicClient {
+public interface IPartner {
     String getUsername();
 
     void setUsername(String username);
 
-    String getJwt();
+    String getPublicKey();
 
-    void setJwt(String jwt);
-
-
+    void setPublicKey(String publicKey);
 }

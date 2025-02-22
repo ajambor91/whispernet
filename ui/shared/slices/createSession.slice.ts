@@ -7,7 +7,7 @@ export interface IPeerState {
     sessionToken: string | null;
     peerRole: PeerRole | null;
     secretKey: string | null;
-    isSigned: boolean;
+    isSigned?: boolean;
 
 }
 

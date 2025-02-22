@@ -1,9 +1,14 @@
 package net.whisper.wssession.session.managers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whisper.wssession.core.enums.EPGPSessionType;
 import net.whisper.wssession.session.enums.ESessionStatus;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.repositories.SessionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +17,12 @@ import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 @Service
 public class SessionManager {
 
     private final SessionRepository sessionRepository;
     private final Logger logger;
+
     @Autowired
     public SessionManager(SessionRepository sessionRepository) {
         this.logger = LoggerFactory.getLogger(SessionManager.class);
@@ -36,7 +40,20 @@ public class SessionManager {
     public PeerSession addPeerToExistingSession(String sessionToken, PeerClient peerClient) {
         PeerSession peerSession = this.sessionRepository.getSession(sessionToken);
         try {
+            if (peerClient.getSessionType() == EPGPSessionType.SIGNED) {
+                peerSession.setPgpSessionType(EPGPSessionType.SIGNED);
+            }
+            peerClient.setSessionType(peerSession.getPgpSessionType());
+
+
             peerSession.addPeerClient(peerClient);
+
+            try {
+                logger.info("Existing session {}", new ObjectMapper().writeValueAsString(peerSession));
+
+            } catch (JsonProcessingException e) {
+                logger.info("Cannot parse existing session");
+            }
             this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);
             logger.info("Peer added to session, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
             return peerSession;
@@ -50,9 +67,15 @@ public class SessionManager {
     private PeerSession setupPeerSession(PeerClient peerClient) {
         String sessionToken = UUID.randomUUID().toString();
         String secretKey = this.createAESSecret();
-        PeerSession peerSession = new PeerSession(sessionToken, secretKey);
+        PeerSession peerSession = new PeerSession(sessionToken, secretKey, peerClient.getSessionType());
         logger.info("New session created, sessionToken={}", peerSession.getSessionToken());
         peerSession.addPeerClient(peerClient);
+        try {
+            logger.info("New session {}", new ObjectMapper().writeValueAsString(peerSession));
+
+        } catch (JsonProcessingException e) {
+            logger.info("Cannot parse new session");
+        }
         this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);
         logger.info("Peer added to session, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
         return peerSession;
@@ -96,14 +119,14 @@ public class SessionManager {
                     .filter(existingPeer -> existingPeer.getUserId().equals(peer.getUserId()))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("Peer not found"));
-                foundPeer.setClientConnectionStatus(peer.getClientConnectionStatus());
+            foundPeer.setClientConnectionStatus(peer.getClientConnectionStatus());
         });
         existingSession.setSessionStatus(peerSession.getSessionStatus());
         this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);
         logger.info("Session has successfullly updated, sessionToken={}", peerSession.getSessionToken());
     }
 
-    private String createAESSecret(){
+    private String createAESSecret() {
         String AESToken = null;
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");

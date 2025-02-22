@@ -2,10 +2,15 @@ package net.whisper.sessionGateway.whispernet.utils;
 
 import jakarta.servlet.http.Cookie;
 import net.whisper.sessionGateway.enums.EClientConnectionStatus;
+import net.whisper.sessionGateway.enums.EPGPSessionType;
 import net.whisper.sessionGateway.enums.EPeerRole;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
 import net.whisper.sessionGateway.models.IncomingClient;
+import net.whisper.sessionGateway.models.Partner;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestFactory {
     public static final String TEST_SESSION_TOKEN = "7c944fc9-ad51-4392-bde2-f4b6126ea62e";
@@ -30,10 +35,12 @@ public class TestFactory {
         IncomingClient client = new IncomingClient();
         client.setClientConnectionStatus(EClientConnectionStatus.CREATED);
         client.setUserId(TEST_USER_ID);
+        client.setSessionType(EPGPSessionType.UNSIGNED);
         client.setSessionToken(TEST_SESSION_TOKEN);
         client.setPeerRole(EPeerRole.INITIATOR);
         client.setUserToken(TEST_USER_TOKEN);
         client.setSecretKey("SECRET");
+
         return client;
     }
 
@@ -65,9 +72,17 @@ public class TestFactory {
         client.setSessionToken(TEST_SESSION_TOKEN_JOINER);
         client.setPeerRole(EPeerRole.JOINER);
         client.setUserToken(TEST_USER_TOKEN_JOINER);
+        List<Partner> testList = new ArrayList<>();
+        testList.add(TestFactory.createTestPartner());
+        client.setPartners(testList);
         return client;
     }
 
+    public static Partner createTestPartner() {
+        Partner partner = new Partner();
+        partner.setUsername("Janek");
+        return partner;
+    }
 
     public static Cookie createCookie(IncomingClient tokenBody) {
         Cookie httpOnlyCookie = new Cookie("userToken", tokenBody.getUserToken());

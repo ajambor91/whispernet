@@ -6,16 +6,16 @@ import net.whisper.wssession.clients.models.Client;
 import net.whisper.wssession.clients.models.ClientWithoutSession;
 import net.whisper.wssession.core.enums.EKafkaTopic;
 import net.whisper.wssession.utils.TestFactory;
-import org.slf4j.Logger;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,6 +37,7 @@ public class ClientsKafkaProducerTest {
 
     @MockBean
     private KafkaTemplate<String, String> kafkaTemplate;
+
     @Autowired
     public ClientsKafkaProducerTest(ClientsKafkaProducer clientsKafkaProducer) {
         this.clientsKafkaProducer = clientsKafkaProducer;
@@ -46,7 +47,7 @@ public class ClientsKafkaProducerTest {
     public void setup() {
         this.client = TestFactory.createClient();
         this.clientWithoutSession = TestFactory.createClientWihtoutSession();
-        this.serializedClient = "{\"userToken\":\"bb6e4276-7f6c-40fe-a413-e98d912c3510\",\"userId\":\"22469c67-ba59-4bbd-b47a-7d5a4394928a\",\"clientConnectionStatus\":\"CREATED\",\"peerRole\":\"JOINER\",\"sessionToken\":\"9489dc7f-e441-4a19-86d6-1e7ddb2ea48c\",\"secretKey\":null}";
+        this.serializedClient = "{\"userToken\":\"bb6e4276-7f6c-40fe-a413-e98d912c3510\",\"userId\":\"22469c67-ba59-4bbd-b47a-7d5a4394928a\",\"clientConnectionStatus\":\"CREATED\",\"peerRole\":\"JOINER\",\"sessionType\":null,\"username\":null,\"sessionToken\":\"9489dc7f-e441-4a19-86d6-1e7ddb2ea48c\",\"secretKey\":null,\"partners\":null}";
 
     }
 
@@ -65,7 +66,7 @@ public class ClientsKafkaProducerTest {
     @DisplayName("Should throw IllegalArgumentException - returnNewUser")
     public void returnNewUserException() {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
-           this.clientsKafkaProducer.returnNewUser(null);
+            this.clientsKafkaProducer.returnNewUser(null);
         });
         assertEquals("Client cannot be null", e.getMessage());
     }

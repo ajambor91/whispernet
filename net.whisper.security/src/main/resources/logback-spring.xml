@@ -12,8 +12,13 @@
             </message>
         </format>
     </appender>
-
+    <logger name="org.springframework.kafka" level="DEBUG" additivity="false">
+        <appender-ref ref="LOKI" />
+    </logger>
     <root level="DEBUG">
         <appender-ref ref="LOKI"/>
+    </root>
+    <root level="INFO">
+        <appender-ref ref="LOKI" />
     </root>
 </configuration>

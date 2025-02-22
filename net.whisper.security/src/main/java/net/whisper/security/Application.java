@@ -15,18 +15,19 @@ import java.security.Security;
 @SpringBootApplication
 public class Application {
 
-	public static void main(String[] args) {
-		Security.addProvider(new BouncyCastleProvider());
-		SpringApplication.run(Application.class, args);
-	}
-	@Bean
-	public RedisTemplate<String, RedisUser> redisTemplate(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, RedisUser> template = new RedisTemplate<>();
-		template.setConnectionFactory(connectionFactory);
+    public static void main(String[] args) {
+        Security.addProvider(new BouncyCastleProvider());
+        SpringApplication.run(Application.class, args);
+    }
 
-		template.setKeySerializer(new StringRedisSerializer());
-		template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+    @Bean
+    public RedisTemplate<String, RedisUser> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, RedisUser> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
 
-		return template;
-	}
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+        return template;
+    }
 }

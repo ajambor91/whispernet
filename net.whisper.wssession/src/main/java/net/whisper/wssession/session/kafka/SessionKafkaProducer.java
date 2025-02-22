@@ -5,14 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.core.enums.EKafkaMessageTypes;
 import net.whisper.wssession.core.enums.EKafkaTopic;
 import net.whisper.wssession.session.models.PeerSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 @Component
 public class SessionKafkaProducer {
 
@@ -26,7 +27,8 @@ public class SessionKafkaProducer {
         this.objectMapper = objectMapper;
         this.logger = LoggerFactory.getLogger(SessionKafkaProducer.class);
     }
-    public void sendSession(PeerSession peerSession, EKafkaMessageTypes type)  {
+
+    public void sendSession(PeerSession peerSession, EKafkaMessageTypes type) {
         if (peerSession == null) {
             logger.error("SessionKafkaProducer:sendSession - PeerSession cannot be null");
             return;

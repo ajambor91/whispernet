@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.sessionGateway.enums.EKafkaMessageTypes;
 import net.whisper.sessionGateway.enums.EKafkaTopic;
 import net.whisper.sessionGateway.interfaces.IBaseClient;
-import net.whisper.sessionGateway.models.Client;
-import net.whisper.sessionGateway.models.ClientWithoutSession;
+import net.whisper.sessionGateway.interfaces.IBasicClient;
 import net.whisper.sessionGateway.models.IncomingClient;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
@@ -47,20 +46,20 @@ public class KafkaService {
         logger.info("Received kafka message from wssession service to create a new session message={}", message);
         IncomingClient client = null;
         try {
-            client =  objectMapper.readValue(message, IncomingClient.class);
+            client = objectMapper.readValue(message, IncomingClient.class);
 
         } catch (JsonProcessingException e) {
             logger.error(String.valueOf(e));
             return;
         }
-        BlockingQueue<IncomingClient>  queue = responseMap.computeIfAbsent(client.getUserToken(), k -> new LinkedBlockingQueue<>());
+        BlockingQueue<IncomingClient> queue = responseMap.computeIfAbsent(client.getUserToken(), k -> new LinkedBlockingQueue<>());
 
         try {
-                queue.put(client);
+            queue.put(client);
         } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                logger.error(String.valueOf(e));
-            }
+            Thread.currentThread().interrupt();
+            logger.error(String.valueOf(e));
+        }
 
     }
 
@@ -79,24 +78,15 @@ public class KafkaService {
 
     }
 
-    public void sendNewClient(ClientWithoutSession client) throws JsonProcessingException {
+    public void sendClient(IBasicClient client, EKafkaMessageTypes messageTypes) throws JsonProcessingException {
         String kafkaMessageString = this.objectMapper.writeValueAsString(client);
         logger.info("Sending new client session using Kafka to wssession");
         sendKafkaMsg(
                 kafkaMessageString,
                 EKafkaTopic.CLIENT_TOPIC.getTopicName(),
-                EKafkaMessageTypes.NEW_CLIENT.getMessageType()
+                messageTypes.getMessageType()
         );
         logger.info("New client message was send");
-
-    }
-
-    public void sendJoinlient(Client client) throws JsonProcessingException {
-        String kafkaMessageString = this.objectMapper.writeValueAsString(client);
-        logger.info("Sending joining client session using Kafka to wssession");
-        sendKafkaMsg(kafkaMessageString, EKafkaTopic.CLIENT_TOPIC.getTopicName(), EKafkaMessageTypes.ADD_CLIENT.getMessageType());
-        logger.info("Joining client message was send");
-
 
     }
 

@@ -4,7 +4,6 @@ import net.whisper.sessionGateway.enums.EClientConnectionStatus;
 import net.whisper.sessionGateway.enums.EPeerRole;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
-import net.whisper.sessionGateway.models.IncomingClient;
 
 public class ClientFactory {
     public static Client createClient(String userToken, String userId, String sessionToken, EPeerRole peerRole, EClientConnectionStatus connectionStatus) {

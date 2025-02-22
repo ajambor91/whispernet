@@ -32,6 +32,7 @@ public class ClientsService {
         }
 
         PeerClient peerClient = ClientFactory.createPeerClient(clientWithoutSession);
+        this.logger.info("Create new peerClient with userToken={}, and username={}", peerClient.getUserToken(), peerClient.getUsername());
         this.clientSessionCoordinator.processClientWithoutSession(peerClient);
         logger.info("Pass new user to coordinator, userToken={}", peerClient.getUserToken());
     }

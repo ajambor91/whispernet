@@ -12,7 +12,8 @@ public class RedisUser {
     private ELoginStage stage;
     private String jwt;
 
-    public RedisUser(){}
+    public RedisUser() {
+    }
 
     public RedisUser(String username, String publicKey, ELoginStage stage) {
         this.publicKey = publicKey;

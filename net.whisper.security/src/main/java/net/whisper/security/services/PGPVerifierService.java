@@ -25,6 +25,7 @@ public class PGPVerifierService {
         PGPObjectFactory pgpObjectFactory = new PGPObjectFactory(signatureStream, new JcaKeyFingerprintCalculator());
         return this.validSig(pgpObjectFactory, publicKey, originalMsg);
     }
+
     public boolean validSignatureByFile(byte[] signedMessage, String message, RedisUser redisUser) throws PGPException, IOException, NoSuchElementException {
 
         InputStream signedInputStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signedMessage));
@@ -37,8 +38,7 @@ public class PGPVerifierService {
     private boolean validSig(PGPObjectFactory pgpObjectFactory, PGPPublicKey publicKey, String originalMsg) throws PGPException, IOException {
         Object obj;
         while ((obj = pgpObjectFactory.nextObject()) != null) {
-            if (obj instanceof PGPSignatureList) {
-                PGPSignatureList signatureList = (PGPSignatureList) obj;
+            if (obj instanceof PGPSignatureList signatureList) {
                 PGPSignature signature = signatureList.get(0);
                 signature.init(new JcaPGPContentVerifierBuilderProvider().setProvider("BC"), publicKey);
                 signature.update(originalMsg.getBytes(StandardCharsets.UTF_8));

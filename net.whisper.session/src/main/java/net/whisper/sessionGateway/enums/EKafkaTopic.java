@@ -5,6 +5,7 @@ public enum EKafkaTopic {
     RETURN_CLIENT_TOPIC("request-return-client-topic"),
     SESSION_TOPIC("request-initialization-topic"),
     WEBSOCKET_SESSION_TOPIC("request-websocket-session-topic"),
+    CHECK_PARTNER("request-check-partner"),
     CHECK_SIGNED_CLIENT_TOPIC("request-signed-client-topic");
     private final String topicName;
 

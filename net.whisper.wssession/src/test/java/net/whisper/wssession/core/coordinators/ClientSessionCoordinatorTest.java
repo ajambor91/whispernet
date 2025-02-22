@@ -31,20 +31,18 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 public class ClientSessionCoordinatorTest {
 
-    private PeerClient newClient;
-    private PeerSession peerSession;
-    private PeerClient joinClient;
-    private String sessionToken;
+    private final ClientSessionCoordinator clientSessionCoordinator;
+    private final PeerClient newClient;
+    private final PeerSession peerSession;
+    private final PeerClient joinClient;
+    private final String sessionToken;
     private Logger logger;
     @SpyBean
     private SessionService sessionService;
-
     @SpyBean
     private ClientsService clientsService;
-
     @MockBean
     private KafkaTemplate<String, String> kafkaTemplate;
-    private final ClientSessionCoordinator clientSessionCoordinator;
 
     @Autowired
     public ClientSessionCoordinatorTest(ClientSessionCoordinator clientSessionCoordinator) {
@@ -88,7 +86,7 @@ public class ClientSessionCoordinatorTest {
     public void processClientFailSessionTokenNull() {
         this.clientSessionCoordinator.processClient(null, this.joinClient);
         verify(this.logger).error(eq("ClientSessionCoordinator:processClient sessionToken cannot be null"));
-        verify(this.sessionService, never()).processJoinClient(any(String.class),any(PeerClient.class));
+        verify(this.sessionService, never()).processJoinClient(any(String.class), any(PeerClient.class));
     }
 
     @Test
@@ -96,7 +94,7 @@ public class ClientSessionCoordinatorTest {
     public void processClientFailPeerNull() {
         this.clientSessionCoordinator.processClient(this.sessionToken, null);
         verify(this.logger).error(eq("ClientSessionCoordinator:processClient client cannot be null"));
-        verify(this.sessionService, never()).processJoinClient(any(String.class),any(PeerClient.class));
+        verify(this.sessionService, never()).processJoinClient(any(String.class), any(PeerClient.class));
     }
 
     @Test

@@ -1,4 +1,5 @@
 package net.whisper.wssession.clients.kafka;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.clients.enums.EKafkaMessageClientTypes;
@@ -18,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,12 +29,13 @@ import static org.mockito.Mockito.*;
 })
 public class ClientsConsumerServiceTest {
 
-    @SpyBean
-    private ClientsService clientsService;
     private final ClientsConsumerService clientsConsumerService;
     private final ObjectMapper objectMapper;
+    @SpyBean
+    private ClientsService clientsService;
     private ClientWithoutSession clientWithoutSession;
     private Client client;
+
     @Autowired
     public ClientsConsumerServiceTest(ClientsConsumerService clientsConsumerService, ObjectMapper objectMapper) {
         this.clientsConsumerService = clientsConsumerService;
@@ -67,10 +68,10 @@ public class ClientsConsumerServiceTest {
 
     @Test
     @DisplayName("Should log error for kafka for invalid message- handleTokenEvent")
-    public void handleTokenEventInvalidMessageNewClient()  {
+    public void handleTokenEventInvalidMessageNewClient() {
         String newClient = "INVALID_MESSAGE";
         Logger logger = mock(Logger.class);
-        ReflectionTestUtils.setField(this.clientsConsumerService,"logger", logger);
+        ReflectionTestUtils.setField(this.clientsConsumerService, "logger", logger);
         ConsumerRecord<String, String> consumerRecord = this.createRecordHeaders(newClient, EKafkaMessageClientTypes.NEW_CLIENT.getMessageType());
         this.clientsConsumerService.handleTokenEvent(consumerRecord);
         verify(logger).error(
@@ -84,7 +85,7 @@ public class ClientsConsumerServiceTest {
     public void handleTokenEventWhenMismatchMessageType() throws JsonProcessingException {
         String newClient = this.objectMapper.writeValueAsString(this.client);
         Logger logger = mock(Logger.class);
-        ReflectionTestUtils.setField(this.clientsConsumerService,"logger", logger);
+        ReflectionTestUtils.setField(this.clientsConsumerService, "logger", logger);
         ConsumerRecord<String, String> consumerRecord = this.createRecordHeaders(newClient, EKafkaMessageClientTypes.ADD_CLIENT.getMessageType());
         this.clientsConsumerService.handleTokenEvent(consumerRecord);
         verify(logger).error(
@@ -97,7 +98,7 @@ public class ClientsConsumerServiceTest {
     public void handleTokenEventWhenHeaderIsEmpty() throws JsonProcessingException {
         String newClient = this.objectMapper.writeValueAsString(this.client);
         Logger logger = mock(Logger.class);
-        ReflectionTestUtils.setField(this.clientsConsumerService,"logger", logger);
+        ReflectionTestUtils.setField(this.clientsConsumerService, "logger", logger);
         ConsumerRecord<String, String> consumerRecord = this.createRecordHeaders(newClient, null);
         this.clientsConsumerService.handleTokenEvent(consumerRecord);
         verify(logger).error(
@@ -109,7 +110,7 @@ public class ClientsConsumerServiceTest {
     @DisplayName("Should log error when message is empty - handleTokenEvent")
     public void handleTokenEventWhenMessageIsEmpty() throws JsonProcessingException {
         Logger logger = mock(Logger.class);
-        ReflectionTestUtils.setField(this.clientsConsumerService,"logger", logger);
+        ReflectionTestUtils.setField(this.clientsConsumerService, "logger", logger);
         ConsumerRecord<String, String> consumerRecord = this.createRecordHeaders(null, EKafkaMessageClientTypes.ADD_CLIENT.getMessageType());
         this.clientsConsumerService.handleTokenEvent(consumerRecord);
         verify(logger).error(
@@ -127,7 +128,7 @@ public class ClientsConsumerServiceTest {
 
         assertNotNull(result);
         assertInstanceOf(ClientWithoutSession.class, result);
-        assertEquals(clientWithoutSession.getUserToken(), ((ClientWithoutSession) result).getUserToken());
+        assertEquals(clientWithoutSession.getUserToken(), result.getUserToken());
     }
 
     @Test
@@ -138,7 +139,7 @@ public class ClientsConsumerServiceTest {
         IBaseClient result = ReflectionTestUtils.invokeMethod(clientsConsumerService, "mapMessage", type, message);
         assertNotNull(result);
         assertInstanceOf(Client.class, result);
-        assertEquals(client.getUserToken(), ((Client) result).getUserToken());
+        assertEquals(client.getUserToken(), result.getUserToken());
     }
 
     @Test
@@ -155,7 +156,7 @@ public class ClientsConsumerServiceTest {
 
     private ConsumerRecord<String, String> createRecordHeaders(String message, String type) {
         ConsumerRecord<String, String> consumerRecord = mock(ConsumerRecord.class);
-        if (type != null){
+        if (type != null) {
             RecordHeaders recordHeaders = new RecordHeaders();
             recordHeaders.add("type", type.getBytes());
             when(consumerRecord.headers()).thenReturn(recordHeaders);

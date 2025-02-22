@@ -10,7 +10,8 @@ public class ErrorResponseDTO {
 
     private String message;
 
-    public ErrorResponseDTO() {}
+    public ErrorResponseDTO() {
+    }
 
     public ErrorResponseDTO(String message) {
         this.message = message;

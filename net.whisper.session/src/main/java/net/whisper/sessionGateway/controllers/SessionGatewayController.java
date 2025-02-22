@@ -5,6 +5,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import net.whisper.sessionGateway.dto.responses.ErrorResponseDTO;
 import net.whisper.sessionGateway.models.IncomingClient;
+import net.whisper.sessionGateway.models.Partner;
 import net.whisper.sessionGateway.services.CookiesService;
 import net.whisper.sessionGateway.services.SessionService;
 import org.slf4j.Logger;
@@ -14,8 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/session")
@@ -71,14 +71,23 @@ public class SessionGatewayController {
 
             Cookie httpOnlyCookie = cookiesService.getCookie(client, 86400);
             logger.debug("Generated HTTP-only cookie for existing session: {}", httpOnlyCookie);
+            List<Partner> partners = new ArrayList<>();
 
-            Map<String, String> responseBody = Map.of(
-                    "sessionToken", client.getSessionToken(),
+            Map<String, Object> responseBody = new HashMap<String, Object>(Map.of("sessionToken", client.getSessionToken(),
                     "peerRole", client.getPeerRole().getPeerRoleName(),
-                    "secretKey", client.getSecretKey()
+                    "secretKey", client.getSecretKey(),
+                    "sessionAuthType", client.getSessionType().getSessionPGPStatus()));
+            if (client.getPartners() != null) {
+                partners.addAll(client.getPartners());
+                Object[] partnersMap = partners.stream().map(partner -> {
+                    return Map.of(
+                            "publicKey", partner.getPublicKey(),
+                            "username", partner.getUsername()
+                    );
+                }).toArray();
+                responseBody.put("partners", partnersMap);
 
-            );
-
+            }
             response.addCookie(httpOnlyCookie);
             logger.info("Existing session validation successful: responseBody={}", responseBody);
 
@@ -89,7 +98,8 @@ public class SessionGatewayController {
         } catch (Exception e) {
             logger.error("Error while validating existing session: sessionToken={}", sessionToken, e);
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponseDTO);        }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponseDTO);
+        }
     }
 
 
@@ -106,7 +116,9 @@ public class SessionGatewayController {
             Map<String, String> responseBody = Map.of(
                     "sessionToken", client.getSessionToken(),
                     "peerRole", client.getPeerRole().getPeerRoleName(),
-                    "secretKey", client.getSecretKey()
+                    "secretKey", client.getSecretKey(),
+                    "sessionAuthType", client.getSessionType().getSessionPGPStatus()
+
             );
 
             response.addCookie(httpOnlyCookie);

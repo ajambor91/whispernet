@@ -9,7 +9,7 @@ import {
     IPeerState,
     setCreatePeerState
 } from "../../../../../shared/slices/createSession.slice";
-import { logInfo, logError } from "../../../../../shared/error-logger/web";
+import {logInfo, logError, logWarning} from "../../../../../shared/error-logger/web";
 import {IISLoginState} from "../../../../../shared/slices/is-login.slize";
 import {useAppSelector} from "../../../../../shared/store/store";
 import styles from "./Home.module.scss";
@@ -51,17 +51,16 @@ export default function Home() {
 
     useEffect(() => {
         logInfo({ message: "Home component mounted" });
+        const peerState: IPeerState = response ?? signedResponse;
+        if (!peerState) {
+            logWarning({message: "Session data response is empty"});
+            return;
+        }
+        dispatch(setCreatePeerState(peerState));
 
-        dispatch(setCreatePeerState({
-            sessionToken: response ? response.sessionToken : null,
-            peerRole: response ? response.peerRole : null,
-            secretKey: response ? response.secretKey : null
-        }));
-
-        if (response || signedResponse) {
             logInfo({ message: "Received response from createNewChat", response });
             goToWaitingPage();
-        }
+
 
         if (newChatError) {
             addToast({

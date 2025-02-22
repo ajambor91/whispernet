@@ -21,7 +21,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.*;
@@ -30,12 +29,13 @@ import static org.mockito.Mockito.*;
 public class SessionConsumerServiceTest {
 
 
-    @SpyBean
-    private SessionService sessionService;
     private final SessionConsumerService sessionConsumerService;
     private final ObjectMapper objectMapper;
+    @SpyBean
+    private SessionService sessionService;
     private PeerSession peerSession;
     private PeerClient joinPeer;
+
     @Autowired
     public SessionConsumerServiceTest(SessionConsumerService sessionConsumerService, ObjectMapper objectMapper) {
         this.sessionConsumerService = sessionConsumerService;
@@ -111,6 +111,6 @@ public class SessionConsumerServiceTest {
             when(consumerRecord.headers()).thenReturn(recordHeaders);
         }
         when(consumerRecord.value()).thenReturn(message);
-        return  consumerRecord;
+        return consumerRecord;
     }
 }

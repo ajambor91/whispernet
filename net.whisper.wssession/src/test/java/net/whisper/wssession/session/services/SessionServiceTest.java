@@ -108,7 +108,7 @@ public class SessionServiceTest {
             if (peer.getPeerRole() == EPeerRole.INITIATOR) {
                 assertEquals(USER_ID_INITIATOR, peer.getUserId());
                 assertEquals(USER_TOKEN_INITIATOR, peer.getUserToken());
-            } else if(peer.getPeerRole() == EPeerRole.JOINER) {
+            } else if (peer.getPeerRole() == EPeerRole.JOINER) {
                 assertEquals(USER_TOKEN_JOINER, peer.getUserToken());
                 assertEquals(USER_ID_JOINER, peer.getUserId());
             }

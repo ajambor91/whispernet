@@ -1,13 +1,13 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {PeerRole} from "../enums/peer-role.enum";
-import {ISession} from "../models/ws-message.model";
-import {b} from "vite/dist/node/types.d-aGj9QkWt";
+import {EPGPAuthStatus} from "../enums/pgp-auth-status.enum";
 
 export interface IPeerState {
     sessionToken: string | null;
     peerRole: PeerRole | null;
     secretKey: string | null;
     isSigned?: boolean;
+    sessionAuthType?: EPGPAuthStatus;
 
 }
 
@@ -15,7 +15,8 @@ const initialState: IPeerState = {
     sessionToken: null,
     peerRole: null,
     secretKey: null,
-    isSigned: false
+    isSigned: false,
+    sessionAuthType: EPGPAuthStatus.UNSIGNED
 }
 
 export const createPeerStateSlice = createSlice({
@@ -27,6 +28,7 @@ export const createPeerStateSlice = createSlice({
             state.peerRole = action.payload.peerRole;
             state.secretKey = action.payload.secretKey;
             state.isSigned = action.payload.isSigned;
+            state.sessionAuthType = action.payload.sessionAuthType;
         }
     }
 });

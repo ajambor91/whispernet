@@ -37,8 +37,6 @@ public class ClientsKafkaProducer {
         } catch (JsonProcessingException e) {
             logger.error("Json process message error userToken={}, message={}", userClient.getUserToken(), e.getMessage());
         }
-
-
     }
 
     private void sendKafkaMsg(String parsedObject, String topic) {

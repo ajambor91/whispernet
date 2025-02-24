@@ -11,8 +11,9 @@ public interface IBaseClient {
 
     void setUserId(String userId);
 
-    EPGPSessionType getClientPGPType();
 
-    void setClientPGPType(EPGPSessionType clientPGPType);
+    EPGPSessionType getSessionType();
+
+    void setSessionType(EPGPSessionType sessionType);
 
 }

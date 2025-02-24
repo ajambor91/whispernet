@@ -30,8 +30,9 @@ public class ClientsConsumerService {
 
     @KafkaListener(topics = {"request-client-topic"}, groupId = "whispernet-wsession-clients-group")
     public void handleTokenEvent(ConsumerRecord<String, String> record) {
+        String message = record.value();
+        logger.info("Received kafka message with client, message={}", message);
         try {
-            String message = record.value();
             String type = this.getHeaderValue(record, "type");
             if (type == null) {
                 logger.error("Type is null");
@@ -43,13 +44,18 @@ public class ClientsConsumerService {
             }
             IBaseClient kafkaMessage = mapMessage(type, message);
             System.out.println(message);
-            if (kafkaMessage instanceof ClientWithoutSession) {
+            if (EKafkaMessageClientTypes.NEW_CLIENT.getMessageType().equals(type)) {
                 logger.info("Received kafka message for new client, userToken={}", kafkaMessage.getUserToken());
                 clientsService.processNewClient((ClientWithoutSession) kafkaMessage);
-            } else if (kafkaMessage instanceof Client) {
-                clientsService.processJoiningClient((Client) kafkaMessage);
+            } else if (EKafkaMessageClientTypes.ADD_CLIENT.getMessageType().equals(type)) {
                 logger.info("Received kafka message for joining client, userToken={}, sessionToken={}", kafkaMessage.getUserToken(), ((Client) kafkaMessage).getSessionToken());
-
+                clientsService.processJoiningClient((Client) kafkaMessage);
+            } else if (
+                    EKafkaMessageClientTypes.UPDATE_CLIENT.getMessageType().equals(type) ||
+                            EKafkaMessageClientTypes.UPDATE_LOGIN_CLIENT.getMessageType().equals(type)
+            ) {
+                logger.info("Received kafka message for update client, userToken={}, sessionToken={}", kafkaMessage.getUserToken(), ((Client) kafkaMessage).getSessionToken());
+                clientsService.updatePeer((Client) kafkaMessage, EKafkaMessageClientTypes.UPDATE_LOGIN_CLIENT.getMessageType().equals(type));
             }
             logger.error("Error: Received an empty kafka message");
         } catch (Exception e) {
@@ -70,7 +76,11 @@ public class ClientsConsumerService {
         if (EKafkaMessageClientTypes.NEW_CLIENT.getMessageType().equals(type)) {
             logger.info("Client sessionType= {}", message);
             return objectMapper.readValue(message, ClientWithoutSession.class);
-        } else if (EKafkaMessageClientTypes.ADD_CLIENT.getMessageType().equals(type)) {
+        } else if (
+                EKafkaMessageClientTypes.ADD_CLIENT.getMessageType().equals(type) ||
+                        EKafkaMessageClientTypes.UPDATE_CLIENT.getMessageType().equals(type) ||
+                        EKafkaMessageClientTypes.UPDATE_LOGIN_CLIENT.getMessageType().equals(type)
+        ) {
             return objectMapper.readValue(message, Client.class);
         } else {
             throw new RuntimeException("Unknown message type: " + type);

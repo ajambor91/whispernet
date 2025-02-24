@@ -2,6 +2,7 @@ import {ILoginResponse} from "../models/login-response.model";
 
 const dataFetch = async (url: string, options: RequestInit = {}) => {
     const userData: ILoginResponse = JSON.parse(localStorage.getItem("userData"));
+    console.log("USER DATA", userData);
     let headers: any;
     if (userData) {
         headers = {

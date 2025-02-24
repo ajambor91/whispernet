@@ -15,4 +15,13 @@ public class PeerClient extends BaseClient {
     public PeerClient(IBaseClient userClient) {
         super(userClient);
     }
+
+    public void updatePeer(PeerClient peerClient) {
+        if (this.getUserId() == null && peerClient.getUserId() != null) {
+            this.setUserId(peerClient.getUserId());
+        }
+        this.setClientConnectionStatus(peerClient.getClientConnectionStatus());
+        this.setSessionType(peerClient.getSessionType());
+        this.setUsername(peerClient.getUsername());
+    }
 }

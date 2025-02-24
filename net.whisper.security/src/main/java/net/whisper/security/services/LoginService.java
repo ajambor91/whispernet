@@ -7,6 +7,7 @@ import net.whisper.security.entities.User;
 import net.whisper.security.enums.ELoginStage;
 import net.whisper.security.enums.EPGPSessionType;
 import net.whisper.security.helpers.PGPHelper;
+import net.whisper.security.interfaces.IChecker;
 import net.whisper.security.interfaces.ISignedClient;
 import net.whisper.security.models.Partner;
 import net.whisper.security.models.RedisUser;
@@ -100,12 +101,17 @@ public class LoginService {
         return new LoginResponseDTO(user.getUsername(), jwt);
     }
 
-    public void getPartnerPub(List<Partner> partners) {
+    public void getPartnerPub(IChecker checker) {
 
-        if (partners == null) {
-            throw new NoSuchElementException("Partners is null");
+        if (checker == null) {
+            throw new NoSuchElementException("Checker is null");
         }
-        partners.stream().forEach(partner -> {
+
+        if (checker.getPartners().isEmpty()) {
+            throw new NoSuchElementException("Checker partners is null");
+
+        }
+        checker.getPartners().forEach(partner -> {
             RedisUser redisUser = this.redisRepository.getUser(partner.getUsername());
             try {
                 partner.setPublicKey(PGPHelper.convertToHex(redisUser.getPublicKey()));
@@ -117,7 +123,7 @@ public class LoginService {
             }
         });
 
-        this.kafkaService.returnsVerifiedPartners(partners);
+        this.kafkaService.returnsVerifiedPartners(checker);
 
     }
 
@@ -127,10 +133,10 @@ public class LoginService {
         map.put("authorization", client.getJwt());
         try {
             this.checkLogin(map);
-            client.setClientPGPType(EPGPSessionType.CHECK_RESPONDER);
+            client.setSessionType(EPGPSessionType.VERIFIED);
 
         } catch (Exception e) {
-            client.setClientPGPType(EPGPSessionType.UNSIGNED);
+            client.setSessionType(EPGPSessionType.UNSIGNED);
 
         } finally {
             this.kafkaService.returnVerifiedClient(client);

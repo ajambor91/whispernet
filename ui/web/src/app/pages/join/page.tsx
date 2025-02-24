@@ -1,15 +1,15 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 import useJoinChat from "../../../../../shared/hooks/useJoinChat";
 import JoinChat from "../../../../../shared/components/join-chat/JoinChat";
-import { useDispatch } from "react-redux";
-import {
-    IPeerState,
-    setCreatePeerState,
-} from "../../../../../shared/slices/createSession.slice";
+import {useDispatch} from "react-redux";
+import {IPeerState, setCreatePeerState,} from "../../../../../shared/slices/createSession.slice";
 import Centered from "../../../../../shared/components/elements/centered/Centered";
-import { useNavigate } from "react-router-dom";
-import { logInfo, logError } from "../../../../../shared/error-logger/web";
+import {useNavigate} from "react-router-dom";
+import {logError, logInfo} from "../../../../../shared/error-logger/web";
 import {useToasts} from "../../../../../shared/providers/toast-provider";
+import {EPGPAuthStatus} from "../../../../../shared/enums/pgp-auth-status.enum";
+import {PgpAuthEnumMapper} from "../../../../../shared/enums/pgp-auth-enum.mapper";
+
 const ChatJoining: React.FC = () => {
     const router = useNavigate();
     const { joinChat, response, error } = useJoinChat();
@@ -20,6 +20,11 @@ const ChatJoining: React.FC = () => {
         router('/waiting-join');
     }
 
+    const navigateToLogin = () => {
+        logInfo({message: "Navigating to waiting join page"});
+        router("/initialize-login");
+    }
+
     useEffect(() => {
         logInfo({ message: "ChatJoining component mounted" });
 
@@ -28,7 +33,21 @@ const ChatJoining: React.FC = () => {
             dispatch(setCreatePeerState(response));
             navigateToWaiting();
         }
-        if (error) {
+        console.log(response, error)
+        if (error && error.status === 401) {
+            addToast({
+                title: "Error",
+                type: "info",
+                description: "You're not verified, your partner requests you to verify your identity."
+            });
+            dispatch(setCreatePeerState({
+                sessionToken: error.sessionToken,
+                sessionAuthType: PgpAuthEnumMapper.mapValue(error.sessionAuthType),
+                peerRole: error.peerRole,
+                secretKey: error.secretKey
+            }))
+            navigateToLogin();
+        } else if (error) {
             addToast({
                 title: "Error",
                 type: "error",

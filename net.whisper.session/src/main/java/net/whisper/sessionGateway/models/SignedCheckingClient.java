@@ -3,6 +3,7 @@ package net.whisper.sessionGateway.models;
 import lombok.Getter;
 import lombok.Setter;
 import net.whisper.sessionGateway.enums.EPGPSessionType;
+import net.whisper.sessionGateway.interfaces.IBaseClient;
 import net.whisper.sessionGateway.interfaces.ISignedClient;
 
 @Getter
@@ -15,7 +16,7 @@ public class SignedCheckingClient extends BasicClient implements ISignedClient {
 
     }
 
-    public SignedCheckingClient(ClientWithoutSession clientWithoutSession, String jwt, String username) {
+    public SignedCheckingClient(IBaseClient clientWithoutSession, String jwt, String username) {
         this.setUserToken(clientWithoutSession.getUserToken());
         this.setUserId(clientWithoutSession.getUserId());
         this.setJwt(jwt);

@@ -1,6 +1,8 @@
 package net.whisper.sessionGateway.factories;
 
+import net.whisper.sessionGateway.dto.requests.PeerState;
 import net.whisper.sessionGateway.enums.EClientConnectionStatus;
+import net.whisper.sessionGateway.enums.EPGPSessionType;
 import net.whisper.sessionGateway.enums.EPeerRole;
 import net.whisper.sessionGateway.models.Client;
 import net.whisper.sessionGateway.models.ClientWithoutSession;
@@ -13,6 +15,15 @@ public class ClientFactory {
         client.setPeerRole(peerRole);
         client.setClientConnectionStatus(connectionStatus);
         client.setSessionToken(sessionToken);
+        return client;
+    }
+
+    public static Client createClient(String userToken, PeerState peerState) {
+        Client client = new Client();
+        client.setUserToken(userToken);
+        client.setPeerRole(EPeerRole.fromValue(peerState.getPeerRole()));
+        client.setSessionToken(peerState.getSessionToken());
+        client.setSessionType(EPGPSessionType.fromValue(peerState.getSessionAuthType()));
         return client;
     }
 

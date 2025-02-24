@@ -55,6 +55,26 @@ public class ClientSessionCoordinator {
         }
     }
 
+
+    public void updatePeerOrSession(String sessionToken, PeerClient client, boolean requestReturn) {
+        if (sessionToken == null) {
+            logger.error("ClientSessionCoordinator:updatePeerOrSession sessionToken cannot be null");
+            return;
+        }
+        if (client == null) {
+            logger.error("ClientSessionCoordinator:updatePeerOrSession client cannot be null");
+            return;
+        }
+        try {
+
+            this.sessionService.processUpdateClient(sessionToken, client, requestReturn);
+            logger.info("Peer update Peer Session, updatePeerOrSession, userToken={}, sessionToken={}", client.getUserToken(), sessionToken);
+
+        } catch (java.lang.Exception e) {
+            logger.error("ClientSessionCoordinator:updatePeerOrSession Error with process update client session, userToken={}, sessionToken={}, errorMessage={}", client.getUserToken(), sessionToken, e.getMessage());
+        }
+    }
+
     public void returnDataToUser(PeerSession peerSession, PeerClient peerClient) {
         if (peerSession == null) {
             logger.error("ClientSessionCoordinator:returnDataToUser peerSession cannot be null");

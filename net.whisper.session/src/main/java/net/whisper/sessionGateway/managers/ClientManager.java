@@ -1,5 +1,6 @@
 package net.whisper.sessionGateway.managers;
 
+import net.whisper.sessionGateway.dto.requests.PeerState;
 import net.whisper.sessionGateway.enums.EClientConnectionStatus;
 import net.whisper.sessionGateway.enums.EPeerRole;
 import net.whisper.sessionGateway.factories.ClientFactory;
@@ -16,6 +17,11 @@ public class ClientManager {
         String userToken = UUID.randomUUID().toString();
         String userId = UUID.randomUUID().toString();
         return ClientFactory.createClient(userToken, userId, sessionToken, EPeerRole.JOINER, EClientConnectionStatus.CREATED);
+    }
+
+    public Client createUpdateClient(String userToken, PeerState peerState) {
+
+        return ClientFactory.createClient(userToken, peerState);
     }
 
     public ClientWithoutSession setupNewClient() {

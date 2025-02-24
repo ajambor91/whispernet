@@ -2,6 +2,7 @@ package net.whisper.security.enums;
 
 public enum EPGPSessionType {
 
+    VERIFIED("verified"),
     SIGNED("signed"),
     CHECK_RESPONDER("check-responder"),
     SIGNED_INITIATOR("signed-initiator"),

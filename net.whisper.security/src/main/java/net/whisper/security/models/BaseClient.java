@@ -11,7 +11,7 @@ import net.whisper.security.interfaces.IBaseClient;
 public abstract class BaseClient implements IBaseClient {
     private String userToken;
     private String userId;
-    private EPGPSessionType clientPGPType;
+    private EPGPSessionType sessionType;
 
 
     public BaseClient() {

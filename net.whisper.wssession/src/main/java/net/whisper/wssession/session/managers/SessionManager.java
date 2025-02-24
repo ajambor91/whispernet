@@ -29,7 +29,6 @@ public class SessionManager {
         this.sessionRepository = sessionRepository;
     }
 
-
     public PeerSession createSession(PeerClient peerClient) {
         if (peerClient == null) {
             throw new IllegalArgumentException("PeerClient in createSession cannot be null");
@@ -44,10 +43,7 @@ public class SessionManager {
                 peerSession.setPgpSessionType(EPGPSessionType.SIGNED);
             }
             peerClient.setSessionType(peerSession.getPgpSessionType());
-
-
             peerSession.addPeerClient(peerClient);
-
             try {
                 logger.info("Existing session {}", new ObjectMapper().writeValueAsString(peerSession));
 
@@ -61,7 +57,33 @@ public class SessionManager {
             logger.error(e.getMessage());
             return peerSession;
         }
+    }
 
+    public PeerSession updatePeerSession(String sessionToken, PeerClient peerClient) {
+        logger.info("Updating peer, userToken={}, sessionToken={}", peerClient.getUserToken(), sessionToken);
+        PeerSession peerSession = this.sessionRepository.getSession(sessionToken);
+        logger.debug("Fetch session from Redis, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
+
+        Iterator<PeerClient> peerClientIterator = peerSession.getPeerClients().iterator();
+        PeerClient foundPeer = null;
+        while (peerClientIterator.hasNext()) {
+            PeerClient peer = peerClientIterator.next();
+            if (peer.getUserId().equals(peerClient.getUserId()) || peer.getUserToken().equals(peerClient.getUserToken())) {
+                foundPeer = peer;
+                logger.debug("Found peer to update, userToken={}, foundPeer={}", peerClient.getUserToken(), foundPeer.getUserToken());
+                break;
+            }
+        }
+        if (foundPeer == null) {
+            logger.debug("Peer not found userToken={}, sessionToken={}", peerClient.getUserToken(), sessionToken);
+            throw new NoSuchElementException("No peer found");
+        }
+        if (peerSession.getPgpSessionType() == EPGPSessionType.CHECK_RESPONDER && peerClient.getSessionType() == EPGPSessionType.VERIFIED) {
+            peerSession.setPgpSessionType(EPGPSessionType.WAITING_FOR_PEER_ACCEPTED);
+        }
+        peerClient.updatePeer(foundPeer);
+        foundPeer.updatePeer(peerClient);
+        return peerSession;
     }
 
     private PeerSession setupPeerSession(PeerClient peerClient) {
@@ -105,7 +127,7 @@ public class SessionManager {
         }
         existingSession.setSessionStatus(ESessionStatus.INTERRUPTED);
         this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);
-        logger.info("Peer has successfullly removed from session, sessionToken={}", peerSession.getSessionToken());
+        logger.info("Peer was successfully removed from session, sessionToken={}", peerSession.getSessionToken());
     }
 
     public void updateSession(PeerSession peerSession) {
@@ -123,7 +145,7 @@ public class SessionManager {
         });
         existingSession.setSessionStatus(peerSession.getSessionStatus());
         this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);
-        logger.info("Session has successfullly updated, sessionToken={}", peerSession.getSessionToken());
+        logger.info("Session was successfully updated, sessionToken={}", peerSession.getSessionToken());
     }
 
     private String createAESSecret() {

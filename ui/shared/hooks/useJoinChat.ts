@@ -2,6 +2,9 @@ import {useEffect, useState} from "react";
 import {IPeerState} from "../slices/createSession.slice";
 import {useToasts} from "../providers/toast-provider";
 import {IError} from "../models/error.model";
+import {logError} from "../error-logger/web";
+import {a} from "vite/dist/node/types.d-aGj9QkWt";
+import dataFetch from "../helpers/fetch";
 
 const useJoinChat = () => {
     const [response, setResponse] = useState<IPeerState>(null);
@@ -9,17 +12,55 @@ const useJoinChat = () => {
     const [error, setError] = useState<IError | null>(null);
     const joinChat = async (wsToken: string) => {
         let response: Response;
+        let data: any;
+        let errorData: IError;
+        let err: any;
         try {
-            response = await fetch(`/api/session/exists/${wsToken}`, {method: 'POST'});
-            const data: any = await response.json();
-            if (!response.ok) {
-                throw new Error('Failed to found existing chat');
-            }
-            setResponse(data);
+            response = await dataFetch(`/api/session/exists/${wsToken}`, {method: 'POST'});
+            data = await response.json();
 
-        } catch (e: any) {
-            setError({message: "Cannot join to chat. Please try again later.", status: response.status});
+
+
+        } catch (error: any) {
+            console.log("CATHC",error)
+            err = error;
+            logError({message: "Unauthorized session"})
         } finally {
+            if (response.ok) {
+                console.log("DATA RESPONMSE", data);
+                setResponse(data);
+                // /   throw new Error('Failed to found existing chat');
+            } else if (response.status === 401) {
+                console.log("DATA RESPONMSE 401",err, data);
+
+                errorData = {
+                    status: response.status ?? err?.status,
+                    name: err?.name,
+                    message: err?.message,
+                    stack: err?.stack,
+                    sessionToken: data.sessionToken,
+                    sessionAuthType: data.sessionAuthType,
+                    peerRole: data.peerRole,
+                    secretKey: data.secretKey,
+                    isSigned: data.isSigned
+                }
+                setError(errorData);
+
+            } else  {                console.log("DATA RESPONMSE err",err, data);
+
+
+                errorData = {
+
+                    status: response.status ?? err.status,
+                    name: err?.name,
+                    message: err?.message,
+                    stack: err?.stack
+                };
+                setError(errorData);
+
+            }
+            console.log('ERROR', error);
+            console.log("FINALLY", data)
             setLoading(false);
         }
     }

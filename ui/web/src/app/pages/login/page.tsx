@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import Centered from "../../../../../shared/components/elements/centered/Centered";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import Login from "../../../../../shared/components/login/Login";
 import {useAppSelector} from "../../../../../shared/store/store";
 import {ILoginState} from "../../../../../shared/slices/login.slice";
@@ -9,11 +9,17 @@ import {useDispatch} from "react-redux";
 import {setLoginData} from "../../../../../shared/slices/is-login.slize";
 import {useToasts} from "../../../../../shared/providers/toast-provider";
 import styles from "./Login.module.scss";
+import {IPeerState} from "../../../../../shared/slices/createSession.slice";
+import {EPGPAuthStatus} from "../../../../../shared/enums/pgp-auth-status.enum";
+import useJoinUpdateChat from "../../../../../shared/hooks/useJoinUpdateChat";
+
 const LoginPage: React.FC = () => {
+    const {joinUpdateChat} = useJoinUpdateChat();
     const router = useNavigate();
     const [b65File, setB64File] = useState<string>();
     const {login, response, error} = useLogin();
     const loginState: ILoginState = useAppSelector(state => state?.loginState);
+    const peerState: IPeerState = useAppSelector(state => state.peerState);
     const dispatch = useDispatch();
     const {addToast} = useToasts()
     const submit = () => {
@@ -41,6 +47,12 @@ const LoginPage: React.FC = () => {
                 isLogin: true,
                 ...response
             }));
+            if (peerState.sessionAuthType === EPGPAuthStatus.CHECK_RESPONDER) {
+                console.log("GRA")
+                joinUpdateChat(peerState);
+                router("/waiting-join");
+
+            }
             addToast({
                 type: "success",
                 title: "Success",

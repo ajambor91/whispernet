@@ -23,9 +23,9 @@ import java.util.concurrent.*;
 
 @Service
 public class KafkaService {
-    private final Logger logger;
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    protected final Logger logger;
+    protected final KafkaTemplate<String, String> kafkaTemplate;
+    protected final ObjectMapper objectMapper;
     private final ConcurrentHashMap<String, BlockingQueue<IncomingClient>> responseMap;
 
     @Autowired
@@ -53,14 +53,12 @@ public class KafkaService {
             return;
         }
         BlockingQueue<IncomingClient> queue = responseMap.computeIfAbsent(client.getUserToken(), k -> new LinkedBlockingQueue<>());
-
         try {
             queue.put(client);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.error(String.valueOf(e));
         }
-
     }
 
     public IncomingClient waitForMessage(IBaseClient client, long timeoutInSeconds) throws InterruptedException {
@@ -75,10 +73,9 @@ public class KafkaService {
             responseMap.remove(client.getUserToken());
             logger.info("Remove client from hashmap, userToken={}", client.getUserToken());
         }
-
     }
 
-    public void sendClient(IBasicClient client, EKafkaMessageTypes messageTypes) throws JsonProcessingException {
+    public void sendMessage(IBasicClient client, EKafkaMessageTypes messageTypes) throws JsonProcessingException {
         String kafkaMessageString = this.objectMapper.writeValueAsString(client);
         logger.info("Sending new client session using Kafka to wssession");
         sendKafkaMsg(
@@ -87,7 +84,6 @@ public class KafkaService {
                 messageTypes.getMessageType()
         );
         logger.info("New client message was send");
-
     }
 
     private void sendKafkaMsg(String parsedObject, String topic, String type) {
@@ -104,6 +100,5 @@ public class KafkaService {
             logger.error("Kafka message send error={}", ex.getMessage());
             return null;
         });
-
     }
 }

@@ -35,11 +35,11 @@ public class SessionService {
         if (peerClient == null) {
             throw new IllegalArgumentException("PeerClient for new client processing cannot be null");
         }
+        logger.debug("Passing new peerClient to sessionManager, userToken={}", peerClient.getUserToken());
         PeerSession peerSession = this.sessionManager.createSession(peerClient);
-        this.sessionKafkaProducer.sendSession(peerSession, EKafkaMessageTypes.NEW_SESSION);
+        logger.debug("Peer new was initialized new session successfully, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
+        this.conditionallySendRunSignalWebSocket(peerClient, peerSession, EKafkaMessageTypes.NEW_SESSION);
         this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);
-
-
     }
 
     public void processJoinClient(String sessionToken, PeerClient peerClient) {
@@ -50,13 +50,29 @@ public class SessionService {
         if (peerClient == null) {
             throw new IllegalArgumentException("PeerClient for joining client processing cannot be null");
         }
-
+        logger.debug("Passing joining peerClient to sessionManager, userToken={}", peerClient.getUserToken());
         PeerSession peerSession = this.sessionManager.addPeerToExistingSession(sessionToken, peerClient);
-        if (peerSession.getPgpSessionType() == EPGPSessionType.UNSIGNED || peerClient.getSessionType() == EPGPSessionType.SIGNED) {
-            this.sessionKafkaProducer.sendSession(peerSession, EKafkaMessageTypes.ADD_CLIENT_TO_SESSION);
-
-        }
+        logger.debug("Peer joining was added to session successfully, userToken={}, sessionToken={}", peerClient.getUserToken(), sessionToken);
+        this.conditionallySendRunSignalWebSocket(peerClient, peerSession, EKafkaMessageTypes.ADD_CLIENT_TO_SESSION);
         this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);
+    }
+
+    public void processUpdateClient(String sessionToken, PeerClient peerClient, boolean requestReturn) {
+        if (sessionToken == null) {
+            throw new IllegalArgumentException("sessionToken for update client processing cannot be null");
+        }
+
+        if (peerClient == null) {
+            throw new IllegalArgumentException("PeerClient for update client processing cannot be null");
+        }
+        logger.debug("Passing updating peerClient to sessionManager, userToken={}", peerClient.getUserToken());
+        PeerSession peerSession = this.sessionManager.updatePeerSession(sessionToken, peerClient);
+        logger.debug("Peer update was updated successfully, userToken={}, sessionToken={}", peerClient.getUserToken(), sessionToken);
+        this.conditionallySendRunSignalWebSocket(peerClient, peerSession, EKafkaMessageTypes.ADD_CLIENT_TO_SESSION);
+        if (requestReturn) {
+            logger.debug("Peer update is returning to Session, userToken={}, sessionToken={}", peerClient.getUserToken(), sessionToken);
+            this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);
+        }
     }
 
     public void updateSession(PeerSession peerSession) {
@@ -72,6 +88,14 @@ public class SessionService {
 
         }
         this.sessionManager.removeClientFromSession(peerSession);
+    }
+
+    private void conditionallySendRunSignalWebSocket(PeerClient peerClient, PeerSession peerSession, EKafkaMessageTypes kafkaMessageTypes) {
+        if (peerSession.getPgpSessionType() == EPGPSessionType.UNSIGNED || peerClient.getSessionType() == EPGPSessionType.SIGNED) {
+            logger.debug("Peer sending to Signal Server, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
+            this.sessionKafkaProducer.sendSession(peerSession, kafkaMessageTypes);
+
+        }
     }
 
 }

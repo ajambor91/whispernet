@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.security.enums.EKafkaTopic;
+import net.whisper.security.interfaces.IChecker;
 import net.whisper.security.interfaces.ISignedClient;
+import net.whisper.security.models.Checker;
 import net.whisper.security.models.Partner;
 import net.whisper.security.models.SignedClient;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -71,9 +73,8 @@ public class KafkaService {
             throw new NullPointerException("Message is empty");
         }
         try {
-            List<Partner> partners = this.objectMapper.readValue(message, new TypeReference<List<Partner>>() {
-            });
-            loginService.getPartnerPub(partners);
+            IChecker checker = this.objectMapper.readValue(message, Checker.class);
+            loginService.getPartnerPub(checker);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -83,9 +84,9 @@ public class KafkaService {
 
     }
 
-    public void returnsVerifiedPartners(List<Partner> partners) {
+    public void returnsVerifiedPartners(IChecker checker) {
         try {
-            String message = this.objectMapper.writeValueAsString(partners);
+            String message = this.objectMapper.writeValueAsString(checker);
             this.sendKafkaMsg(message, EKafkaTopic.CHECK_SIGN_PARTNER);
 
         } catch (JsonProcessingException e) {

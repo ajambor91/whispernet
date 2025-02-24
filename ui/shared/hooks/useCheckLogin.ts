@@ -4,7 +4,9 @@ import {IInitializeLogin} from "../models/initialize-login.model";
 import {IInitializedLoginResponse} from "../models/initialized-login-response.model";
 import {IUserAuthorization} from "../models/user-authorization.model";
 import dataFetch from "../helpers/fetch";
-
+const deleteUserAUthData = () => {
+    localStorage.removeItem("userData");
+}
 const useCheckLogin = () => {
     const [response, setResponse] = useState<IUserAuthorization>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -18,11 +20,13 @@ const useCheckLogin = () => {
                 }
             });
             if (!response.ok) {
+                deleteUserAUthData();
                 setResponse({userAuthorization: false})
             } else  {
                 setResponse({userAuthorization: true});
             }
         } catch (e: any) {
+            deleteUserAUthData();
             setError(e);
         } finally {
             setLoading(false);

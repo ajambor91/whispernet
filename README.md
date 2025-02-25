@@ -243,7 +243,10 @@ You can find the HTML report in the `target/site/jacoco` directory or access it 
 
 - [Session-Service Coverage Report](https://ajambor91.github.io/whispernet/reports/session/jacoco/test/html/index.html)
 - [WSSession-Service Coverage Report](https://ajambor91.github.io/whispernet/reports/wssession/jacoco/test/html/index.html)
+### Notes
 
+*   **Newest version (feature/force-responder-verifying):**  A new feature demo of peer identity verification using PGP keys is available on the `feature/force-responder-verifying` branch.  You can force a session to walk through the verification process and connect to the Approving Server.
+*   **Production (release/0.1.1):** The current production version resides on the `release/0.1.1` branch.
 ## In progress
 1. **Finishing PGP signing sessions flow**
 2. **Security service testing**

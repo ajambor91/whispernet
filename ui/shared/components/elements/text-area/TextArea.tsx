@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import React, {Ref} from "react";
-import {a} from "vite/dist/node/types.d-aGj9QkWt";
 
 const TextareaContainer = styled.div`
   display: flex;
@@ -40,6 +39,7 @@ const StyledTextarea = styled.textarea`
     color: #777;
   }
 `;
+
 interface ITextAreaProps {
     ref?: Ref<any>;
     label?: string;
@@ -47,11 +47,12 @@ interface ITextAreaProps {
     style?: any;
     onChange?: (event: any) => void
 }
-const Textarea: React.FC<ITextAreaProps> = ({ label, placeholder, style, ref, onChange }) => {
+
+const Textarea: React.FC<ITextAreaProps> = ({label, placeholder, style, ref, onChange}) => {
     return (
         <TextareaContainer>
             <TextareaLabel>{label}</TextareaLabel>
-            <StyledTextarea onChange={onChange} ref={ref} style={style} placeholder={placeholder} />
+            <StyledTextarea onChange={onChange} ref={ref} style={style} placeholder={placeholder}/>
         </TextareaContainer>
     );
 };

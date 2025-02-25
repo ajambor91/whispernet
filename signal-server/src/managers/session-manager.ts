@@ -2,7 +2,7 @@ import {SessionController} from "../controllers/session-controller";
 import {logWarning} from "../error-logger/error-looger";
 
 
-export type SessionManager = {
+export interface SessionManager  {
     getSessions: () => SessionController[],
     getSession: (sessionToken: string) => SessionController | undefined,
     hasSession: (sessionToken: string) => boolean,

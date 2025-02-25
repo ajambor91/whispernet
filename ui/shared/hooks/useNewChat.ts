@@ -1,9 +1,7 @@
 import {useState} from "react";
-import {ISession} from "../models/ws-message.model";
 import dataFetch from "../helpers/fetch";
 import {IError} from "../models/error.model";
 import {IPeerState} from "../slices/createSession.slice";
-
 
 
 const useNewChat = () => {

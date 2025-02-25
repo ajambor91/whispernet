@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useRef, useState } from "react";
+import React, {useRef, useState} from "react";
 
 const RadioContainer = styled.div`
     display: flex;
@@ -53,7 +53,7 @@ export interface IRadioProps {
     valueChange: (option: string) => void;
 }
 
-const Radio: React.FC<IRadioProps> = ({ options, valueChange }) => {
+const Radio: React.FC<IRadioProps> = ({options, valueChange}) => {
     const [currentValue, setCurrentValue] = useState<string | undefined>();
     const refs = useRef<Map<string, HTMLInputElement>>(new Map());
 
@@ -87,7 +87,7 @@ const Radio: React.FC<IRadioProps> = ({ options, valueChange }) => {
                         onChange={() => onChange(option)}
                     />
                     <RadioLabel htmlFor={option.id}>
-                        <RadioCustom />
+                        <RadioCustom/>
                         {option.label}
                     </RadioLabel>
                 </div>

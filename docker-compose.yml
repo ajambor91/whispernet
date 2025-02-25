@@ -141,6 +141,17 @@ services:
       dockerfile: './Dockerfile.dev'
     networks:
       - whispernet
+  approving:
+    depends_on:
+      - broker
+      - session
+    build:
+      context: './responder-approving'
+      dockerfile: './Dockerfile'
+    container_name: approving
+    hostname: approving
+    networks:
+      - whispernet
   coturn:
     build:
       context: './coturn'

@@ -1,5 +1,3 @@
-import {a} from "vite/dist/node/types.d-aGj9QkWt";
-
 class ErrorHandler {
     private static _instance: ErrorHandler;
 

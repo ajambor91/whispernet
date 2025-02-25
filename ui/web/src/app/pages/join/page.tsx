@@ -9,14 +9,20 @@ import {logError, logInfo} from "../../../../../shared/error-logger/web";
 import {useToasts} from "../../../../../shared/providers/toast-provider";
 import {EPGPAuthStatus} from "../../../../../shared/enums/pgp-auth-status.enum";
 import {PgpAuthEnumMapper} from "../../../../../shared/enums/pgp-auth-enum.mapper";
+import {addPartners} from "../../../../../shared/slices/partners-keys.slice";
 
 const ChatJoining: React.FC = () => {
     const router = useNavigate();
-    const { joinChat, response, error } = useJoinChat();
+    const {joinChat, response, error} = useJoinChat();
     const dispatch = useDispatch();
     const {addToast} = useToasts();
+
+    const navigateToApproving = () => {
+        logInfo({message: "Navigating to approving page"});
+        router('/approving');
+    }
     const navigateToWaiting = () => {
-        logInfo({ message: "Navigating to waiting join page" });
+        logInfo({message: "Navigating to waiting join page"});
         router('/waiting-join');
     }
 
@@ -26,14 +32,22 @@ const ChatJoining: React.FC = () => {
     }
 
     useEffect(() => {
-        logInfo({ message: "ChatJoining component mounted" });
+        logInfo({message: "ChatJoining component mounted"});
+        if (response) {
+            logInfo({message: "Received response from joinChat", response});
+            dispatch(setCreatePeerState(response));
+        }
+
+        if (response && response.sessionAuthType === EPGPAuthStatus.WAITING_FOR_PEER_ACCEPTED) {
+            dispatch(addPartners(response.partners))
+            navigateToApproving();
+            return;
+        }
 
         if (response) {
-            logInfo({ message: "Received response from joinChat", response });
-            dispatch(setCreatePeerState(response));
             navigateToWaiting();
+            return;
         }
-        console.log(response, error)
         if (error && error.status === 401) {
             addToast({
                 title: "Error",
@@ -55,12 +69,12 @@ const ChatJoining: React.FC = () => {
             });
         }
         return () => {
-            logInfo({ message: "ChatJoining component unmounted" });
+            logInfo({message: "ChatJoining component unmounted"});
         }
     }, [response, error]);
 
     const onChatSubmit = async (hash: string) => {
-        logInfo({ message: "Submitting chat join request", hash });
+        logInfo({message: "Submitting chat join request", hash});
         dispatch(setCreatePeerState({
             session: null,
             peerRole: null
@@ -68,9 +82,9 @@ const ChatJoining: React.FC = () => {
 
         try {
             await joinChat(hash);
-            logInfo({ message: "joinChat called successfully" });
+            logInfo({message: "joinChat called successfully"});
         } catch (error) {
-            logError({ message: "Error in joinChat", error });
+            logError({message: "Error in joinChat", error});
         }
     }
 

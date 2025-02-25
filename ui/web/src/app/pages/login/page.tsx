@@ -12,9 +12,10 @@ import styles from "./Login.module.scss";
 import {IPeerState} from "../../../../../shared/slices/createSession.slice";
 import {EPGPAuthStatus} from "../../../../../shared/enums/pgp-auth-status.enum";
 import useJoinUpdateChat from "../../../../../shared/hooks/useJoinUpdateChat";
+import {addPartners} from "../../../../../shared/slices/partners-keys.slice";
 
 const LoginPage: React.FC = () => {
-    const {joinUpdateChat} = useJoinUpdateChat();
+    const {joinUpdateChat, updateResponse} = useJoinUpdateChat();
     const router = useNavigate();
     const [b65File, setB64File] = useState<string>();
     const {login, response, error} = useLogin();
@@ -40,17 +41,23 @@ const LoginPage: React.FC = () => {
             });
         }
     };
+
     useEffect(() => {
-        if (response){
+        if (updateResponse) {
+            dispatch(addPartners(updateResponse.partners))
+            router("/approving");
+        }
+    }, [updateResponse]);
+    useEffect(() => {
+        if (response) {
             localStorage.setItem("userData", JSON.stringify(response))
             dispatch(setLoginData({
                 isLogin: true,
                 ...response
             }));
             if (peerState.sessionAuthType === EPGPAuthStatus.CHECK_RESPONDER) {
-                console.log("GRA")
                 joinUpdateChat(peerState);
-                router("/waiting-join");
+                return;
 
             }
             addToast({
@@ -85,7 +92,8 @@ const LoginPage: React.FC = () => {
         <section className="full-screen">
             <Centered>
                 <div className={styles["login-container"]}>
-                    <Login loginState={loginState} submit={submit} submitSigned={submitSigned}  onFileUpload={onFileUpload}/>
+                    <Login loginState={loginState} submit={submit} submitSigned={submitSigned}
+                           onFileUpload={onFileUpload}/>
 
                 </div>
             </Centered>

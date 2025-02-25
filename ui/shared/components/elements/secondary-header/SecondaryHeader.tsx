@@ -10,10 +10,12 @@ const StyledSecondaryHeader = styled.h2`
 
     }
 `;
+
 interface IHeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
     children: string;
 }
-const SecondaryHeader: React.FC<IHeaderProps> = ( {children, ...props }) => {
+
+const SecondaryHeader: React.FC<IHeaderProps> = ({children, ...props}) => {
     return (
         <StyledSecondaryHeader  {...props}>
             {children}

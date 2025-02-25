@@ -1,6 +1,6 @@
-export const pgpPlaceholder = "\n"+
-    "\n"+
-    "\n"+
+export const pgpPlaceholder = "\n" +
+    "\n" +
+    "\n" +
     "\t\t\t\t  -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
     "\n" +
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" +
@@ -18,9 +18,9 @@ export const pgpPlaceholder = "\n"+
     "\t\t\t\t     -----END PGP PUBLIC KEY BLOCK-----";
 
 
-export const pgpPrivatePlaceholder: string = "\n"+
-    "\n"+
-    "\n"+
+export const pgpPrivatePlaceholder: string = "\n" +
+    "\n" +
+    "\n" +
     "\t\t\t\t  -----BEGIN PGP PRIVATE KEY BLOCK-----\n" +
     "\n" +
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" +

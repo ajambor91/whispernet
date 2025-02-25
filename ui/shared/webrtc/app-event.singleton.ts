@@ -1,8 +1,8 @@
-import { EventEmitter } from 'eventemitter3';
-import { IAuthMessage, IOutgoingMessage, ISignalMessage } from "../models/ws-message.model";
-import { IEventMessage } from "../models/event-message.model";
-import { EWebSocketEventType } from "../enums/ws-message.enum";
-import { Buffer } from "buffer";
+import {EventEmitter} from 'eventemitter3';
+import {IAuthMessage, IOutgoingMessage, ISignalMessage} from "../models/ws-message.model";
+import {IEventMessage} from "../models/event-message.model";
+import {EWebSocketEventType} from "../enums/ws-message.enum";
+import {Buffer} from "buffer";
 
 export class AppEvent extends EventEmitter {
     private static _instance: AppEvent;
@@ -22,46 +22,6 @@ export class AppEvent extends EventEmitter {
             this._instance = new AppEvent();
         }
         return this._instance;
-    }
-
-    private setupWebSocketListeners(): void {
-        this._ws.onmessage = async (message: MessageEvent) => {
-            const { event, data } = await this.decodeMsg(message);
-            this.emit(event, data);
-        };
-
-        this._ws.onopen = (event) => {
-            this.emit('open', event);
-        };
-
-        this._ws.onclose = (event) => {
-            this.emit('close', event);
-            this.reconnect();
-        };
-
-        this._ws.onerror = (error) => {
-            this.emit('error', error);
-        };
-    }
-
-    private reconnect(): void {
-        if (this._reconnectAttempts >= this._maxReconnectAttempts) {
-            return;
-        }
-
-        this._reconnectAttempts++;
-
-        this._ws = new WebSocket('/api/signal');
-        this.setupWebSocketListeners();
-
-        this._ws.onopen = () => {
-            this._reconnectAttempts = 0; // Reset attempts
-            this.emit('reconnected');
-        };
-
-        this._ws.onclose = () => {
-            this._reconnectTimeout = setTimeout(() => this.reconnect(), 2000);
-        };
     }
 
     public send(message: IEventMessage): void {
@@ -112,6 +72,46 @@ export class AppEvent extends EventEmitter {
             }
         };
         this.sendMessage(msg);
+    }
+
+    private setupWebSocketListeners(): void {
+        this._ws.onmessage = async (message: MessageEvent) => {
+            const {event, data} = await this.decodeMsg(message);
+            this.emit(event, data);
+        };
+
+        this._ws.onopen = (event) => {
+            this.emit('open', event);
+        };
+
+        this._ws.onclose = (event) => {
+            this.emit('close', event);
+            this.reconnect();
+        };
+
+        this._ws.onerror = (error) => {
+            this.emit('error', error);
+        };
+    }
+
+    private reconnect(): void {
+        if (this._reconnectAttempts >= this._maxReconnectAttempts) {
+            return;
+        }
+
+        this._reconnectAttempts++;
+
+        this._ws = new WebSocket('/api/signal');
+        this.setupWebSocketListeners();
+
+        this._ws.onopen = () => {
+            this._reconnectAttempts = 0; // Reset attempts
+            this.emit('reconnected');
+        };
+
+        this._ws.onclose = () => {
+            this._reconnectTimeout = setTimeout(() => this.reconnect(), 2000);
+        };
     }
 
     private sendMessage(message: IEventMessage): void {

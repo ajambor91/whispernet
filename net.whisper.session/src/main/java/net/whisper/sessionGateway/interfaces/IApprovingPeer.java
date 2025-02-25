@@ -1,7 +1,7 @@
 package net.whisper.sessionGateway.interfaces;
 
 
-public interface IVerificationPeer extends IPartner {
+public interface IApprovingPeer {
 
     String getUserId();
 

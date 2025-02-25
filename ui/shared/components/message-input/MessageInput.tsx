@@ -1,17 +1,16 @@
-import {useRef, useState} from "react";
+import {useRef} from "react";
 import styles from './MessageInput.module.scss';
-import { IWebrtcPeerMessage } from "../../models/webrtc-peer-message.model";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleUp } from "@fortawesome/free-solid-svg-icons/faCircleUp";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCircleUp} from "@fortawesome/free-solid-svg-icons/faCircleUp";
 import ScrollContainer from "../elements/scroll-container/ScrollContainer";
-import {IWebrtcLocalMessage, IWebrtcPreparingMessage} from "../../models/webrtc-preparing-message.moidel";
+import {IWebrtcLocalMessage} from "../../models/webrtc-preparing-message.moidel";
 
 interface IMessageInput {
     sendMessage: (msg: IWebrtcLocalMessage) => void;
     setMessageInput: (height: number) => void;
 }
 
-const MessageInput: React.FC<IMessageInput> = ({ sendMessage, setMessageInput }) => {
+const MessageInput: React.FC<IMessageInput> = ({sendMessage, setMessageInput}) => {
     const messageRef = useRef<HTMLDivElement>(null);
     const inputContainerRef = useRef<HTMLDivElement | null>(null);
     const handleInput = () => {
@@ -85,7 +84,7 @@ const MessageInput: React.FC<IMessageInput> = ({ sendMessage, setMessageInput })
                     className={styles['message-input__send-button']}
                     onClick={passMessage}
                 >
-                    <FontAwesomeIcon icon={faCircleUp} style={{ fontSize: '1.5rem' }} />
+                    <FontAwesomeIcon icon={faCircleUp} style={{fontSize: '1.5rem'}}/>
                 </button>
             </div>
         </div>

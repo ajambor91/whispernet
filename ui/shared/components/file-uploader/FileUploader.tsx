@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useState } from "react";
+import React, {useState} from "react";
 
 const FileContainer = styled.div`
     display: flex;
@@ -50,9 +50,11 @@ const FileName = styled.p`
     color: #fff;
     word-break: break-all;
 `;
+
 interface IFileUploaderProps {
     onFile: (file: File) => void
 }
+
 const FileUploader: React.FC<IFileUploaderProps> = ({onFile}) => {
     const [fileName, setFileName] = useState<string | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);

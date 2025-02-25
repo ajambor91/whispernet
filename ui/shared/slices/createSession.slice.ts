@@ -8,7 +8,6 @@ export interface IPeerState {
     secretKey: string | null;
     isSigned?: boolean;
     sessionAuthType?: EPGPAuthStatus;
-
 }
 
 const initialState: IPeerState = {

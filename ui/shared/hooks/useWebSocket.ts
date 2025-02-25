@@ -1,5 +1,5 @@
-import { IPeerState } from "../slices/createSession.slice";
-import { useEffect, useRef, useCallback } from "react";
+import {IPeerState} from "../slices/createSession.slice";
+import {useCallback, useEffect, useRef} from "react";
 import {IPeer} from "../interfaces/peer.interface";
 import {getPeer, initializePeer} from "../webrtc/peer";
 

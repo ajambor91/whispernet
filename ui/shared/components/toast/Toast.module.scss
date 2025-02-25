@@ -30,23 +30,28 @@
   &.fadeOut {
     animation: fadeOutUp 2s ease forwards;
   }
+
   .toast-body {
     width: 100%;
     position: relative;
     margin-top: -15px;
     padding-left: 5px;
+
     &__header {
       font-size: 1rem;
     }
+
     &__description {
       margin-top: -5px;
       font-size: 1rem;
       font-style: italic;
     }
+
     &__close {
       position: absolute;
       right: 0;
       top: 15px;
+
       .close {
         font-size: 2rem;
         background-color: transparent;

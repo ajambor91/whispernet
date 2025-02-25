@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
 import Centered from "../../../../../shared/components/elements/centered/Centered";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import Register from "../../../../../shared/components/register/Register";
 import {IRegisterRequest} from "../../../../../shared/models/register-request.model";
 import useRegister from "../../../../../shared/hooks/useRegister";
 import {useToasts} from "../../../../../shared/providers/toast-provider";
 import styles from "./Register.module.scss";
+
 const RegisterPage: React.FC = () => {
     const router = useNavigate();
     const [b65File, setB64File] = useState<string>();
@@ -58,10 +59,10 @@ const RegisterPage: React.FC = () => {
         <section className="full-screen">
             <Centered>
 
-            <div className={styles["sign-up-container"]}>
+                <div className={styles["sign-up-container"]}>
 
-                <Register submit={submit}  onFileUpload={onFileUpload}/>
-            </div>
+                    <Register submit={submit} onFileUpload={onFileUpload}/>
+                </div>
             </Centered>
 
         </section>

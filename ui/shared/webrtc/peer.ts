@@ -13,7 +13,7 @@ import {IPeerState} from "../slices/createSession.slice";
 import {logError, logInfo, logWarning} from "../error-logger/web";
 import {IPeer} from "../interfaces/peer.interface";
 
-class Peer extends EventEmitter implements IPeer{
+class Peer extends EventEmitter implements IPeer {
     private static _instance: Peer;
     private readonly _auth: IAuth;
     private readonly _ping: IPingPong;
@@ -22,11 +22,7 @@ class Peer extends EventEmitter implements IPeer{
     private readonly _peerRole: PeerRole;
     private _status: EClientStatus = EClientStatus.NotConnected;
     private _rtcState!: ConnectionStateModel;
-    private iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
-
-    public get sessionToken(): string {
-        return this._sessionToken;
-    }
+    private iceServers = [{urls: 'stun:stun.l.google.com:19302'}];
 
     constructor(peerState: IPeerState) {
         super();
@@ -57,8 +53,12 @@ class Peer extends EventEmitter implements IPeer{
 
     }
 
+    public get sessionToken(): string {
+        return this._sessionToken;
+    }
+
     public static getInstance(peerState?: IPeerState): IPeer {
-        if(!this._instance && !peerState) {
+        if (!this._instance && !peerState) {
             throw new Error("Failed to initialize peer - no peer state")
         }
         if (!this._instance) {
@@ -72,23 +72,23 @@ class Peer extends EventEmitter implements IPeer{
         return this;
     }
 
-     public onSessionInfo = (fn: (data: string) => void): this => {
-         this.on('sessionInfo', fn)
-         return this;
-     }
+    public onSessionInfo = (fn: (data: string) => void): this => {
+        this.on('sessionInfo', fn)
+        return this;
+    }
 
-     public onWebRTCMessage = (fn: (data: string) => void): this => {
-         if (!this.listeners('webRTCMessage').includes(fn)) {
-             this.on('webRTCMessage', fn);
-         } else {
-             logWarning({message: "Duplicate event listeners on webRTCMessage"})
-         }
-         return this;
-     }
+    public onWebRTCMessage = (fn: (data: string) => void): this => {
+        if (!this.listeners('webRTCMessage').includes(fn)) {
+            this.on('webRTCMessage', fn);
+        } else {
+            logWarning({message: "Duplicate event listeners on webRTCMessage"})
+        }
+        return this;
+    }
 
-     public sendWebRTCMessage(message: string): void {
+    public sendWebRTCMessage(message: string): void {
         this._rtcState.dataChannel.send(message)
-     }
+    }
 
     private _setOwnStatus(status: EClientStatus): void {
         this._status = status;
@@ -96,7 +96,7 @@ class Peer extends EventEmitter implements IPeer{
     }
 
     private _onMessage(data: string): void {
-        this.emit('webRTCMessage',data)
+        this.emit('webRTCMessage', data)
     }
 
     private _emitSessionInfo(data: string): void {
@@ -145,21 +145,21 @@ class Peer extends EventEmitter implements IPeer{
     }
 
     private async _sendOffer(): Promise<void> {
-        this._rtcState.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
+        this._rtcState.peerConnection = new RTCPeerConnection({iceServers: this.iceServers});
 
         this._rtcState.dataChannel = this._rtcState.peerConnection.createDataChannel("chat");
 
-            const offer = await this._rtcState.peerConnection.createOffer();
-            await this._rtcState.peerConnection.setLocalDescription(offer);
+        const offer = await this._rtcState.peerConnection.createOffer();
+        await this._rtcState.peerConnection.setLocalDescription(offer);
 
-            const rtcOffer: IOutgoingMessage = {
-                type: EWebSocketEventType.Offer,
-                offer: offer,
-                sessionToken: this._sessionToken,
-                peerStatus: EClientStatus.WebRTCInitialization
-            }
+        const rtcOffer: IOutgoingMessage = {
+            type: EWebSocketEventType.Offer,
+            offer: offer,
+            sessionToken: this._sessionToken,
+            peerStatus: EClientStatus.WebRTCInitialization
+        }
 
-            this._appEvent.sendWSMessage(rtcOffer)
+        this._appEvent.sendWSMessage(rtcOffer)
     }
 
     private _handleIceCandidate(event: RTCPeerConnectionIceEvent): void {
@@ -187,7 +187,7 @@ class Peer extends EventEmitter implements IPeer{
     private async _handleOffer(data: IIncomingMessage): Promise<void> {
         try {
             if (!this._rtcState.peerConnection) {
-                this._rtcState.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
+                this._rtcState.peerConnection = new RTCPeerConnection({iceServers: this.iceServers});
                 this._rtcState.peerConnection.onicecandidate = (event) => this._handleIceCandidate(event);
             }
             this._setOwnStatus(EClientStatus.WebRTCInitialization);
@@ -276,40 +276,40 @@ class Peer extends EventEmitter implements IPeer{
         };
 
         this._rtcState.dataChannel.onclose = () => {
-            logInfo({message: "WebRTC Session was closed:" + this._sessionToken + " for peer: " + this._peerRole  })
+            logInfo({message: "WebRTC Session was closed:" + this._sessionToken + " for peer: " + this._peerRole})
         };
     }
 }
 
-export const initializePeer = (peerState: IPeerState): IPeer  => {
-     try {
-         return  Peer.getInstance(peerState)
-     } catch (e) {
-         logError(e)
-     }
+export const initializePeer = (peerState: IPeerState): IPeer => {
+    try {
+        return Peer.getInstance(peerState)
+    } catch (e) {
+        logError(e)
+    }
 }
 
 export const getPeer = (): IPeer => {
-     try {
-         return Peer.getInstance()
-     } catch (e) {
-         logError(e)
-     }
+    try {
+        return Peer.getInstance()
+    } catch (e) {
+        logError(e)
+    }
 }
 
 export const getOnPeerStatus = () => {
-     try {
-         return Peer.getInstance().onStatus;
+    try {
+        return Peer.getInstance().onStatus;
 
-     } catch (e) {
-         throw logError(e)
-     }
+    } catch (e) {
+        throw logError(e)
+    }
 }
 
 export const sendWebRTCMessage = (data: string): void => {
-     Peer.getInstance().sendWebRTCMessage(data)
+    Peer.getInstance().sendWebRTCMessage(data)
 }
 
-export const onMessage = (fn: (data: string) => void): void  => {
-     Peer.getInstance().onWebRTCMessage(fn)
+export const onMessage = (fn: (data: string) => void): void => {
+    Peer.getInstance().onWebRTCMessage(fn)
 }

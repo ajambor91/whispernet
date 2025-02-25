@@ -1,6 +1,6 @@
 import '../../styles/globals.scss'
 import styles from './Chat.module.scss'
-import React, { useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Message from "../message/Message";
 import MessageInput from "../message-input/MessageInput";
 import {IWebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
@@ -51,7 +51,11 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
             throw new Error("Null encoded provided");
         }
         const msg: IWasmEncoded = (encoder.current as MessageEncoder).encodeMessage(content.content);
-        sendWebRTCMessage(stringfyWebRTCPeerMsg({iv: msg.iv, encryptedMsg: msg.encryptedMsg, sessionId: peerState.sessionToken as string}))
+        sendWebRTCMessage(stringfyWebRTCPeerMsg({
+            iv: msg.iv,
+            encryptedMsg: msg.encryptedMsg,
+            sessionId: peerState.sessionToken as string
+        }))
         addMessage({
             content: msg.sanitazedMsg,
             type: 'reply',
@@ -64,38 +68,38 @@ const ChatComponent: React.FC<IChatComponentProps> = ({peerState}) => {
     useEffect(() => {
 
         onMessage((event) => {
-                if (!encoder.current) {
-                    throw new Error("Null encoded provided");
-                }
-                const incommingMessage: IWebrtcPeerMessage = parseWebRTCPeerMsg(event)
-                const msg: IWebrtcLocalMessage = {
-                    content: (encoder.current as MessageEncoder).decodeMessage(incommingMessage.encryptedMsg, incommingMessage.iv).decryptedMessage,
-                    messageId: incommingMessage.messageId,
-                    type: 'incoming',
-                    sessionId: incommingMessage.sessionId
-                }
-                addMessage(msg)
+            if (!encoder.current) {
+                throw new Error("Null encoded provided");
+            }
+            const incommingMessage: IWebrtcPeerMessage = parseWebRTCPeerMsg(event)
+            const msg: IWebrtcLocalMessage = {
+                content: (encoder.current as MessageEncoder).decodeMessage(incommingMessage.encryptedMsg, incommingMessage.iv).decryptedMessage,
+                messageId: incommingMessage.messageId,
+                type: 'incoming',
+                sessionId: incommingMessage.sessionId
+            }
+            addMessage(msg)
         })
     }, []);
     return (
         <FullHeight>
-        <div className="full-screen relative">
-            <div className={styles["chat-container"]}>
-                <div className={styles["message-container"]}>
-                    <ScrollContainer resize={messageInputHeight}>
-                        {messages.map(msg => (
-                               <div key={msg.messageId}>
-                                   <Message message={msg}/>
-                               </div>
-                        ))}
-                    </ScrollContainer>
+            <div className="full-screen relative">
+                <div className={styles["chat-container"]}>
+                    <div className={styles["message-container"]}>
+                        <ScrollContainer resize={messageInputHeight}>
+                            {messages.map(msg => (
+                                <div key={msg.messageId}>
+                                    <Message message={msg}/>
+                                </div>
+                            ))}
+                        </ScrollContainer>
+                    </div>
+                    <div className={styles["chat-container__input"]}>
+                        <MessageInput sendMessage={sendMessage} setMessageInput={setMessageInputHeight}/>
+                    </div>
                 </div>
-                <div className={styles["chat-container__input"]}>
-                    <MessageInput sendMessage={sendMessage} setMessageInput={setMessageInputHeight}/>
-                </div>
-            </div>
 
-        </div>
+            </div>
         </FullHeight>
     )
 }

@@ -42,6 +42,7 @@ public class SessionManager {
             if (peerClient.getSessionType() == EPGPSessionType.SIGNED) {
                 peerSession.setPgpSessionType(EPGPSessionType.SIGNED);
             }
+
             peerClient.setSessionType(peerSession.getPgpSessionType());
             peerSession.addPeerClient(peerClient);
             try {
@@ -81,6 +82,7 @@ public class SessionManager {
         if (peerSession.getPgpSessionType() == EPGPSessionType.CHECK_RESPONDER && peerClient.getSessionType() == EPGPSessionType.VERIFIED) {
             peerSession.setPgpSessionType(EPGPSessionType.WAITING_FOR_PEER_ACCEPTED);
         }
+
         peerClient.updatePeer(foundPeer);
         foundPeer.updatePeer(peerClient);
         return peerSession;

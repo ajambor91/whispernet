@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useRef, useState } from "react";
+import React, {useRef, useState} from "react";
 
 const CheckboxContainer = styled.div`
     display: flex;
@@ -60,7 +60,7 @@ export interface ICheckboxProps {
     valueChange: (selectedValues: string[]) => void;
 }
 
-const Checkbox: React.FC<ICheckboxProps> = ({ options, valueChange }) => {
+const Checkbox: React.FC<ICheckboxProps> = ({options, valueChange}) => {
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
     const refs = useRef<Map<string, HTMLInputElement>>(new Map());
 
@@ -93,7 +93,7 @@ const Checkbox: React.FC<ICheckboxProps> = ({ options, valueChange }) => {
                         onChange={() => onChange(option)}
                     />
                     <CheckboxLabel htmlFor={option.id}>
-                        <CheckboxCustom />
+                        <CheckboxCustom/>
                         {option.label}
                     </CheckboxLabel>
                 </div>

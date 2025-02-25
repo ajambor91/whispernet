@@ -11,7 +11,7 @@ const useRegister = () => {
     const register = async (registerData: IRegisterRequest) => {
         let response: Response;
         try {
-             response = await fetch(`/api/security/register`, {
+            response = await fetch(`/api/security/register`, {
                 method: 'POST',
                 body: JSON.stringify(registerData),
                 headers: {

@@ -17,8 +17,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    //TODO change back unique = false
-    @Column(length = 32768, nullable = false, unique = false)
+    @Column(length = 32768, nullable = false, unique = true)
     private String PGPKey;
 
     @Column(nullable = false)

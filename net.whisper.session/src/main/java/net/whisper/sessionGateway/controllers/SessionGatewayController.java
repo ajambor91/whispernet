@@ -149,4 +149,19 @@ public class SessionGatewayController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponseDTO);
         }
     }
+
+    @PostMapping("/update/initiator/{sessionToken}")
+    public ResponseEntity<?> updateInitiatorStatus(@CookieValue(value = "userToken") String userToken, @RequestHeader Map<String, String> headers, @RequestBody PeerState peerState, @PathVariable String sessionToken) {
+        logger.info("Received update initiator message, sessionToken={}, userToken={}", peerState.getSessionToken(), userToken);
+        try {
+            IncomingClient incomingClient = this.sessionService.updateStatusAndGetPartners(userToken,sessionToken, headers, peerState);
+            Map<String, Object> reponseData = new ResponseDTO(incomingClient).toMap();
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(reponseData);
+
+        } catch (JsonProcessingException | InterruptedException e) {
+            ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponseDTO);        }
+    }
 }

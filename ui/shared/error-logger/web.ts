@@ -1,5 +1,5 @@
-import { ELokiLogs } from "../enums/loki-logs.enum";
-import { isProduction } from "../config/config";
+import {ELokiLogs} from "../enums/loki-logs.enum";
+import {isProduction} from "../config/config";
 import {LogInfoArgs} from "../models/log-info-args.model";
 
 class WebErrorLogger {
@@ -23,7 +23,7 @@ class WebErrorLogger {
         return this._instance;
     }
 
-    public logError({ message, source = "window", lineno = 0, colno = 0, error }:
+    public logError({message, source = "window", lineno = 0, colno = 0, error}:
                         { message: string; source?: string; lineno?: number; colno?: number; error?: Error }): void {
         const errorData = this._formatLogData(message, source, lineno, colno, error);
         if (!isProduction()) {
@@ -32,7 +32,7 @@ class WebErrorLogger {
         this.sendToLoki(ELokiLogs.CatchedError, errorData);
     }
 
-    public logWarning({ message, source = "window", lineno = 0, colno = 0, error }:
+    public logWarning({message, source = "window", lineno = 0, colno = 0, error}:
                           { message: string; source?: string; lineno?: number; colno?: number; error?: Error }): void {
         const errorData = this._formatLogData(message, source, lineno, colno, error);
         if (!isProduction()) {
@@ -42,7 +42,7 @@ class WebErrorLogger {
     }
 
     public logInfo(args: LogInfoArgs): void {
-        const { message, source = "window", lineno = 0, colno = 0, error } = args;
+        const {message, source = "window", lineno = 0, colno = 0, error} = args;
         const errorData = this._formatLogData(message, source, lineno, colno, error);
         if (!isProduction()) {
             console.log(ELokiLogs.Info, errorData);
@@ -76,7 +76,7 @@ class WebErrorLogger {
         const payload = JSON.stringify({
             streams: [
                 {
-                    stream: { level, app: this._appName },
+                    stream: {level, app: this._appName},
                     values: [[`${Date.now()}000000`, JSON.stringify(data)]],
                 },
             ],
@@ -101,7 +101,13 @@ export const startCatchingError = () => WebErrorLogger.getInstance();
 export const logError = (args: { message: string; source?: string; lineno?: number; colno?: number; error?: Error }) =>
     WebErrorLogger.getInstance().logError(args);
 
-export const logWarning = (args: { message: string; source?: string; lineno?: number; colno?: number; error?: Error }) =>
+export const logWarning = (args: {
+    message: string;
+    source?: string;
+    lineno?: number;
+    colno?: number;
+    error?: Error
+}) =>
     WebErrorLogger.getInstance().logWarning(args);
 
 export const logInfo = (args: LogInfoArgs) =>

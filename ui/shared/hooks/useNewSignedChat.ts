@@ -1,8 +1,6 @@
 import {useState} from "react";
-import {ISession} from "../models/ws-message.model";
 import dataFetch from "../helpers/fetch";
 import {IPeerState} from "../slices/createSession.slice";
-
 
 
 const useNewSignedChat = () => {

@@ -1,4 +1,3 @@
-import {IWebrtcPeerMessage} from "../../models/webrtc-peer-message.model";
 import styles from './Message.module.scss';
 import {IWebrtcLocalMessage} from "../../models/webrtc-preparing-message.moidel";
 

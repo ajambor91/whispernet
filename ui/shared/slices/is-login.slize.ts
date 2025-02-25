@@ -1,5 +1,4 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {IInitializedLoginResponse} from "../models/initialized-login-response.model";
 
 export interface IISLoginState {
     username: string | null;
@@ -26,5 +25,5 @@ export const isLoginSlice = createSlice({
     }
 });
 
-export const {setLoginData } = isLoginSlice.actions;
+export const {setLoginData} = isLoginSlice.actions;
 export default isLoginSlice.reducer;

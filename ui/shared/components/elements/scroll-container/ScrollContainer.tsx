@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import styles from './ScrollContainer.module.scss';
 
 interface IScrollContainerProps {
@@ -8,7 +8,7 @@ interface IScrollContainerProps {
     wheelOnId?: string;
 }
 
-const ScrollContainer: React.FC<IScrollContainerProps> = ({ children, resize, scroll, wheelOnId }) => {
+const ScrollContainer: React.FC<IScrollContainerProps> = ({children, resize, scroll, wheelOnId}) => {
     const wheelOn = useRef<HTMLDivElement>(null);
     const scrollbar = useRef<HTMLDivElement>(null);
     const scrollableContent = useRef<HTMLDivElement>(null);
@@ -37,7 +37,7 @@ const ScrollContainer: React.FC<IScrollContainerProps> = ({ children, resize, sc
 
         wheelOn.current = document.getElementById(wheelOnId || "scrollable") as HTMLDivElement;
         if (wheelOn.current) {
-            wheelOn.current.addEventListener('wheel', handleWheel, { passive: false });
+            wheelOn.current.addEventListener('wheel', handleWheel, {passive: false});
             return () => wheelOn.current?.removeEventListener('wheel', handleWheel);
         }
     }, [updateScrollbarVisibility, children, wheelOnId]);

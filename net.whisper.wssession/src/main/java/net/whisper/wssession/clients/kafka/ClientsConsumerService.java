@@ -52,10 +52,10 @@ public class ClientsConsumerService {
                 clientsService.processJoiningClient((Client) kafkaMessage);
             } else if (
                     EKafkaMessageClientTypes.UPDATE_CLIENT.getMessageType().equals(type) ||
-                            EKafkaMessageClientTypes.UPDATE_LOGIN_CLIENT.getMessageType().equals(type)
+                            EKafkaMessageClientTypes.UPDATE_RETURN_CLIENT.getMessageType().equals(type)
             ) {
                 logger.info("Received kafka message for update client, userToken={}, sessionToken={}", kafkaMessage.getUserToken(), ((Client) kafkaMessage).getSessionToken());
-                clientsService.updatePeer((Client) kafkaMessage, EKafkaMessageClientTypes.UPDATE_LOGIN_CLIENT.getMessageType().equals(type));
+                clientsService.updatePeer((Client) kafkaMessage, EKafkaMessageClientTypes.UPDATE_RETURN_CLIENT.getMessageType().equals(type));
             }
             logger.error("Error: Received an empty kafka message");
         } catch (Exception e) {
@@ -79,7 +79,7 @@ public class ClientsConsumerService {
         } else if (
                 EKafkaMessageClientTypes.ADD_CLIENT.getMessageType().equals(type) ||
                         EKafkaMessageClientTypes.UPDATE_CLIENT.getMessageType().equals(type) ||
-                        EKafkaMessageClientTypes.UPDATE_LOGIN_CLIENT.getMessageType().equals(type)
+                        EKafkaMessageClientTypes.UPDATE_RETURN_CLIENT.getMessageType().equals(type)
         ) {
             return objectMapper.readValue(message, Client.class);
         } else {

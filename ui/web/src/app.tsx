@@ -14,11 +14,12 @@ import {useAppSelector} from "../../shared/store/store";
 import {IISLoginState, setLoginData} from "../../shared/slices/is-login.slize";
 import {useDispatch} from "react-redux";
 import {ILoginResponse} from "../../shared/models/login-response.model";
+import Approving from "@/app/pages/approving/Approving";
 
 const App: React.FC = () => {
-    const {checkLogin, response } = useCheckLogin()
+    const {checkLogin, response} = useCheckLogin()
     const dispatch = useDispatch();
-    const loginData: IISLoginState =  useAppSelector(state => state?.isLoginState);
+    const loginData: IISLoginState = useAppSelector(state => state?.isLoginState);
     useEffect(() => {
         checkLogin();
     }, []);
@@ -29,30 +30,33 @@ const App: React.FC = () => {
             dispatch(setLoginData({
                 isLogin: true,
                 ...loginDataFromStorage
-            }))        }
+            }))
+        }
     }, [response]);
     return (
 
         <Router>
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Home/>}/>
 
                 <Route path="*" element={
                     <>
-                        <AppBar isLogin={loginData.isLogin} username={loginData.username} />
+                        <AppBar isLogin={loginData.isLogin} username={loginData.username}/>
                         <Routes>
-                        <Route path="/waiting" element={<ChatWaiting />} />
-                        <Route path="/join" element={<ChatJoining />} />
-                        <Route path="/waiting-join" element={<ChatWaitingJoin />} />
-                        <Route path="/chat" element={<Chat />} />
-                        <Route path="/initialize-login" element={<InitializeLoginPage />} />
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/register" element={<RegisterPage />} />
+                            <Route path="/waiting" element={<ChatWaiting/>}/>
+                            <Route path="/join" element={<ChatJoining/>}/>
+                            <Route path="/waiting-join" element={<ChatWaitingJoin/>}/>
+                            <Route path="/approving" element={<Approving/>}/>
+                            <Route path="/chat" element={<Chat/>}/>
+                            <Route path="/initialize-login" element={<InitializeLoginPage/>}/>
+                            <Route path="/login" element={<LoginPage/>}/>
+                            <Route path="/register" element={<RegisterPage/>}/>
                         </Routes>
                     </>
-                } />
+                }/>
             </Routes>
         </Router>
 
-)};
+    )
+};
 export default App

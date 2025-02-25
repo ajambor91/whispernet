@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useToasts } from "../../providers/toast-provider";
+import React, {useEffect, useState} from "react";
+import {useToasts} from "../../providers/toast-provider";
 import styles from './Toast.module.scss';
-import { IToast } from "../../models/toast.model";
+import {IToast} from "../../models/toast.model";
 
 const Toast: React.FC = () => {
-    const { toasts, removeToast } = useToasts();
+    const {toasts, removeToast} = useToasts();
     const [existingToasts, setExistingToasts] = useState<IToast<object>[]>([]);
     const [closingToasts, setClosingToasts] = useState<Record<string, boolean>>({});
 
     const handleRemoveToast = (id) => {
-        setClosingToasts((prev) => ({ ...prev, [id]: true }));
+        setClosingToasts((prev) => ({...prev, [id]: true}));
     };
     useEffect(() => {
         setExistingToasts(toasts);

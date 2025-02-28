@@ -192,6 +192,21 @@ services:
       - no-new-privileges:true
     cap_add:
       - ALL
+  approving:
+    depends_on:
+      - broker
+      - session
+    build:
+      context: './responder-approving'
+      dockerfile: './Dockerfile.prod'
+    container_name: approving
+    hostname: approving
+    networks:
+      - whispernet
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - ALL
   app-db:
     build:
       context: './app-db'

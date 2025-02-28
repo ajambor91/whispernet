@@ -5,17 +5,17 @@ import {logError} from "../error-logger/web";
 import dataFetch from "../helpers/fetch";
 import {IPartners} from "../slices/partners-keys.slice";
 
-const useJoinUpdateChat = () => {
-    const [updateResponse, setResponse] = useState<IPeerState & Partial<IPartners>>(null);
+const useInitiatorUpdateChat = () => {
+    const [response, setResponse] = useState<IPeerState & Partial<IPartners>>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<IError | null>(null);
-    const joinUpdateChat = async (peerState: IPeerState) => {
+    const initiatorUpdateChat = async (peerState: IPeerState) => {
         let response: Response;
         let data: any;
         let errorData: IError;
         let err: any;
         try {
-            response = await dataFetch(`/api/session/update/${peerState.sessionToken}`, {
+            response = await dataFetch(`/api/session/update/initiator/${peerState.sessionToken}`, {
                 method: 'PUT',
                 body: JSON.stringify(peerState),
                 headers: {
@@ -60,9 +60,9 @@ const useJoinUpdateChat = () => {
             setLoading(false);
         }
     }
-    return {joinUpdateChat, updateResponse, loading, error};
+    return {initiatorUpdateChat, response, loading, error};
 
 }
-export default useJoinUpdateChat;
+export default useInitiatorUpdateChat;
 
 

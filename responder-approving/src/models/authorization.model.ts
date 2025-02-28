@@ -1,5 +1,5 @@
-import {IAuthMessageWS} from "./auth-message-ws.model";
+import {IApprovingMessageWs} from "./approving-message-ws.model";
 
-export interface IAuthorization extends IAuthMessageWS {
+export interface IAuthorization extends Pick<IApprovingMessageWs, "sessionToken"> {
     userToken: string;
 }

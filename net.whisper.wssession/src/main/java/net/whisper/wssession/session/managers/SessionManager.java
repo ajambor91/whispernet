@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.core.enums.EPGPSessionType;
 import net.whisper.wssession.session.enums.ESessionStatus;
+import net.whisper.wssession.session.models.ApprovingSession;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.repositories.SessionRepository;
@@ -85,6 +86,7 @@ public class SessionManager {
 
         peerClient.updatePeer(foundPeer);
         foundPeer.updatePeer(peerClient);
+        this.sessionRepository.saveSession(sessionToken, peerSession);
         return peerSession;
     }
 
@@ -105,6 +107,27 @@ public class SessionManager {
         return peerSession;
 
     }
+
+    public void removeSession(ApprovingSession approvingSession) {
+        if (approvingSession == null) {
+            throw new IllegalArgumentException("ApprovingSession in remove session is null");
+        }
+        this.sessionRepository.deleteSession(approvingSession.getSessionToken());
+    }
+
+    public PeerSession acceptSession(ApprovingSession approvingSession) {
+        if (approvingSession == null) {
+            throw new IllegalArgumentException("ApprovingSession in accepting session is null");
+        }
+
+        PeerSession peerSession = this.sessionRepository.getSession(approvingSession.getSessionToken());
+
+        peerSession.setPgpSessionType(EPGPSessionType.SIGNED);
+        peerSession.getPeerClients().forEach(peer -> peer.setSessionType(EPGPSessionType.PEER_ACCEPTED));
+        this.sessionRepository.saveSession(approvingSession.getSessionToken(), peerSession);
+        return peerSession;
+    }
+
 
     public void removeClientFromSession(PeerSession peerSession) {
         if (peerSession == null) {

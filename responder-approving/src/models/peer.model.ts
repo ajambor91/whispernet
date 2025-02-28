@@ -1,5 +1,8 @@
+import WebSocket from "ws";
+
 export interface IPeer {
-    userId: string;
+    userId?: string;
+    webSocket?: WebSocket;
     userToken: string;
 }
 

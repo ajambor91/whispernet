@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import net.whisper.sessionGateway.dto.requests.PeerState;
 import net.whisper.sessionGateway.enums.EKafkaMessageTypes;
 import net.whisper.sessionGateway.enums.EPGPSessionType;
+import net.whisper.sessionGateway.exceptions.ApprovalExisiting;
 import net.whisper.sessionGateway.exceptions.UserUnauthorizationException;
 import net.whisper.sessionGateway.interfaces.IApprovingSession;
 import net.whisper.sessionGateway.interfaces.IBaseClient;
@@ -91,13 +92,16 @@ public class SessionService {
         return incomingClient;
     }
 
-    public IncomingClient updateClient(String userToken, String sessionToken, Map<String, String> headers, PeerState peerState) throws InterruptedException, JsonProcessingException {
+    public IncomingClient updateClient(String userToken, String sessionToken, Map<String, String> headers, PeerState peerState) throws InterruptedException, JsonProcessingException, ApprovalExisiting {
         logger.info("Updating client, to session={}, userToken={}", sessionToken, userToken);
         if (userToken == null) {
             throw new NoSuchElementException("User token not found");
         }
 
         IBaseClient client = this.clientManager.createUpdateClient(userToken, peerState);
+        if (client.getSessionType() == EPGPSessionType.WAITING_FOR_PEER_ACCEPTED) {
+            throw new ApprovalExisiting("Approving session exists");
+        }
         logger.debug("Created update client, sessionToken={}, userToken={}", sessionToken, client.getUserToken());
         IncomingClient incomingClient = null;
         logger.info("Received update client userToken={} status={}", userToken, client.getSessionType().getSessionPGPStatus());
@@ -116,7 +120,6 @@ public class SessionService {
             if (signedClient.getSessionType() == EPGPSessionType.VERIFIED) {
                 logger.info("Updating client responder verified successfully, sessionToken={}, userToken={}", sessionToken, userToken);
                 client.setUsername(signedClient.getUsername());
-                client.setSessionType(EPGPSessionType.VERIFIED);
                 logger.debug("Sending update peer request, sessionToken={}, userToken={}", sessionToken, userToken);
                 client.setSessionType(EPGPSessionType.WAITING_FOR_PEER_ACCEPTED);
                 this.kafkaService.sendMessage(client, EKafkaMessageTypes.UPDATE_RETURN_CLIENT);
@@ -125,7 +128,7 @@ public class SessionService {
                     logger.error("Cannot found client to update in passed session, sessionToken={}, userToken={}", sessionToken, userToken);
                     throw new SecurityException("Cannot found client to update in passed session");
                 }
-                logger.info("USER ID UPDATING {}", incomingClient.getUserId());
+                logger.info("USER JOINING ID UPDATING {}", incomingClient.getUserId());
                 List<Partner> partners = incomingClient.getPartners();
                 logger.debug("Creating checker for update client, sessionToken={}, userToken={}", incomingClient.getSessionToken(), incomingClient.getUserToken());
                 IChecker checker = new Checker(incomingClient, partners);
@@ -167,9 +170,13 @@ public class SessionService {
         return this.kafkaService.waitForMessage(client, 5);
     }
 
-    public IncomingClient updateStatusAndGetPartners(String userToken, String sessionToken, Map<String, String> headers, PeerState peerState) throws JsonProcessingException, InterruptedException {
+    public IncomingClient updateStatusAndGetPartners(String userToken, String sessionToken, Map<String, String> headers, PeerState peerState) throws JsonProcessingException, InterruptedException, ApprovalExisiting {
         logger.info("Updating initiator status");
+
         IBaseClient client = this.clientManager.createUpdateClient(userToken, peerState);
+        if (client.getSessionType() == EPGPSessionType.WAITING_FOR_PEER_ACCEPTED) {
+            throw new ApprovalExisiting("Approving session exists");
+        }
         this.kafkaService.sendMessage(client, EKafkaMessageTypes.UPDATE_RETURN_CLIENT);
 
         IncomingClient incomingClient = this.kafkaService.waitForMessage(client, 5);
@@ -188,6 +195,7 @@ public class SessionService {
         logger.debug("Received check updating client partners response sessionToken={}, userToken={}", incomingClient.getSessionToken(), incomingClient.getUserToken());
         incomingClient.setPartners(checker.getPartners());
         this.sendSessionToApproval(incomingClient);
+        incomingClient.setSessionType(EPGPSessionType.WAITING_FOR_PEER_ACCEPTED);
         return incomingClient;
 
     }

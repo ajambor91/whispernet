@@ -2,6 +2,7 @@ package net.whisper.wssession.session.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.session.enums.EKafkaMessageSessionTypes;
+import net.whisper.wssession.session.models.ApprovingSession;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.services.SessionService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -38,6 +39,26 @@ public class SessionConsumerService {
                 this.sessionService.removeClientFromSession(peerSession);
             } else {
                 this.logger.warn("Message header not known - SessionConsumerService:handleTokenEvent");
+            }
+
+        } catch (Exception e) {
+            this.logger.error("Processing message error - SessionConsumerService:handleTokenEvent");
+
+        }
+    }
+
+    @KafkaListener(topics = {"request-session-approving-topic"}, groupId = "whispernet-wsession-session-approving-group")
+    public void handleApprovingEvent(ConsumerRecord<String, String> record) {
+        try {
+            String type = this.getHeaderValue(record, "type");
+            String message = record.value();
+            ApprovingSession session = this.objectMapper.readValue(message, ApprovingSession.class);
+            if (EKafkaMessageSessionTypes.ACCEPT_SESSION.getMessageType().equals(type)) {
+                this.sessionService.acceptSession(session);
+            } else if (EKafkaMessageSessionTypes.REMOVE_SESSION.getMessageType().equals(type)) {
+                this.sessionService.removeSession(session);
+            } else {
+                this.logger.warn("Message header from approving service not known - SessionConsumerService:handleTokenEvent");
             }
 
         } catch (Exception e) {

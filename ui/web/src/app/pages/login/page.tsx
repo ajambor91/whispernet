@@ -43,6 +43,7 @@ const LoginPage: React.FC = () => {
     };
 
     useEffect(() => {
+
         if (updateResponse) {
             dispatch(addPartners(updateResponse.partners))
             router("/approving");

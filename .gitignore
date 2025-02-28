@@ -96,3 +96,4 @@ nginx.tunnel.conf
 cms-db/cms-qa-data/
 vpn/
 scripts/
+nginx/logs/

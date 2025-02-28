@@ -1,5 +1,7 @@
 import {
-    IAuthMessage, IGoodByeMessage, IGoodMorningMessage,
+    IAuthMessage,
+    IGoodByeMessage,
+    IGoodMorningMessage,
     IIncomingMessage,
     IOutgoingMessage,
     ISignalMessage

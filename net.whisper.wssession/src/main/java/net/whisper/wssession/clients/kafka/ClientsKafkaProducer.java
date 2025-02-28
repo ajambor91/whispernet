@@ -4,19 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.clients.models.Client;
 import net.whisper.wssession.core.enums.EKafkaTopic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 @Component
 public class ClientsKafkaProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final Logger logger;
+
     @Autowired
     public ClientsKafkaProducer(ObjectMapper objectMapper, KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
@@ -35,8 +37,6 @@ public class ClientsKafkaProducer {
         } catch (JsonProcessingException e) {
             logger.error("Json process message error userToken={}, message={}", userClient.getUserToken(), e.getMessage());
         }
-
-
     }
 
     private void sendKafkaMsg(String parsedObject, String topic) {

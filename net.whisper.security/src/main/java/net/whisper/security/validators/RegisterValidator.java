@@ -5,21 +5,18 @@ import jakarta.validation.ConstraintValidatorContext;
 import net.whisper.security.adnotations.ValidRegister;
 import net.whisper.security.dto.requests.RegisterDTO;
 import net.whisper.security.helpers.PGPHelper;
-import org.bouncycastle.openpgp.*;
-import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
+import org.bouncycastle.openpgp.PGPException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class RegisterValidator implements ConstraintValidator<ValidRegister, RegisterDTO> {
 
     private ConstraintValidatorContext context;
+
     @Override
     public boolean isValid(RegisterDTO registerDTO, ConstraintValidatorContext context) {
         this.context = context;
@@ -44,7 +41,7 @@ public class RegisterValidator implements ConstraintValidator<ValidRegister, Reg
     }
 
 
-    private boolean isKeyStringValid(RegisterDTO registerDTO)  {
+    private boolean isKeyStringValid(RegisterDTO registerDTO) {
         String keyString = registerDTO.getStringKey();
         return this.runChecking(keyString);
     }

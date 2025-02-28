@@ -1,12 +1,7 @@
 import {useState} from "react";
-import {ISession} from "../models/ws-message.model";
 import dataFetch from "../helpers/fetch";
+import {IPeerState} from "../slices/createSession.slice";
 
-interface IPeerState {
-    sessionToken: string;
-    peerRole: string
-    secretKey: string;
-}
 
 const useNewSignedChat = () => {
     const [signedResponse, setSignedResponse] = useState<IPeerState | null>(null);

@@ -11,13 +11,15 @@
                 <pattern>%-5level [%.5(${HOSTNAME})] %.10thread %logger{20} | %msg %ex</pattern>
             </message>
         </format>
-        <batch maxItems="500" maxSizeBytes="512000" timeoutMs="2000" />
+        <batch maxItems="500" maxSizeBytes="512000" timeoutMs="2000"/>
     </appender>
 
     <logger name="org.springframework.kafka" level="DEBUG" additivity="false">
         <appender-ref ref="LOKI" />
     </logger>
-
+    <root level="DEBUG">
+        <appender-ref ref="LOKI"/>
+    </root>
     <root level="INFO">
         <appender-ref ref="LOKI" />
     </root>

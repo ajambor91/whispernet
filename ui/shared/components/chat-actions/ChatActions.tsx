@@ -3,7 +3,6 @@ import React, {useState} from "react";
 import styles from './ChatActions.module.scss';
 import Button from "../elements/button/Button";
 import Checkbox, {ICheckboxOption} from "../elements/checkbox/Checkbox";
-import {b} from "vite/dist/node/types.d-aGj9QkWt";
 
 interface IChatActionsProps {
     onChatCreate?: (isForce: boolean) => void;
@@ -46,7 +45,7 @@ const ChatActions: React.FC<IChatActionsProps> = ({onChatCreate, setIsForceSigne
                 <Button style={{"width": "100%"}} className="button-primary" onClick={startChat} disabled={loading}>
                     {loading ? 'Creating...' : 'New chat'}
                 </Button>
-                <Checkbox options={checkboxOptions} valueChange={checkboxChange} />
+                <Checkbox options={checkboxOptions} valueChange={checkboxChange}/>
             </div>
             <div className={styles["buttons-container__item"]}>
                 <Button style={{"width": "100%"}} className="button-primary" onClick={onChatJoin} disabled={loading}>

@@ -3,7 +3,6 @@ package net.whisper.wssession.clients.services;
 import net.whisper.wssession.clients.factories.ClientFactory;
 import net.whisper.wssession.clients.models.Client;
 import net.whisper.wssession.clients.models.ClientWithoutSession;
-import net.whisper.wssession.clients.services.ClientsService;
 import net.whisper.wssession.core.coordinatos.ClientSessionCoordinator;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.utils.TestFactory;
@@ -24,7 +23,8 @@ import static org.mockito.Mockito.verify;
         "spring.kafka.bootstrap-servers=localhost:9095",
         "spring.kafka.consumer.auto-offset-reset=earliest",
         "spring.kafka.listener.missing-topics-fatal=false"
-})public class ClientsServiceTest {
+})
+public class ClientsServiceTest {
 
 
     private final ClientsService clientsService;
@@ -68,7 +68,7 @@ import static org.mockito.Mockito.verify;
     public void processJoiningClientPass() {
         this.clientsService.processJoiningClient(this.client);
         PeerClient peerClient = ClientFactory.createPeerClient(this.client);
-        verify(this.clientSessionCoordinator).processClient(eq(this.client.getSessionToken()),any(PeerClient.class));
+        verify(this.clientSessionCoordinator).processClient(eq(this.client.getSessionToken()), any(PeerClient.class));
     }
 
     @Test

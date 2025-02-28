@@ -4,5 +4,6 @@ export interface LogInfoArgs {
     lineno?: number;
     colno?: number;
     error?: Error;
+
     [key: string]: any;
 }

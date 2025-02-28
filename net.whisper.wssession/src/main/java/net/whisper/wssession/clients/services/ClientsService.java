@@ -30,8 +30,9 @@ public class ClientsService {
         if (clientWithoutSession == null) {
             throw new IllegalArgumentException("ClientWithoutSession cannot be null");
         }
-
+        this.logger.info("Processing new client, userToken={}", clientWithoutSession.getUserToken());
         PeerClient peerClient = ClientFactory.createPeerClient(clientWithoutSession);
+        this.logger.debug("Create new peerClient with userToken={}, and username={}", peerClient.getUserToken(), peerClient.getUsername());
         this.clientSessionCoordinator.processClientWithoutSession(peerClient);
         logger.info("Pass new user to coordinator, userToken={}", peerClient.getUserToken());
     }
@@ -43,6 +44,15 @@ public class ClientsService {
         PeerClient peerClient = ClientFactory.createPeerClient(client);
         this.clientSessionCoordinator.processClient(client.getSessionToken(), peerClient);
         logger.info("Pass joining client to coordinator, userToken={}, sessionToken={}", client.getUserToken(), client.getSessionToken());
+    }
+
+    public void updatePeer(Client client, boolean requestReturn) {
+        if (client == null) {
+            throw new IllegalArgumentException("Client cannot be null");
+        }
+        PeerClient peerClient = ClientFactory.createPeerClient(client);
+        this.clientSessionCoordinator.updatePeerOrSession(client.getSessionToken(), peerClient, requestReturn);
+        logger.info("Pass update client to coordinator, userToken={}, sessionToken={}", client.getUserToken(), client.getSessionToken());
     }
 
     public void returnDataToUser(Client client) {

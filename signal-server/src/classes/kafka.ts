@@ -68,10 +68,7 @@ class KafkaWS {
     }
 
     private async _initListening(): Promise<void> {
-        await Promise.all([
-            this._consumer.subscribe({ topic: this._sessionTopic, fromBeginning: true }),
-            this._consumer.subscribe({ topic: this._sessionTopic, fromBeginning: true })
-        ]);
+        await this._consumer.subscribe({ topic: this._sessionTopic, fromBeginning: true }),
         await this._run();
 
     }

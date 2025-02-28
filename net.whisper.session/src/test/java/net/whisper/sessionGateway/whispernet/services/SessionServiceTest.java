@@ -21,6 +21,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.messaging.Message;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,7 +46,7 @@ public class SessionServiceTest {
     private IncomingClient client;
     private IncomingClient joiner;
     private ObjectMapper objectMapper;
-
+    private Map<String, String> mockHeaders;
     @Autowired
     public SessionServiceTest(SessionService sessionService) {
         this.sessionService = sessionService;
@@ -56,6 +57,7 @@ public class SessionServiceTest {
         this.clientWithoutSession = TestFactory.createClientWithoutSession();
         this.client = TestFactory.createIncomingClient();
         this.joiner = TestFactory.createIncomingJoinerClient();
+        this.mockHeaders = Map.of("username", "test");
         this.objectMapper = new ObjectMapper();
     }
 
@@ -96,7 +98,7 @@ public class SessionServiceTest {
         doReturn(this.joiner).when(this.kafkaService).waitForMessage(any(BaseClient.class), anyLong());
         CompletableFuture<SendResult<String, String>> mockFuture = CompletableFuture.completedFuture(mock(SendResult.class));
         when(this.kafkaTemplate.send(any(Message.class))).thenReturn(mockFuture);
-        IncomingClient client = this.sessionService.createNextClientSession(this.objectMapper.writeValueAsString(this.joiner));
+        IncomingClient client = this.sessionService.createNextClientSession(this.objectMapper.writeValueAsString(this.joiner), this.mockHeaders);
         assertEquals(this.joiner, client);
     }
 
@@ -107,7 +109,7 @@ public class SessionServiceTest {
         when(this.kafkaTemplate.send(any(Message.class))).thenReturn(mockFuture);
         assertThrows(RuntimeException.class, () -> {
             this.kafkaService.waitForMessage(this.joiner, 1);
-            IncomingClient client = this.sessionService.createNextClientSession(this.client.getSessionToken());
+            IncomingClient client = this.sessionService.createNextClientSession(this.client.getSessionToken(), this.mockHeaders);
 
         });
     }

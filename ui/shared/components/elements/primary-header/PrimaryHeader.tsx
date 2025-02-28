@@ -12,10 +12,12 @@ const StyledPrimaryHeader = styled.h1`
     text-align: center;
 
 `;
+
 interface IHeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
     children: string;
 }
-const PrimaryHeader: React.FC<IHeaderProps> = ( {children, ...props }) => {
+
+const PrimaryHeader: React.FC<IHeaderProps> = ({children, ...props}) => {
     return (
         <StyledPrimaryHeader {...props}>
             {children}

@@ -17,11 +17,6 @@ public enum ESessionStatus {
         this.sessionStatus = sessionStatus;
     }
 
-    @JsonValue
-    public String getSessionStatus() {
-        return sessionStatus;
-    }
-
     @JsonCreator
     public static ESessionStatus fromString(String value) {
         for (ESessionStatus status : values()) {
@@ -30,5 +25,10 @@ public enum ESessionStatus {
             }
         }
         throw new IllegalArgumentException("Invalid status" + value);
+    }
+
+    @JsonValue
+    public String getSessionStatus() {
+        return sessionStatus;
     }
 }

@@ -1,25 +1,55 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {IPeerState} from "../slices/createSession.slice";
-import {useToasts} from "../providers/toast-provider";
 import {IError} from "../models/error.model";
+import {logError} from "../error-logger/web";
+import dataFetch from "../helpers/fetch";
+import {IPartners} from "../slices/partners-keys.slice";
 
 const useJoinChat = () => {
-    const [response, setResponse] = useState<IPeerState>(null);
+    const [response, setResponse] = useState<IPeerState & Partial<IPartners>>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<IError | null>(null);
     const joinChat = async (wsToken: string) => {
         let response: Response;
+        let data: any;
+        let errorData: IError;
+        let err: any;
         try {
-            response = await fetch(`/api/session/exists/${wsToken}`, {method: 'POST'});
-            const data: any = await response.json();
-            if (!response.ok) {
-                throw new Error('Failed to found existing chat');
-            }
-            setResponse(data);
+            response = await dataFetch(`/api/session/exists/${wsToken}`, {method: 'POST'});
+            data = await response.json();
 
-        } catch (e: any) {
-            setError({message: "Cannot join to chat. Please try again later.", status: response.status});
+
+        } catch (error: any) {
+            err = error;
+            logError({message: "Unauthorized session"})
         } finally {
+            if (response.ok) {
+                setResponse(data);
+            } else if (response.status === 401) {
+                errorData = {
+                    status: response.status ?? err?.status,
+                    name: err?.name,
+                    message: err?.message,
+                    stack: err?.stack,
+                    sessionToken: data.sessionToken,
+                    sessionAuthType: data.sessionAuthType,
+                    peerRole: data.peerRole,
+                    secretKey: data.secretKey,
+                    isSigned: data.isSigned
+                }
+                setError(errorData);
+
+            } else {
+                errorData = {
+
+                    status: response.status ?? err.status,
+                    name: err?.name,
+                    message: err?.message,
+                    stack: err?.stack
+                };
+                setError(errorData);
+
+            }
             setLoading(false);
         }
     }

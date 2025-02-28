@@ -2,20 +2,21 @@
   text-align: center;
   width: 650px;
 
-  @media screen and (max-width: 720px){
+  @media screen and (max-width: 720px) {
     width: 100%;
   }
+
   .options {
     padding-top: 20px;
-      &__item {
-        .options__description {
-          text-align: left;
-          font-size: 1.1rem;
-          font-weight: 500;
-          padding: 10px 2px;
-        }
-      }
 
+    &__item {
+      .options__description {
+        text-align: left;
+        font-size: 1.1rem;
+        font-weight: 500;
+        padding: 10px 2px;
+      }
+    }
 
 
     &__buttons {

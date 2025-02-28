@@ -1,14 +1,14 @@
-
 class Config {
     private static _instance: Config;
     private readonly _environment: string;
 
-    public get environment(): string {
-        return this._environment;
-    }
     private constructor() {
         this._environment = 'dev';
 
+    }
+
+    public get environment(): string {
+        return this._environment;
     }
 
     public static getInstance(): Config {

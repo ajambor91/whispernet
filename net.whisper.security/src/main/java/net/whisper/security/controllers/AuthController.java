@@ -1,8 +1,5 @@
 package net.whisper.security.controllers;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import net.whisper.security.dto.requests.LoginDTO;
 import net.whisper.security.dto.requests.LoginMessageDTO;
@@ -43,10 +40,10 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO registerDTO) {
         logger.info("AuthController:register, Received register data, username={}", registerDTO.getUsername());
         try {
-             this.registerService.setUser(registerDTO);
-                GenericSuccessDTO genericSuccessDTO = new GenericSuccessDTO();
-                genericSuccessDTO.setMessage("Register success");
-                return ResponseEntity.ok(genericSuccessDTO);
+            this.registerService.setUser(registerDTO);
+            GenericSuccessDTO genericSuccessDTO = new GenericSuccessDTO();
+            genericSuccessDTO.setMessage("Register success");
+            return ResponseEntity.ok(genericSuccessDTO);
         } catch (IOException e) {
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO();
             errorResponseDTO.setMessage(e.getMessage());

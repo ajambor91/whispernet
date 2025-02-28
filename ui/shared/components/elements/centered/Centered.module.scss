@@ -2,15 +2,16 @@
   position: relative;
   min-height: 100vh;
   overflow-y: auto;
-  @media screen and (max-width: 720px){
+  @media screen and (max-width: 720px) {
     min-height: calc(100vh - 30px);
   }
+
   &__content {
     max-width: 100%;
     max-height: 100%;
     padding: 20px;
     position: absolute;
-    @media screen and (min-width: 720px){
+    @media screen and (min-width: 720px) {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);

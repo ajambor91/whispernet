@@ -5,6 +5,7 @@ import net.whisper.security.entities.User;
 import net.whisper.security.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -22,7 +23,7 @@ public class RegisterService {
     }
 
 
-    public void setUser(RegisterDTO registerDTO) throws IOException,IllegalArgumentException {
+    public void setUser(RegisterDTO registerDTO) throws IOException, IllegalArgumentException {
         if (registerDTO == null) {
             throw new IllegalArgumentException("RegisterDTO cannot be null");
         }
@@ -39,7 +40,7 @@ public class RegisterService {
 
     }
 
-    private void saveUser(String username,String key) {
+    private void saveUser(String username, String key) {
         User user = new User();
         user.setUsername(username);
         user.setActive(false);

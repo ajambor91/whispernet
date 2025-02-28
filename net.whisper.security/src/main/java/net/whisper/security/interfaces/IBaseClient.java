@@ -1,5 +1,7 @@
 package net.whisper.security.interfaces;
 
+import net.whisper.security.enums.EPGPSessionType;
+
 public interface IBaseClient {
     String getUserToken();
 
@@ -8,4 +10,10 @@ public interface IBaseClient {
     String getUserId();
 
     void setUserId(String userId);
+
+
+    EPGPSessionType getSessionType();
+
+    void setSessionType(EPGPSessionType sessionType);
+
 }

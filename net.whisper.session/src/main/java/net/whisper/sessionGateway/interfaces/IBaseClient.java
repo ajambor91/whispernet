@@ -1,6 +1,7 @@
 package net.whisper.sessionGateway.interfaces;
 
 import net.whisper.sessionGateway.enums.EClientConnectionStatus;
+import net.whisper.sessionGateway.enums.EPGPSessionType;
 import net.whisper.sessionGateway.enums.EPeerRole;
 
 public interface IBaseClient extends IBasicClient {
@@ -13,4 +14,8 @@ public interface IBaseClient extends IBasicClient {
     EPeerRole getPeerRole();
 
     void setPeerRole(EPeerRole peerRole);
+
+    EPGPSessionType getSessionType();
+
+    void setSessionType(EPGPSessionType sessionType);
 }

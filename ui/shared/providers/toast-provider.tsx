@@ -11,9 +11,9 @@ export const ToastProvider = ({children}) => {
             autoClose = true;
         }
         const id: number = Math.floor(Math.random() * 100000);
-        setToasts((prev) => [{ id, title, type, description, autoClose, customElement, customStyle },...prev]);
+        setToasts((prev) => [{id, title, type, description, autoClose, customElement, customStyle}, ...prev]);
 
-    },[])
+    }, [])
 
     const removeToast = useCallback((id) => {
         setToasts(prev => prev.filter(toast => toast.id !== id))

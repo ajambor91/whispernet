@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useAppSelector } from "../../../../../shared/store/store";
+import React, {useEffect, useState} from 'react';
+import {useAppSelector} from "../../../../../shared/store/store";
 import useWebSocket from "../../../../../shared/hooks/useWebSocket";
-import { IPeerState } from "../../../../../shared/slices/createSession.slice";
+import {IPeerState} from "../../../../../shared/slices/createSession.slice";
 import Status from "../../../../../shared/components/status/Status";
 import Indicator from "../../../../../shared/components/indicator/Indicator";
 import Centered from "../../../../../shared/components/elements/centered/Centered";
@@ -18,12 +18,12 @@ const ChatWaitingJoin: React.FC = () => {
     const {onStatus} = useWebSocket(peerState);
     const router = useNavigate();
     useEffect(() => {
-        logInfo({ message: "ChatWaitingJoin component mounted" });
+        logInfo({message: "ChatWaitingJoin component mounted"});
 
         if (onStatus) {
-            logInfo({ message: "WebSocket status listener initialized" });
+            logInfo({message: "WebSocket status listener initialized"});
             onStatus(data => {
-                logInfo({ message: "Status updated", newStatus: data });
+                logInfo({message: "Status updated", newStatus: data});
 
                 setStatus(data);
                 if (data === EClientStatus.PeersConnected) {
@@ -33,11 +33,11 @@ const ChatWaitingJoin: React.FC = () => {
                 }
             });
         } else {
-            logInfo({ message: "No WebSocket listener available" });
+            logInfo({message: "No WebSocket listener available"});
         }
 
         return () => {
-            logInfo({ message: "ChatWaitingJoin component unmounted" });
+            logInfo({message: "ChatWaitingJoin component unmounted"});
         };
     }, []);
 

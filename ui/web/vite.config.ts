@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import path from "node:path";
 import dotenv from 'dotenv';
@@ -14,6 +14,11 @@ export default defineConfig({
                 changeOrigin: true,
             },
             '/api/signal': {
+                target: 'ws://localhost:8099',
+                changeOrigin: true,
+                ws: true
+            },
+            '/api/approving': {
                 target: 'ws://localhost:8099',
                 changeOrigin: true,
                 ws: true

@@ -1,18 +1,21 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 
-import { useDispatch } from "react-redux";
+import {useDispatch} from "react-redux";
 
 import Centered from "../../../../../shared/components/elements/centered/Centered";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import InitializeLogin from "../../../../../shared/components/initialize-login/InitializeLogin";
 import useInitLogin from "../../../../../shared/hooks/useInitLogin";
 import {setInitialLoginData} from "../../../../../shared/slices/login.slice";
 import {useToasts} from "../../../../../shared/providers/toast-provider";
+import {IPeerState} from "../../../../../shared/slices/createSession.slice";
+import {useAppSelector} from "../../../../../shared/store/store";
 
 const InitializeLoginPage: React.FC = () => {
     const router = useNavigate();
     const {initLogin, response, error} = useInitLogin();
     const dispatch = useDispatch();
+    const peerState: IPeerState = useAppSelector(state => state.peerState);
     const {addToast} = useToasts();
     const submit = (login: string) => {
         if (!!login) {
@@ -40,10 +43,11 @@ const InitializeLoginPage: React.FC = () => {
             })
         }
     }, [response, error]);
+
     return (
         <section className="full-screen">
             <Centered>
-                <InitializeLogin submit={submit} />
+                <InitializeLogin submit={submit}/>
             </Centered>
         </section>
     )

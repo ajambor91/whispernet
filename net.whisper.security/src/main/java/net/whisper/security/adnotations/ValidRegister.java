@@ -1,4 +1,5 @@
 package net.whisper.security.adnotations;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import net.whisper.security.validators.RegisterValidator;

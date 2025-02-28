@@ -147,7 +147,7 @@ services:
       - session
     build:
       context: './responder-approving'
-      dockerfile: './Dockerfile'
+      dockerfile: './Dockerfile.dev'
     container_name: approving
     hostname: approving
     networks:

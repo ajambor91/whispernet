@@ -144,9 +144,9 @@ public class KafkaServiceTest {
 
     @Test
     @DisplayName("Should send client pass")
-    public void shouldPassSendClient() throws JsonProcessingException {
+    public void shouldPassSendMessage() throws JsonProcessingException {
 
-        this.kafkaService.sendNewClient(this.clientWithoutSession);
+        this.kafkaService.sendMessage(this.clientWithoutSession, EKafkaMessageTypes.NEW_CLIENT);
 
         verify(this.kafkaTemplate).send(argThat((Message<String> message) -> {
             assertEquals(this.serializedMessage, message.getPayload());
@@ -160,7 +160,7 @@ public class KafkaServiceTest {
     @Test
     @DisplayName("Should send joining client pass")
     public void shouldSendJoiningClientPass() throws JsonProcessingException {
-        this.kafkaService.sendJoinlient(this.joinerClient);
+        this.kafkaService.sendMessage(this.joinerClient, EKafkaMessageTypes.ADD_CLIENT);
         verify(this.kafkaTemplate).send(argThat(((Message<String> message) -> {
             assertEquals(this.serializedJoinMessage, message.getPayload());
             assertEquals(EKafkaTopic.CLIENT_TOPIC.getTopicName(), message.getHeaders().get(KafkaHeaders.TOPIC));

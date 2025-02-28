@@ -5,7 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import net.whisper.security.adnotations.ValidLogin;
 import net.whisper.security.dto.requests.LoginMessageDTO;
 
-public class LoginValidator   implements ConstraintValidator<ValidLogin, LoginMessageDTO> {
+public class LoginValidator implements ConstraintValidator<ValidLogin, LoginMessageDTO> {
     private ConstraintValidatorContext context;
 
     @Override

@@ -34,5 +34,5 @@ export const loginSlice = createSlice({
     }
 });
 
-export const {setMessage,setUsername, setInitialLoginData,setSignedMessage } = loginSlice.actions;
+export const {setMessage, setUsername, setInitialLoginData, setSignedMessage} = loginSlice.actions;
 export default loginSlice.reducer;

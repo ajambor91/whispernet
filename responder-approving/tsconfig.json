@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "commonjs",
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "moduleResolution": "node",
+    "lib": [
+      "ESNext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "incremental": true,
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": [
+    "src",
+    "node_modules/@types/node/globals.d.ts",
+    "node_modules/@types/node/timers.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build"
+  ]
+}

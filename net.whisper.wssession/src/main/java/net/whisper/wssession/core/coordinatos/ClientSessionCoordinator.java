@@ -6,11 +6,11 @@ import net.whisper.wssession.clients.services.ClientsService;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.services.SessionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Component
 public class ClientSessionCoordinator {
@@ -52,6 +52,26 @@ public class ClientSessionCoordinator {
             this.sessionService.processJoinClient(sessionToken, client);
         } catch (java.lang.Exception e) {
             logger.error("ClientSessionCoordinator:processClient Error with process joining client session, userToken={}, sessionToken={}, errorMessage={}", client.getUserToken(), sessionToken, e.getMessage());
+        }
+    }
+
+
+    public void updatePeerOrSession(String sessionToken, PeerClient client, boolean requestReturn) {
+        if (sessionToken == null) {
+            logger.error("ClientSessionCoordinator:updatePeerOrSession sessionToken cannot be null");
+            return;
+        }
+        if (client == null) {
+            logger.error("ClientSessionCoordinator:updatePeerOrSession client cannot be null");
+            return;
+        }
+        try {
+
+            this.sessionService.processUpdateClient(sessionToken, client, requestReturn);
+            logger.info("Peer update Peer Session, updatePeerOrSession, userToken={}, sessionToken={}", client.getUserToken(), sessionToken);
+
+        } catch (java.lang.Exception e) {
+            logger.error("ClientSessionCoordinator:updatePeerOrSession Error with process update client session, userToken={}, sessionToken={}, errorMessage={}", client.getUserToken(), sessionToken, e.getMessage());
         }
     }
 

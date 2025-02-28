@@ -2,6 +2,7 @@ package net.whisper.wssession.core.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.whisper.wssession.core.enums.EPGPSessionType;
 import net.whisper.wssession.session.enums.ESessionStatus;
 import net.whisper.wssession.session.models.PeerSession;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
 public abstract class BaseSession implements Serializable {
     protected String sessionToken;
     protected ESessionStatus sessionStatus;
+    protected EPGPSessionType pgpSessionType;
 
     public BaseSession() {
     }

@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import React, {FormEvent} from "react";
-import {a} from "vite/dist/node/types.d-aGj9QkWt";
 
 const StyledInput = styled.input`
     overflow: hidden;

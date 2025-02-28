@@ -2,9 +2,9 @@ import styles from './AppBar.module.scss';
 import React from 'react';
 import PrimaryHeader from '../elements/primary-header/PrimaryHeader';
 import TertiaryHeader from '../elements/tertiary-header/TertiaryHeader';
-import Button from "../elements/button/Button";
 import {useNavigate} from "react-router-dom";
 import logo from "../../pics/whispernet_logo_bar_92.png"
+
 interface IAppBarProps {
     isLogin: boolean;
     username: string;

@@ -7,10 +7,8 @@ import net.whisper.sessionGateway.interfaces.ISignedClient;
 @Getter
 @Setter
 public class SignedClient extends Client implements ISignedClient {
-    private boolean isConfirmed;
     private String jwt;
     private String username;
-
 
 
 }

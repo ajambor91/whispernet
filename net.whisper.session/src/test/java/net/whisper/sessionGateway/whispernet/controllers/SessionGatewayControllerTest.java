@@ -16,8 +16,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Map;
+
 import static net.whisper.sessionGateway.whispernet.utils.TestFactory.TEST_SESSION_TOKEN;
 import static net.whisper.sessionGateway.whispernet.utils.TestFactory.TEST_USER_TOKEN;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,18 +38,19 @@ public class SessionGatewayControllerTest {
 
     @MockBean
     private CookiesService cookiesService;
-
+    private Map<String, String> headers;
     private IncomingClient mockClient;
 
     private Cookie mockCookie;
 
     @BeforeEach
     public void setup() throws InterruptedException, JsonProcessingException {
+        this.headers = Map.of("username", "test");
         this.mockClient = TestFactory.createIncomingClient();
         this.mockCookie = TestFactory.createCookie(this.mockClient);
         when(cookiesService.getCookie(mockClient, this.cookieTimeToLive)).thenReturn(mockCookie);
         when(sessionService.createClient()).thenReturn(this.mockClient);
-        when(sessionService.createNextClientSession(TEST_SESSION_TOKEN)).thenReturn(this.mockClient);
+        when(sessionService.createNextClientSession(eq(TEST_SESSION_TOKEN), any(Map.class)) ).thenReturn(this.mockClient);
     }
 
     @Test

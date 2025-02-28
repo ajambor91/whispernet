@@ -11,7 +11,7 @@ spring.kafka.consumer.value-deserializer=org.apache.kafka.common.serialization.S
 spring.kafka.consumer.properties.group.instance.id=consumer-session
 spring.kafka.consumer.session.timeout.ms=60000
 spring.kafka.consumer.heartbeat.interval.ms=20000
-logging.level.org.springframework.kafka=DEBUG
+logging.level.org.springframework.kafka=OFF
 
 #REDIS
 spring.data.redis.host=cache-security
@@ -24,7 +24,7 @@ logging.level.org.springframework.data.redis=DEBUG
 io.lettuce.core.RedisClient
 
 #JWT
-login.jwt.secret=JWT
+login.jwt.secret=U1VQRVJfU0VDUkVUX0tFWV9TVVBFUl9TRUNSRVRfS0VZ
 login.expiration=3600000
 
 # DATABASE

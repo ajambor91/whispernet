@@ -1,13 +1,8 @@
 import {useState} from "react";
-import {ISession} from "../models/ws-message.model";
 import dataFetch from "../helpers/fetch";
 import {IError} from "../models/error.model";
+import {IPeerState} from "../slices/createSession.slice";
 
-interface IPeerState {
-    sessionToken: string;
-    peerRole: string
-    secretKey: string;
-}
 
 const useNewChat = () => {
     const [response, setResponse] = useState<IPeerState | null>(null);

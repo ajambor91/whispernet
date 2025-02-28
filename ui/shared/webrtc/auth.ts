@@ -7,6 +7,7 @@ import {IPeer} from "../interfaces/peer.interface";
 class Auth implements IAuth {
     private _appEvent: AppEvent = AppEvent.getInstance();
     private _peer: IPeer;
+
     public constructor(peer?: IPeer) {
         this._peer = peer;
     }
@@ -57,6 +58,7 @@ class Auth implements IAuth {
 
 
 }
+
 let auth: IAuth;
 export const getAuth = (peer?: IPeer): IAuth => {
     if (!peer && !auth) {

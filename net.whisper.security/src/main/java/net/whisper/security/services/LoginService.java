@@ -5,7 +5,11 @@ import net.whisper.security.dto.requests.LoginMessageDTO;
 import net.whisper.security.dto.responses.LoginResponseDTO;
 import net.whisper.security.entities.User;
 import net.whisper.security.enums.ELoginStage;
+import net.whisper.security.enums.EPGPSessionType;
+import net.whisper.security.helpers.PGPHelper;
+import net.whisper.security.interfaces.IChecker;
 import net.whisper.security.interfaces.ISignedClient;
+import net.whisper.security.models.Partner;
 import net.whisper.security.models.RedisUser;
 import net.whisper.security.repositories.RedisRepository;
 import net.whisper.security.repositories.UserRepository;
@@ -22,12 +26,13 @@ import java.util.*;
 @Component
 public class LoginService {
 
-    private Logger logger;
     private final UserRepository userRepository;
     private final RedisRepository redisRepository;
     private final PGPVerifierService pgpVerifierService;
     private final JWTService jwtService;
     private final KafkaService kafkaService;
+    private final Logger logger;
+
     @Autowired
     public LoginService(
             UserRepository userRepository,
@@ -43,7 +48,8 @@ public class LoginService {
         this.logger = LoggerFactory.getLogger(LoginService.class);
         this.kafkaService = kafkaService;
     }
-    public LoginResponseDTO inituializeLoginUser(LoginDTO loginDTO) throws IllegalArgumentException  {
+
+    public LoginResponseDTO inituializeLoginUser(LoginDTO loginDTO) throws IllegalArgumentException {
         if (loginDTO.getUsername() == null || loginDTO.getUsername().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null!");
         }
@@ -53,7 +59,7 @@ public class LoginService {
             throw new NoSuchElementException("User not found");
         }
         String uuid = UUID.randomUUID().toString();
-        RedisUser redisUser = new RedisUser(user.getUsername(),user.getPGPKey(), ELoginStage.INITIALIZED);
+        RedisUser redisUser = new RedisUser(user.getUsername(), user.getPGPKey(), ELoginStage.INITIALIZED);
         this.redisRepository.saveUser(redisUser.getUsername(), redisUser, 600000L);
         return new LoginResponseDTO(user.getUsername(), uuid);
     }
@@ -62,8 +68,7 @@ public class LoginService {
             IllegalArgumentException,
             NoSuchElementException,
             PGPException,
-            IOException
-    {
+            IOException {
         RedisUser user = this.redisRepository.getUser(loginMessageDTO.getUsername());
         if (user == null) {
             logger.error("User not found, username={}", loginMessageDTO.getUsername());
@@ -96,16 +101,42 @@ public class LoginService {
         return new LoginResponseDTO(user.getUsername(), jwt);
     }
 
+    public void getPartnerPub(IChecker checker) {
+
+        if (checker == null) {
+            throw new NoSuchElementException("Checker is null");
+        }
+
+        if (checker.getPartners().isEmpty()) {
+            throw new NoSuchElementException("Checker partners is null");
+
+        }
+        checker.getPartners().forEach(partner -> {
+            RedisUser redisUser = this.redisRepository.getUser(partner.getUsername());
+            try {
+                partner.setPublicKey(PGPHelper.convertToHex(redisUser.getPublicKey()));
+            } catch (IOException e) {
+                logger.error("Error when converting PGPKey to HEX, {}", e.getMessage());
+                throw new RuntimeException(e);
+            } catch (PGPException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        this.kafkaService.returnsVerifiedPartners(checker);
+
+    }
+
     public void checkLogin(ISignedClient client) {
         Map<String, String> map = new HashMap<>();
         map.put("username", client.getUsername());
         map.put("authorization", client.getJwt());
         try {
             this.checkLogin(map);
-            client.setConfirmed(true);
+            client.setSessionType(EPGPSessionType.VERIFIED);
 
         } catch (Exception e) {
-            client.setConfirmed(false);
+            client.setSessionType(EPGPSessionType.UNSIGNED);
 
         } finally {
             this.kafkaService.returnVerifiedClient(client);
@@ -131,7 +162,7 @@ public class LoginService {
             throw new NoSuchElementException("User not found");
         }
         String jwtTrimmed = user.getJwt().replace("Bearer ", "").trim();
-        if (!jwtTrimmed.equals(token) ) {
+        if (!jwtTrimmed.equals(token)) {
             throw new IllegalArgumentException("Tokens are not match");
         }
         if (this.jwtService.isTokenValid(token)) {

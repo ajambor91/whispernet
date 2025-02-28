@@ -1,6 +1,6 @@
 package net.whisper.sessionGateway.interfaces;
 
-public interface ISignedClient extends IBasicClient{
+public interface ISignedClient extends IBasicClient {
     String getUsername();
 
     void setUsername(String username);
@@ -9,8 +9,5 @@ public interface ISignedClient extends IBasicClient{
 
     void setJwt(String jwt);
 
-    boolean isConfirmed();
-
-    void setConfirmed(boolean confirmed);
 
 }

@@ -1,6 +1,6 @@
 package net.whisper.security.interfaces;
 
-public interface ISignedClient extends IBaseClient{
+public interface ISignedClient extends IBaseClient {
     String getUsername();
 
     void setUsername(String username);
@@ -9,7 +9,7 @@ public interface ISignedClient extends IBaseClient{
 
     void setJwt(String jwt);
 
-    boolean isConfirmed();
+    String getPublicKey();
 
-    void setConfirmed(boolean confirmed);
+    void setPublicKey(String publicKey);
 }

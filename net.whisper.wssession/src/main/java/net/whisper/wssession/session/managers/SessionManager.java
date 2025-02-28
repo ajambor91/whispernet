@@ -1,9 +1,15 @@
 package net.whisper.wssession.session.managers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whisper.wssession.core.enums.EPGPSessionType;
 import net.whisper.wssession.session.enums.ESessionStatus;
+import net.whisper.wssession.session.models.ApprovingSession;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.repositories.SessionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,19 +18,17 @@ import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 @Service
 public class SessionManager {
 
     private final SessionRepository sessionRepository;
     private final Logger logger;
+
     @Autowired
     public SessionManager(SessionRepository sessionRepository) {
         this.logger = LoggerFactory.getLogger(SessionManager.class);
         this.sessionRepository = sessionRepository;
     }
-
 
     public PeerSession createSession(PeerClient peerClient) {
         if (peerClient == null) {
@@ -36,7 +40,18 @@ public class SessionManager {
     public PeerSession addPeerToExistingSession(String sessionToken, PeerClient peerClient) {
         PeerSession peerSession = this.sessionRepository.getSession(sessionToken);
         try {
+            if (peerClient.getSessionType() == EPGPSessionType.SIGNED) {
+                peerSession.setPgpSessionType(EPGPSessionType.SIGNED);
+            }
+
+            peerClient.setSessionType(peerSession.getPgpSessionType());
             peerSession.addPeerClient(peerClient);
+            try {
+                logger.info("Existing session {}", new ObjectMapper().writeValueAsString(peerSession));
+
+            } catch (JsonProcessingException e) {
+                logger.info("Cannot parse existing session");
+            }
             this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);
             logger.info("Peer added to session, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
             return peerSession;
@@ -44,20 +59,75 @@ public class SessionManager {
             logger.error(e.getMessage());
             return peerSession;
         }
+    }
 
+    public PeerSession updatePeerSession(String sessionToken, PeerClient peerClient) {
+        logger.info("Updating peer, userToken={}, sessionToken={}", peerClient.getUserToken(), sessionToken);
+        PeerSession peerSession = this.sessionRepository.getSession(sessionToken);
+        logger.debug("Fetch session from Redis, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
+
+        Iterator<PeerClient> peerClientIterator = peerSession.getPeerClients().iterator();
+        PeerClient foundPeer = null;
+        while (peerClientIterator.hasNext()) {
+            PeerClient peer = peerClientIterator.next();
+            if (peer.getUserId().equals(peerClient.getUserId()) || peer.getUserToken().equals(peerClient.getUserToken())) {
+                foundPeer = peer;
+                logger.debug("Found peer to update, userToken={}, foundPeer={}", peerClient.getUserToken(), foundPeer.getUserToken());
+                break;
+            }
+        }
+        if (foundPeer == null) {
+            logger.debug("Peer not found userToken={}, sessionToken={}", peerClient.getUserToken(), sessionToken);
+            throw new NoSuchElementException("No peer found");
+        }
+        if (peerSession.getPgpSessionType() == EPGPSessionType.CHECK_RESPONDER && peerClient.getSessionType() == EPGPSessionType.VERIFIED) {
+            peerSession.setPgpSessionType(EPGPSessionType.WAITING_FOR_PEER_ACCEPTED);
+        }
+
+        peerClient.updatePeer(foundPeer);
+        foundPeer.updatePeer(peerClient);
+        this.sessionRepository.saveSession(sessionToken, peerSession);
+        return peerSession;
     }
 
     private PeerSession setupPeerSession(PeerClient peerClient) {
         String sessionToken = UUID.randomUUID().toString();
         String secretKey = this.createAESSecret();
-        PeerSession peerSession = new PeerSession(sessionToken, secretKey);
+        PeerSession peerSession = new PeerSession(sessionToken, secretKey, peerClient.getSessionType());
         logger.info("New session created, sessionToken={}", peerSession.getSessionToken());
         peerSession.addPeerClient(peerClient);
+        try {
+            logger.info("New session {}", new ObjectMapper().writeValueAsString(peerSession));
+
+        } catch (JsonProcessingException e) {
+            logger.info("Cannot parse new session");
+        }
         this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);
         logger.info("Peer added to session, userToken={}, sessionToken={}", peerClient.getUserToken(), peerSession.getSessionToken());
         return peerSession;
 
     }
+
+    public void removeSession(ApprovingSession approvingSession) {
+        if (approvingSession == null) {
+            throw new IllegalArgumentException("ApprovingSession in remove session is null");
+        }
+        this.sessionRepository.deleteSession(approvingSession.getSessionToken());
+    }
+
+    public PeerSession acceptSession(ApprovingSession approvingSession) {
+        if (approvingSession == null) {
+            throw new IllegalArgumentException("ApprovingSession in accepting session is null");
+        }
+
+        PeerSession peerSession = this.sessionRepository.getSession(approvingSession.getSessionToken());
+
+        peerSession.setPgpSessionType(EPGPSessionType.SIGNED);
+        peerSession.getPeerClients().forEach(peer -> peer.setSessionType(EPGPSessionType.PEER_ACCEPTED));
+        this.sessionRepository.saveSession(approvingSession.getSessionToken(), peerSession);
+        return peerSession;
+    }
+
 
     public void removeClientFromSession(PeerSession peerSession) {
         if (peerSession == null) {
@@ -82,7 +152,7 @@ public class SessionManager {
         }
         existingSession.setSessionStatus(ESessionStatus.INTERRUPTED);
         this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);
-        logger.info("Peer has successfullly removed from session, sessionToken={}", peerSession.getSessionToken());
+        logger.info("Peer was successfully removed from session, sessionToken={}", peerSession.getSessionToken());
     }
 
     public void updateSession(PeerSession peerSession) {
@@ -96,14 +166,14 @@ public class SessionManager {
                     .filter(existingPeer -> existingPeer.getUserId().equals(peer.getUserId()))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("Peer not found"));
-                foundPeer.setClientConnectionStatus(peer.getClientConnectionStatus());
+            foundPeer.setClientConnectionStatus(peer.getClientConnectionStatus());
         });
         existingSession.setSessionStatus(peerSession.getSessionStatus());
         this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);
-        logger.info("Session has successfullly updated, sessionToken={}", peerSession.getSessionToken());
+        logger.info("Session was successfully updated, sessionToken={}", peerSession.getSessionToken());
     }
 
-    private String createAESSecret(){
+    private String createAESSecret() {
         String AESToken = null;
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");

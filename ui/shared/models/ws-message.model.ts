@@ -17,21 +17,27 @@ interface IBaseMessage {
     timestamp?: number;
     metadata?: any;
 }
-export interface IIncomingMessage extends IBaseMessage{
+
+export interface IIncomingMessage extends IBaseMessage {
 
 }
 
 
-export interface IOutgoingMessage extends  IBaseMessage{
+export interface IOutgoingMessage extends IBaseMessage {
     peerStatus: EClientStatus;
 }
 
-export interface IGoodMorningMessage extends Pick<IBaseMessage, 'type'> {}
+export interface IGoodMorningMessage extends Pick<IBaseMessage, 'type'> {
+}
 
-export interface IGoodByeMessage extends Pick<IBaseMessage, 'type'> {}
+export interface IGoodByeMessage extends Pick<IBaseMessage, 'type'> {
+}
 
-export interface ISignalMessage extends Pick<IBaseMessage, 'type' | 'session'> {}
+export interface ISignalMessage extends Pick<IBaseMessage, 'type' | 'session'> {
+}
 
-export interface IAuthMessage extends Pick<IBaseMessage, 'type' >, Partial<Pick<IBaseMessage, 'session'>> {}
+export interface IAuthMessage extends Pick<IBaseMessage, 'type'>, Partial<Pick<IBaseMessage, 'session'>> {
+}
 
-export interface IInitialWebRTCMessage extends  Pick<IBaseMessage, 'type'> {}
+export interface IInitialWebRTCMessage extends Pick<IBaseMessage, 'type'> {
+}

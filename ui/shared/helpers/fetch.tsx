@@ -9,7 +9,7 @@ const dataFetch = async (url: string, options: RequestInit = {}) => {
             Authorization: `Bearer ${userData.message}`,
             Username: userData.username
         };
-    } else  {
+    } else {
         headers = {
             ...options.headers
         };

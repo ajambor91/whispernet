@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useAppSelector } from "../../../../../shared/store/store";
+import React, {useEffect, useState} from 'react';
+import {useAppSelector} from "../../../../../shared/store/store";
 import useWebSocket from "../../../../../shared/hooks/useWebSocket";
-import { IPeerState } from "../../../../../shared/slices/createSession.slice";
+import {IPeerState} from "../../../../../shared/slices/createSession.slice";
 import Hash from "../../../../../shared/components/hash/Hash";
 import {logInfo, logWarning} from "../../../../../shared/error-logger/web";
 import {EClientStatus} from "../../../../../shared/enums/client-status.enum";
@@ -17,11 +17,11 @@ const ChatWaiting: React.FC = () => {
     const {onStatus} = useWebSocket(peerState);
     const router = useNavigate();
     useEffect(() => {
-        logInfo({ message: "ChatWaiting component mounted" });
+        logInfo({message: "ChatWaiting component mounted"});
         if (onStatus) {
-            logInfo({ message: "WebSocket status listener initialized" });
+            logInfo({message: "WebSocket status listener initialized"});
             onStatus(data => {
-                logInfo({ message: "Status updated", newStatus: data });
+                logInfo({message: "Status updated", newStatus: data});
                 setStatus(data);
                 if (data === EClientStatus.PeersConnected) {
                     setTimeout(() => {
@@ -30,11 +30,11 @@ const ChatWaiting: React.FC = () => {
                 }
             });
         } else {
-            logInfo({ message: "No WebSocket listener available" });
+            logInfo({message: "No WebSocket listener available"});
         }
 
         return () => {
-            logInfo({ message: "ChatWaiting component unmounted" });
+            logInfo({message: "ChatWaiting component unmounted"});
         };
     }, []);
 
@@ -60,7 +60,7 @@ const ChatWaiting: React.FC = () => {
             </section>
         ) : (<TertiaryHeader>
             <Centered>
-                <TertiaryHeader>        Redirecting
+                <TertiaryHeader> Redirecting
                 </TertiaryHeader>
             </Centered>
         </TertiaryHeader>)

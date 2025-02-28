@@ -36,6 +36,7 @@ WhisperNet is a decentralized communication platform designed to provide private
         - **Security**: User register, login and verifying
     - Node.js microservice:
         - **WebSocket Service**: Pairs users for communication.
+        - **Approving Service**: Responsible for sending notifications to users when their connection request is accepted after PGP key verification.
     - Kafka: Handles asynchronous communication between microservices.
     - Redis: Stores session data for quick access.
     - Security Redis: Stores JWT token and currently signed-in users, also stores initialized login user data 
@@ -68,14 +69,14 @@ Frontend (React) --> Security --> Security Redis
     |                Security DB
     |
     v
-Session(Spring Boot)
+Session(Spring Boot) ----> Approving Server (Node.js) < -- > Frontend
     |
     |         Security --> Security DB
     |         ^     |
     |         |     v 
     |         |     Security Redis 
     |         |     
-    +------ Kafka --> WSSession (Spring Boot) <-- Kafka --> Signal-Server (Node.js)
+    +------ Kafka --> WSSession (Spring Boot) <-- Kafka --> Signal-Server (Node.js) <--> Frontend 
     |                  |
     |                  +--> Redis
     v
@@ -112,7 +113,8 @@ Backend (Symfony) --> Database (mariadb)
 
 - **Signal-Server (Node.js)**:  
   Handles WebRTC signaling and connects directly to the frontend. Optionally interacts with Redis for connection state management.
-
+- **Approving Server (Node.js)**:
+  Informs users that their connection request has been accepted.
 - **Kafka**:  
   Acts as a reliable messaging bus between all microservices.
 
@@ -229,12 +231,14 @@ Open your web browser and type http://localhost:3000. Example credentials are us
 
 Currently, tests have been implemented for the **Session-Service** microservice, with the following coverage statistics:
 
-| Service             | Test Coverage  | Notes                                                      |
-|---------------------|----------------|------------------------------------------------------------|
-| **Session-Service** | 88%            | Mostly integration or hybrid tests completed using Jacoco. |
-| **WSSession**       | 91%            | Mostly integration or hybrid tests completed using Jacoco. |
-| **Security**        | Not yet testet | Planned for future coverage.                               |
-| **Signal-Server**   | Not yet tested | Planned for future coverage.                               |
+| Service              | Test Coverage  | Notes                                                      |
+|----------------------|----------------|------------------------------------------------------------|
+| **Session-Service**  | 88%            | Mostly integration or hybrid tests completed using Jacoco. |
+| **WSSession**        | 91%            | Mostly integration or hybrid tests completed using Jacoco. |
+| **Security**         | Not yet testet | Planned for future coverage.                               |
+| **Signal-Server**    | Not yet tested | Planned for future coverage.                               |
+| **Approving-Server** | Not yet tested | Planned for future coverage.                               |
+
 
 ### Coverage Report
 
@@ -245,8 +249,12 @@ You can find the HTML report in the `target/site/jacoco` directory or access it 
 - [WSSession-Service Coverage Report](https://ajambor91.github.io/whispernet/reports/wssession/jacoco/test/html/index.html)
 ### Notes
 
-*   **Newest version (feature/force-responder-verifying):**  A new feature demo of peer identity verification using PGP keys is available on the `feature/force-responder-verifying` branch.  You can force a session to walk through the verification process and connect to the Approving Server.
+
+
+### Notes
+*   **Demo (main branch):**  A demo of peer identity verification using PGP keys is available on the `main` branch.  You can force a session to walk through the verification process and connect to the Approving Server.
 *   **Production (release/0.1.1):** The current production version resides on the `release/0.1.1` branch.
+
 ## In progress
 1. **Finishing PGP signing sessions flow**
 2. **Security service testing**

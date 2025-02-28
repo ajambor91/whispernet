@@ -30,10 +30,11 @@ public class SessionKafkaProducerTest {
     private final SessionKafkaProducer sessionKafkaProducer;
     private PeerSession peerSession;
 
-    private Logger logger;
+    private final Logger logger;
 
     @MockBean
     private KafkaTemplate<String, String> kafkaTemplate;
+
     @Autowired
     public SessionKafkaProducerTest(SessionKafkaProducer sessionKafkaProducer) {
         this.sessionKafkaProducer = sessionKafkaProducer;

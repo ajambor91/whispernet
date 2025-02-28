@@ -8,7 +8,7 @@ interface IStatusProps {
 const Status: React.FC<IStatusProps> = ({sessionStatus}) => {
     const [status, setStatus] = useState<EClientStatus | null>("Started connection")
     const getStatus = (): EClientStatus => {
-      return sessionStatus;
+        return sessionStatus;
     }
     useEffect(() => {
         setStatus(getStatus);

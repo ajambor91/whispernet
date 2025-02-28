@@ -1,6 +1,8 @@
 import {Consumer, EachMessagePayload, Kafka, KafkaConfig, PartitionAssigners, Producer} from "kafkajs";
 import {Orchestrator} from "./orchestrator";
-import {logInfo} from "../logger/looger";
+import {logError, logInfo} from "../logger/looger";
+import {EKafkaMessageTypes} from "../enums/kafka-message-types.enum";
+import {IKafkaMessage} from "../models/kafka-message.model";
 
 const kafkaConfig: KafkaConfig = {
     clientId: 'consumer-responder-verification',
@@ -19,6 +21,7 @@ export class KafkaResponder {
     });
     private readonly _producer: Producer = this._kafka.producer();
     private readonly kafkaTopic: string = "request-approving";
+    private readonly _kafkaWSSessionTopic: string = "request-session-approving-topic";
 
     private constructor(orchestrator: Orchestrator) {
         this._orchestrator = orchestrator;
@@ -33,8 +36,36 @@ export class KafkaResponder {
         return KafkaResponder.instance;
     }
 
-    private initialize(): void {
-        this.startConsume();
+    public async sendKafkaMessage(session: IKafkaMessage, type: EKafkaMessageTypes): Promise<void> {
+        try {
+            const result = await this._producer.send({
+                topic: this._kafkaWSSessionTopic,
+                messages: [{
+                    value: JSON.stringify(session), headers: {
+                        type: type
+                    }
+                }]
+            });
+            if (result && result.length > 0) {
+                logInfo({
+                    event: 'Kafka:sendMessage',
+                    message: `Message sent successfullytys sessionToken=${session.sessionToken}`
+                });
+
+            } else {
+                logError({
+                    event: 'Kafka:sendMessage',
+                    message: `Messege didn\'t send sessionToken=${session.sessionToken}`
+                });
+
+            }
+        } catch (error) {
+            logError({event: 'Kafka:sendMessage', message: error});
+        }
+    }
+
+    private async initialize(): Promise<void> {
+        await Promise.all([this.startConsume(), this._producer.connect()]);
         this.startListening();
     }
 

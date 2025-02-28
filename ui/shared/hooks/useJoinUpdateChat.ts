@@ -6,7 +6,7 @@ import dataFetch from "../helpers/fetch";
 import {IPartners} from "../slices/partners-keys.slice";
 
 const useJoinUpdateChat = () => {
-    const [response, setResponse] = useState<IPeerState & Partial<IPartners>>(null);
+    const [updateResponse, setResponse] = useState<IPeerState & Partial<IPartners>>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<IError | null>(null);
     const joinUpdateChat = async (peerState: IPeerState) => {
@@ -16,7 +16,7 @@ const useJoinUpdateChat = () => {
         let err: any;
         try {
             response = await dataFetch(`/api/session/update/${peerState.sessionToken}`, {
-                method: 'POST',
+                method: 'PUT',
                 body: JSON.stringify(peerState),
                 headers: {
                     "Content-Type": "application/json"
@@ -60,7 +60,7 @@ const useJoinUpdateChat = () => {
             setLoading(false);
         }
     }
-    return {joinUpdateChat, response, loading, error};
+    return {joinUpdateChat, updateResponse, loading, error};
 
 }
 export default useJoinUpdateChat;

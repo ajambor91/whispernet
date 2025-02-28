@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import net.whisper.sessionGateway.dto.requests.PeerState;
 import net.whisper.sessionGateway.dto.responses.ErrorResponseDTO;
 import net.whisper.sessionGateway.dto.responses.ResponseDTO;
+import net.whisper.sessionGateway.exceptions.ApprovalExisiting;
 import net.whisper.sessionGateway.exceptions.UserUnauthorizationException;
 import net.whisper.sessionGateway.models.IncomingClient;
 import net.whisper.sessionGateway.services.CookiesService;
@@ -90,7 +91,7 @@ public class SessionGatewayController {
         }
     }
 
-    @PostMapping("/update/{sessionToken}")
+    @PutMapping("/update/{sessionToken}")
     public ResponseEntity<?> updateClientSession(@CookieValue(value = "userToken") String userToken, @RequestBody PeerState peerState, @RequestHeader Map<String, String> headers, @PathVariable String sessionToken) {
         logger.info("Received request to update peer in existing session: sessionToken={}, userToken={}", sessionToken, userToken);
         try {
@@ -102,6 +103,10 @@ public class SessionGatewayController {
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(responseBody);
+        }
+        catch (ApprovalExisiting exisiting) {
+            ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(exisiting.getMessage());
+            return ResponseEntity.badRequest().body(errorResponseDTO);
         } catch (UserUnauthorizationException exception) {
             logger.error("Client unauthorized when tried join to signed session, sessionToken={}", sessionToken, exception);
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(exception.getClient(), sessionToken, exception.getMessage());
@@ -150,16 +155,18 @@ public class SessionGatewayController {
         }
     }
 
-    @PostMapping("/update/initiator/{sessionToken}")
+    @PutMapping("/update/initiator/{sessionToken}")
     public ResponseEntity<?> updateInitiatorStatus(@CookieValue(value = "userToken") String userToken, @RequestHeader Map<String, String> headers, @RequestBody PeerState peerState, @PathVariable String sessionToken) {
         logger.info("Received update initiator message, sessionToken={}, userToken={}", peerState.getSessionToken(), userToken);
         try {
-            IncomingClient incomingClient = this.sessionService.updateStatusAndGetPartners(userToken,sessionToken, headers, peerState);
+            IncomingClient incomingClient = this.sessionService.updateStatusAndGetPartners(userToken, sessionToken, headers, peerState);
             Map<String, Object> reponseData = new ResponseDTO(incomingClient).toMap();
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(reponseData);
-
+        } catch (ApprovalExisiting exisiting) {
+            ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(exisiting.getMessage());
+            return ResponseEntity.badRequest().body(errorResponseDTO);
         } catch (JsonProcessingException | InterruptedException e) {
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponseDTO);        }

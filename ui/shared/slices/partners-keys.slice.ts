@@ -6,7 +6,7 @@ export interface IPartner {
 }
 
 export interface IPartners {
-    partners: IPartners[]
+    partners: IPartner[]
 
 }
 
@@ -21,8 +21,11 @@ export const partnersSlice = createSlice({
         addPartners: (state, action: PayloadAction<IPartner[]>) => {
             state.partners = action.payload;
         },
+        nullPartners: (state) => {
+            state.partners = [];
+        }
     }
 });
 
-export const {addPartners} = partnersSlice.actions;
+export const {addPartners, nullPartners} = partnersSlice.actions;
 export default partnersSlice.reducer;

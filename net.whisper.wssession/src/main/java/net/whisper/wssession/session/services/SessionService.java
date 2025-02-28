@@ -6,6 +6,7 @@ import net.whisper.wssession.core.enums.EKafkaMessageTypes;
 import net.whisper.wssession.core.enums.EPGPSessionType;
 import net.whisper.wssession.session.kafka.SessionKafkaProducer;
 import net.whisper.wssession.session.managers.SessionManager;
+import net.whisper.wssession.session.models.ApprovingSession;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
 import org.slf4j.Logger;
@@ -82,6 +83,15 @@ public class SessionService {
         this.sessionManager.updateSession(peerSession);
     }
 
+    public void acceptSession(ApprovingSession approvingSession) {
+        PeerSession peerSession = this.sessionManager.acceptSession(approvingSession);
+        this.sessionKafkaProducer.sendSession(peerSession, EKafkaMessageTypes.NEW_SESSION);
+    }
+
+    public void removeSession(ApprovingSession approvingSession) {
+        this.sessionManager.removeSession(approvingSession);
+    }
+
     public void removeClientFromSession(PeerSession peerSession) {
         if (peerSession == null) {
             throw new IllegalArgumentException("PeerSession cannot be null when removing peer");
@@ -89,6 +99,8 @@ public class SessionService {
         }
         this.sessionManager.removeClientFromSession(peerSession);
     }
+
+
 
     private void conditionallySendRunSignalWebSocket(PeerClient peerClient, PeerSession peerSession, EKafkaMessageTypes kafkaMessageTypes) {
         if (peerSession.getPgpSessionType() == EPGPSessionType.UNSIGNED || peerClient.getSessionType() == EPGPSessionType.SIGNED) {

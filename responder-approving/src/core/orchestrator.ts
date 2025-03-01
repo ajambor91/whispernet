@@ -40,7 +40,10 @@ export class Orchestrator {
         const userToken: string = getCookie(message);
 
         socket.on("message", (msg: Buffer) => {
-            const wsMessage: IApprovingMessageWs = parseMessage(msg);
+            const wsMessage: IApprovingMessageWs | null = parseMessage(msg);
+            if (!wsMessage) {
+                return;
+            }
             logInfo({message: "New WebSocket message: " + JSON.stringify(wsMessage)})
 
             const peer: IIncomingPeer = {

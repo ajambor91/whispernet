@@ -17,7 +17,7 @@ export const getCookie: (req: IncomingMessage) => string = (req: IncomingMessage
     return token;
 };
 
-export const parseMessage: (msg: string | Buffer) => IApprovingMessageWs = (msg: string | Buffer): IApprovingMessageWs => {
+export const parseMessage: (msg: string | Buffer) => IApprovingMessageWs | null = (msg: string | Buffer): IApprovingMessageWs | null => {
     let stringMessage: string | undefined = undefined;
     if (msg instanceof Buffer) {
         stringMessage = msg.toString();

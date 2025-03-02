@@ -235,7 +235,7 @@ Currently, tests have been implemented for the **Session-Service** microservice,
 | Service              | Test Coverage  | Notes                                                      |
 |----------------------|----------------|------------------------------------------------------------|
 | **Session-Service**  | 84%            | Mostly integration or hybrid tests completed using Jacoco. |
-| **WSSession**        | 91%            | Mostly integration or hybrid tests completed using Jacoco. |
+| **WSSession**        | 74%            | Mostly integration or hybrid tests completed using Jacoco. |
 | **Security**         | Not yet testet | Planned for future coverage.                               |
 | **Signal-Server**    | Not yet tested | Planned for future coverage.                               |
 | **Approving-Server** | Not yet tested | Planned for future coverage.                               |

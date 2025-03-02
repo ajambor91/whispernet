@@ -5,14 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.core.enums.EKafkaMessageTypes;
 import net.whisper.wssession.core.enums.EKafkaTopic;
 import net.whisper.wssession.session.models.PeerSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 @Component
 public class SessionKafkaProducer {
 
@@ -21,34 +22,35 @@ public class SessionKafkaProducer {
     private final ObjectMapper objectMapper;
 
     @Autowired
-<span class="fc" id="L24">    public SessionKafkaProducer(ObjectMapper objectMapper, KafkaTemplate&lt;String, String&gt; kafkaTemplate) {</span>
-<span class="fc" id="L25">        this.kafkaTemplate = kafkaTemplate;</span>
-<span class="fc" id="L26">        this.objectMapper = objectMapper;</span>
-<span class="fc" id="L27">        this.logger = LoggerFactory.getLogger(SessionKafkaProducer.class);</span>
-<span class="fc" id="L28">    }</span>
-    public void sendSession(PeerSession peerSession, EKafkaMessageTypes type)  {
-<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (peerSession == null) {</span>
-<span class="fc" id="L31">            logger.error(&quot;SessionKafkaProducer:sendSession - PeerSession cannot be null&quot;);</span>
-<span class="fc" id="L32">            return;</span>
+<span class="fc" id="L25">    public SessionKafkaProducer(ObjectMapper objectMapper, KafkaTemplate&lt;String, String&gt; kafkaTemplate) {</span>
+<span class="fc" id="L26">        this.kafkaTemplate = kafkaTemplate;</span>
+<span class="fc" id="L27">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L28">        this.logger = LoggerFactory.getLogger(SessionKafkaProducer.class);</span>
+<span class="fc" id="L29">    }</span>
+
+    public void sendSession(PeerSession peerSession, EKafkaMessageTypes type) {
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (peerSession == null) {</span>
+<span class="fc" id="L33">            logger.error(&quot;SessionKafkaProducer:sendSession - PeerSession cannot be null&quot;);</span>
+<span class="fc" id="L34">            return;</span>
         }
         try {
-<span class="fc" id="L35">            String message = this.objectMapper.writeValueAsString(peerSession);</span>
-<span class="fc" id="L36">            this.sendKafkaMsg(message, EKafkaTopic.WEBSOCKET_SESSION_TOPIC.getTopicName(), type);</span>
-<span class="fc" id="L37">            logger.info(&quot;SessionKafkaProducer:sendSession - Kafka message with session to webscoket was send, sessionToken={}&quot;, peerSession.getSessionToken());</span>
-<span class="fc" id="L38">        } catch (JsonProcessingException e) {</span>
-<span class="fc" id="L39">            logger.error(&quot;SessionKafkaProducer:sendSession - JSON process session message failed, sessionToken={}, message={}&quot;, peerSession.getSessionToken(), e.getMessage());</span>
-<span class="fc" id="L40">        }</span>
+<span class="fc" id="L37">            String message = this.objectMapper.writeValueAsString(peerSession);</span>
+<span class="fc" id="L38">            this.sendKafkaMsg(message, EKafkaTopic.WEBSOCKET_SESSION_TOPIC.getTopicName(), type);</span>
+<span class="fc" id="L39">            logger.info(&quot;SessionKafkaProducer:sendSession - Kafka message with session to webscoket was send, sessionToken={}&quot;, peerSession.getSessionToken());</span>
+<span class="fc" id="L40">        } catch (JsonProcessingException e) {</span>
+<span class="fc" id="L41">            logger.error(&quot;SessionKafkaProducer:sendSession - JSON process session message failed, sessionToken={}, message={}&quot;, peerSession.getSessionToken(), e.getMessage());</span>
+<span class="fc" id="L42">        }</span>
 
-<span class="fc" id="L42">    }</span>
+<span class="fc" id="L44">    }</span>
 
     private void sendKafkaMsg(String parsedObject, String topic, EKafkaMessageTypes type) {
-<span class="fc" id="L45">        Message&lt;String&gt; message = MessageBuilder</span>
-<span class="fc" id="L46">                .withPayload(parsedObject)</span>
-<span class="fc" id="L47">                .setHeader(KafkaHeaders.TOPIC, topic)</span>
-<span class="fc" id="L48">                .setHeader(&quot;type&quot;, type.getMessageType())</span>
-<span class="fc" id="L49">                .build();</span>
-<span class="fc" id="L50">        kafkaTemplate.send(message);</span>
+<span class="fc" id="L47">        Message&lt;String&gt; message = MessageBuilder</span>
+<span class="fc" id="L48">                .withPayload(parsedObject)</span>
+<span class="fc" id="L49">                .setHeader(KafkaHeaders.TOPIC, topic)</span>
+<span class="fc" id="L50">                .setHeader(&quot;type&quot;, type.getMessageType())</span>
+<span class="fc" id="L51">                .build();</span>
+<span class="fc" id="L52">        kafkaTemplate.send(message);</span>
 
-<span class="fc" id="L52">    }</span>
+<span class="fc" id="L54">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

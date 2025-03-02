@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EPGPSessionType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">whispernet</a> &gt; <a href="index.source.html" class="el_package">net.whisper.sessionGateway.enums</a> &gt; <span class="el_source">EPGPSessionType.java</span></div><h1>EPGPSessionType.java</h1><pre class="source lang-java linenums">package net.whisper.sessionGateway.enums;
+
+<span class="fc" id="L3">public enum EPGPSessionType {</span>
+<span class="fc" id="L4">    VERIFIED(&quot;verified&quot;),</span>
+<span class="fc" id="L5">    SIGNED(&quot;signed&quot;),</span>
+<span class="fc" id="L6">    WAITING_FOR_PEER_ACCEPTED(&quot;waiting-for-peer-accepted&quot;),</span>
+<span class="fc" id="L7">    CHECK_RESPONDER(&quot;check-responder&quot;),</span>
+<span class="fc" id="L8">    CHECK_REQuEST(&quot;check-request&quot;),</span>
+<span class="fc" id="L9">    SIGNED_INITIATOR(&quot;signed-initiator&quot;),</span>
+<span class="fc" id="L10">    WAITING_FOR_SIGNED(&quot;waiting-for-signed&quot;),</span>
+<span class="fc" id="L11">    UNSIGNED(&quot;unsigned&quot;);</span>
+
+    public final String sessionPGPStatus;
+
+<span class="fc" id="L15">    EPGPSessionType(String sessionPGPStatus) {</span>
+<span class="fc" id="L16">        this.sessionPGPStatus = sessionPGPStatus;</span>
+<span class="fc" id="L17">    }</span>
+
+    public static EPGPSessionType fromValue(String value) {
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">        for (EPGPSessionType enumValue : EPGPSessionType.values()) {</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">            if (enumValue.getSessionPGPStatus().equals(value)) {</span>
+<span class="fc" id="L22">                return enumValue;</span>
+            }
+        }
+<span class="nc" id="L25">        throw new IllegalArgumentException(&quot;Unknown enum value: &quot; + value);</span>
+    }
+
+    public String getSessionPGPStatus() {
+<span class="fc" id="L29">        return this.sessionPGPStatus;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

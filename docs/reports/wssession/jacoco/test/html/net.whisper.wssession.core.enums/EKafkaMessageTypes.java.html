@@ -3,15 +3,17 @@
 <span class="fc" id="L3">public enum EKafkaMessageTypes {</span>
 <span class="fc" id="L4">    NEW_SESSION(&quot;new-session&quot;),</span>
 <span class="fc" id="L5">    ADD_CLIENT_TO_SESSION(&quot;add-client-to-session&quot;),</span>
-<span class="fc" id="L6">    RETURN_SESSION(&quot;return-session&quot;);</span>
+<span class="fc" id="L6">    RETURN_SESSION(&quot;return-session&quot;),</span>
+<span class="fc" id="L7">    UPDATE_CLIENT(&quot;update-client&quot;),</span>
+<span class="fc" id="L8">    UPDATE_LOGIN_CLIENT(&quot;update-login-client&quot;);</span>
     private final String messageType;
 
-<span class="fc" id="L9">    EKafkaMessageTypes(String messageType) {</span>
-<span class="fc" id="L10">        this.messageType = messageType;</span>
-<span class="fc" id="L11">    }</span>
+<span class="fc" id="L11">    EKafkaMessageTypes(String messageType) {</span>
+<span class="fc" id="L12">        this.messageType = messageType;</span>
+<span class="fc" id="L13">    }</span>
 
     public String getMessageType() {
-<span class="fc" id="L14">        return this.messageType;</span>
+<span class="fc" id="L16">        return this.messageType;</span>
     }
 
 

@@ -30,28 +30,38 @@ public class ClientsService {
 <span class="fc bfc" id="L30" title="All 2 branches covered.">        if (clientWithoutSession == null) {</span>
 <span class="fc" id="L31">            throw new IllegalArgumentException(&quot;ClientWithoutSession cannot be null&quot;);</span>
         }
-
+<span class="fc" id="L33">        this.logger.info(&quot;Processing new client, userToken={}&quot;, clientWithoutSession.getUserToken());</span>
 <span class="fc" id="L34">        PeerClient peerClient = ClientFactory.createPeerClient(clientWithoutSession);</span>
-<span class="fc" id="L35">        this.clientSessionCoordinator.processClientWithoutSession(peerClient);</span>
-<span class="fc" id="L36">        logger.info(&quot;Pass new user to coordinator, userToken={}&quot;, peerClient.getUserToken());</span>
-<span class="fc" id="L37">    }</span>
+<span class="fc" id="L35">        this.logger.debug(&quot;Create new peerClient with userToken={}, and username={}&quot;, peerClient.getUserToken(), peerClient.getUsername());</span>
+<span class="fc" id="L36">        this.clientSessionCoordinator.processClientWithoutSession(peerClient);</span>
+<span class="fc" id="L37">        logger.info(&quot;Pass new user to coordinator, userToken={}&quot;, peerClient.getUserToken());</span>
+<span class="fc" id="L38">    }</span>
 
     public void processJoiningClient(Client client) {
-<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (client == null) {</span>
-<span class="fc" id="L41">            throw new IllegalArgumentException(&quot;Client cannot be null&quot;);</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (client == null) {</span>
+<span class="fc" id="L42">            throw new IllegalArgumentException(&quot;Client cannot be null&quot;);</span>
         }
-<span class="fc" id="L43">        PeerClient peerClient = ClientFactory.createPeerClient(client);</span>
-<span class="fc" id="L44">        this.clientSessionCoordinator.processClient(client.getSessionToken(), peerClient);</span>
-<span class="fc" id="L45">        logger.info(&quot;Pass joining client to coordinator, userToken={}, sessionToken={}&quot;, client.getUserToken(), client.getSessionToken());</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L44">        PeerClient peerClient = ClientFactory.createPeerClient(client);</span>
+<span class="fc" id="L45">        this.clientSessionCoordinator.processClient(client.getSessionToken(), peerClient);</span>
+<span class="fc" id="L46">        logger.info(&quot;Pass joining client to coordinator, userToken={}, sessionToken={}&quot;, client.getUserToken(), client.getSessionToken());</span>
+<span class="fc" id="L47">    }</span>
+
+    public void updatePeer(Client client, boolean requestReturn) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (client == null) {</span>
+<span class="nc" id="L51">            throw new IllegalArgumentException(&quot;Client cannot be null&quot;);</span>
+        }
+<span class="nc" id="L53">        PeerClient peerClient = ClientFactory.createPeerClient(client);</span>
+<span class="nc" id="L54">        this.clientSessionCoordinator.updatePeerOrSession(client.getSessionToken(), peerClient, requestReturn);</span>
+<span class="nc" id="L55">        logger.info(&quot;Pass update client to coordinator, userToken={}, sessionToken={}&quot;, client.getUserToken(), client.getSessionToken());</span>
+<span class="nc" id="L56">    }</span>
 
     public void returnDataToUser(Client client) {
         try {
-<span class="fc" id="L50">            this.clientsKafkaProducer.returnNewUser(client);</span>
-<span class="nc" id="L51">        } catch (Exception e) {</span>
-<span class="nc" id="L52">            logger.error(&quot;ReturnDataToUser, sessionToken={}, userToken={}, message={}&quot;, client.getSessionToken(), client.getUserToken(), e.getMessage());</span>
-<span class="fc" id="L53">        }</span>
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L60">            this.clientsKafkaProducer.returnNewUser(client);</span>
+<span class="nc" id="L61">        } catch (Exception e) {</span>
+<span class="nc" id="L62">            logger.error(&quot;ReturnDataToUser, sessionToken={}, userToken={}, message={}&quot;, client.getSessionToken(), client.getUserToken(), e.getMessage());</span>
+<span class="fc" id="L63">        }</span>
+<span class="fc" id="L64">    }</span>
 
 
 }

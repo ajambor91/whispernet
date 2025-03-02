@@ -2,6 +2,8 @@
 
 import lombok.Getter;
 import lombok.Setter;
+import net.whisper.wssession.core.enums.EPGPSessionType;
+import net.whisper.wssession.core.interfaces.IBaseClient;
 import net.whisper.wssession.core.models.BaseSession;
 
 import java.util.ArrayList;
@@ -10,23 +12,42 @@ import java.util.List;
 @Getter
 @Setter
 public class PeerSession extends BaseSession {
-<span class="fc" id="L13">    private List&lt;PeerClient&gt; peerClients = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L15">    private List&lt;PeerClient&gt; peerClients = new ArrayList&lt;&gt;();</span>
     private String secretKey;
 
-<span class="fc" id="L16">    public PeerSession() {</span>
-<span class="fc" id="L17">    }</span>
+<span class="fc" id="L18">    public PeerSession() {</span>
+<span class="fc" id="L19">    }</span>
 
-    public PeerSession(String sessionToken, String secretKey) {
-<span class="fc" id="L20">        super(sessionToken);</span>
-<span class="fc" id="L21">        this.secretKey = secretKey;</span>
-<span class="fc" id="L22">    }</span>
+    public PeerSession(String sessionToken, String secretKey, EPGPSessionType sessionType) {
+<span class="fc" id="L22">        super(sessionToken);</span>
+<span class="fc" id="L23">        this.secretKey = secretKey;</span>
+<span class="fc" id="L24">        this.setSessionType(sessionType);</span>
+<span class="fc" id="L25">    }</span>
 
     public void addPeerClient(PeerClient peerClient) {
-<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (peerClients.stream().noneMatch(existingPeer -&gt; existingPeer.getUserId().equals(peerClient.getUserId()))) {</span>
-<span class="fc" id="L26">            peerClients.add(peerClient);</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (peerClients.stream().noneMatch(existingPeer -&gt; existingPeer.getUserId().equals(peerClient.getUserId()))) {</span>
+<span class="fc" id="L29">            peerClients.add(peerClient);</span>
         } else {
-<span class="fc" id="L28">            throw new IllegalArgumentException(String.format(&quot;PeerClient is duplicated when adding to session, sessionToken=%s&quot;, this.sessionToken));</span>
+<span class="fc" id="L31">            throw new IllegalArgumentException(String.format(&quot;PeerClient is duplicated when adding to session, sessionToken=%s&quot;, this.sessionToken));</span>
         }
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L33">    }</span>
+
+    public List&lt;PeerClient&gt; getPartnersPeers(IBaseClient client) {
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        return peerClients.stream().filter(partner -&gt; !partner.getUserId().equals(client.getUserId())).toList();</span>
+    }
+
+    private void setSessionType(EPGPSessionType sessionType) {
+<span class="pc bpc" id="L40" title="3 of 4 branches missed.">        if (sessionType == null || sessionType == EPGPSessionType.UNSIGNED) {</span>
+<span class="fc" id="L41">            this.setPgpSessionType(EPGPSessionType.UNSIGNED);</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        } else if (sessionType == EPGPSessionType.CHECK_RESPONDER) {</span>
+<span class="nc" id="L43">            this.setPgpSessionType(EPGPSessionType.CHECK_RESPONDER);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        } else if (sessionType == EPGPSessionType.WAITING_FOR_SIGNED) {</span>
+<span class="nc" id="L45">            this.setPgpSessionType(EPGPSessionType.SIGNED);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        } else if (sessionType == EPGPSessionType.SIGNED_INITIATOR) {</span>
+<span class="nc" id="L47">            this.setPgpSessionType(EPGPSessionType.SIGNED_INITIATOR);</span>
+        }
+<span class="fc" id="L49">    }</span>
+
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

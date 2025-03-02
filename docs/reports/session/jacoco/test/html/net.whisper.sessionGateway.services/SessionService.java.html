@@ -1,32 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
-    <link href="../jacoco-resources/report.css" rel="stylesheet" type="text/css"/>
-    <link href="../jacoco-resources/report.gif" rel="shortcut icon" type="image/gif"/>
-    <title>SessionService.java</title>
-    <link href="../jacoco-resources/prettify.css" rel="stylesheet" type="text/css"/>
-    <script src="../jacoco-resources/prettify.js" type="text/javascript"></script>
-</head>
-<body onload="window['PR_TAB_WIDTH']=4;prettyPrint()">
-<div class="breadcrumb" id="breadcrumb"><span class="info"><a class="el_session"
-                                                              href="../jacoco-sessions.html">Sessions</a></span><a
-        class="el_report" href="../index.html">whispernet</a> &gt; <a class="el_package" href="index.source.html">net.whisper.sessionGateway.services</a>
-    &gt; <span class="el_source">SessionService.java</span></div>
-<h1>SessionService.java</h1>
-<pre class="source lang-java linenums">package net.whisper.sessionGateway.services;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SessionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">whispernet</a> &gt; <a href="index.source.html" class="el_package">net.whisper.sessionGateway.services</a> &gt; <span class="el_source">SessionService.java</span></div><h1>SessionService.java</h1><pre class="source lang-java linenums">package net.whisper.sessionGateway.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import net.whisper.sessionGateway.dto.requests.PeerState;
+import net.whisper.sessionGateway.enums.EKafkaMessageTypes;
+import net.whisper.sessionGateway.enums.EPGPSessionType;
+import net.whisper.sessionGateway.exceptions.ApprovalExisiting;
+import net.whisper.sessionGateway.exceptions.UserUnauthorizationException;
+import net.whisper.sessionGateway.interfaces.IApprovingSession;
+import net.whisper.sessionGateway.interfaces.IBaseClient;
+import net.whisper.sessionGateway.interfaces.IChecker;
+import net.whisper.sessionGateway.interfaces.ISignedClient;
 import net.whisper.sessionGateway.managers.ClientManager;
-import net.whisper.sessionGateway.models.Client;
-import net.whisper.sessionGateway.models.ClientWithoutSession;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
+import net.whisper.sessionGateway.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 public class SessionService {
@@ -34,39 +27,202 @@ public class SessionService {
 
     private final Logger logger;
     private final ClientManager clientManager;
+    private final AuthService authService;
     private final KafkaService kafkaService;
+    private final ApprovingKafkaService approvingKafkaService;
 
     @Autowired
-<span class="fc" id="L23">    private SessionService(KafkaService kafkaService, ClientManager clientManager) {</span>
-<span class="fc" id="L24">        this.kafkaService = kafkaService;</span>
-<span class="fc" id="L25">        this.clientManager = clientManager;</span>
-<span class="fc" id="L26">        this.logger = LoggerFactory.getLogger(SessionService.class);</span>
-<span class="fc" id="L27">    }</span>
-    public Client createClient() {
-        try {
+<span class="fc" id="L35">    private SessionService(KafkaService kafkaService, ClientManager clientManager, AuthService authService, ApprovingKafkaService approvingKafkaService) {</span>
+<span class="fc" id="L36">        this.kafkaService = kafkaService;</span>
+<span class="fc" id="L37">        this.clientManager = clientManager;</span>
+<span class="fc" id="L38">        this.approvingKafkaService = approvingKafkaService;</span>
+<span class="fc" id="L39">        this.authService = authService;</span>
+<span class="fc" id="L40">        this.logger = LoggerFactory.getLogger(SessionService.class);</span>
+<span class="fc" id="L41">        logger.info(&quot;Created SessionService&quot;);</span>
+<span class="fc" id="L42">    }</span>
 
-<span class="fc" id="L31">            ClientWithoutSession client = this.clientManager.setupNewClient();</span>
-<span class="fc" id="L32">            this.kafkaService.sendNewClient(client);</span>
-<span class="fc" id="L33">            return this.kafkaService.waitForMessage(client, 5);</span>
-<span class="nc" id="L34">        } catch (java.lang.Exception e) {</span>
-<span class="nc" id="L35">            throw new RuntimeException(e);</span>
-        }
+    public IncomingClient createClient() throws InterruptedException, JsonProcessingException {
+<span class="fc" id="L45">        logger.info(&quot;Creating new unsigned client&quot;);</span>
+<span class="fc" id="L46">        ClientWithoutSession client = this.clientManager.setupNewClient();</span>
+<span class="fc" id="L47">        logger.debug(&quot;Unsigned new client created&quot;);</span>
+<span class="fc" id="L48">        this.kafkaService.sendMessage(client, EKafkaMessageTypes.NEW_CLIENT);</span>
+<span class="fc" id="L49">        logger.debug(&quot;Sent new client kafka message, waiting for response&quot;);</span>
+<span class="fc" id="L50">        return this.kafkaService.waitForMessage(client, 5);</span>
 
     }
 
-    public Client createNextClientSession(String sessionToken) {
-        try {
-<span class="fc" id="L42">            Client client = this.clientManager.createJoinClient(sessionToken);</span>
-<span class="fc" id="L43">            this.kafkaService.sendJoinlient(client);</span>
-
-<span class="fc" id="L45">            return this.kafkaService.waitForMessage(client, 5);</span>
-<span class="nc" id="L46">        } catch (java.lang.Exception e) {</span>
-<span class="nc" id="L47">            throw new RuntimeException(e);</span>
+    public IncomingClient createNextClientSession(String sessionToken, Map&lt;String, String&gt; headers) throws InterruptedException, JsonProcessingException {
+<span class="fc" id="L55">        logger.info(&quot;Creating joining client, to session={}&quot;, sessionToken);</span>
+<span class="fc" id="L56">        IBaseClient client = this.clientManager.createJoinClient(sessionToken);</span>
+<span class="fc" id="L57">        logger.debug(&quot;Created joinging client, sessionToken={}, userToken={}&quot;, sessionToken, client.getUserToken());</span>
+<span class="fc" id="L58">        this.kafkaService.sendMessage(client, EKafkaMessageTypes.ADD_CLIENT);</span>
+<span class="fc" id="L59">        logger.debug(&quot;Sent joining client kafka message, waiting for response, sessionToken={}, userToken={}&quot;, sessionToken, client.getUserToken());</span>
+<span class="fc" id="L60">        IncomingClient incomingClient = this.kafkaService.waitForMessage(client, 5);</span>
+<span class="fc" id="L61">        logger.debug(&quot;Received incomming joining client, sessionToken={}, userToken={}&quot;, sessionToken, incomingClient.getUserToken());</span>
+<span class="fc" id="L62">        if (</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">                incomingClient.getSessionType() == EPGPSessionType.CHECK_RESPONDER</span>
+        ) {
+<span class="fc" id="L65">            logger.info(&quot;Signed session, checking responder, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L66">            ISignedClient signedClient = null;</span>
+            try {
+<span class="fc" id="L68">                logger.debug(&quot;Verifying peer, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L69">                signedClient = this.checkClientIsVerified(incomingClient, headers);</span>
+<span class="nc" id="L70">            } catch (InterruptedException | JsonProcessingException exception) {</span>
+<span class="nc" id="L71">                this.logger.error(exception.getMessage());</span>
+<span class="fc" id="L72">            }</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            if (signedClient.getSessionType() == EPGPSessionType.VERIFIED) {</span>
+<span class="fc" id="L74">                logger.info(&quot;Client responder verified successfully, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L75">                client.setUsername(signedClient.getUsername());</span>
+<span class="fc" id="L76">                logger.debug(&quot;Sending update joining peer request, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L77">                this.kafkaService.sendMessage(client, EKafkaMessageTypes.UPDATE_CLIENT);</span>
+<span class="fc" id="L78">                List&lt;Partner&gt; partners = incomingClient.getPartners();</span>
+<span class="fc" id="L79">                logger.debug(&quot;Creating checker for joining client, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L80">                IChecker checker = new Checker(incomingClient, partners);</span>
+<span class="fc" id="L81">                logger.debug(&quot;Checker joining client created, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L82">                logger.debug(&quot;Sending joining client, check partners request to Security, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L83">                this.authService.checkPartners(checker);</span>
+<span class="fc" id="L84">                checker = this.authService.waitForPartnersConfirmed(checker, 5);</span>
+<span class="fc" id="L85">                logger.debug(&quot;Received check joining client partners response sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L86">                incomingClient.setPartners(checker.getPartners());</span>
+<span class="fc" id="L87">                this.sendSessionToApproval(incomingClient);</span>
+<span class="fc" id="L88">                incomingClient.setSessionType(EPGPSessionType.WAITING_FOR_PEER_ACCEPTED);</span>
+<span class="fc" id="L89">                logger.debug(&quot;Client was sent for approval, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+            }
         }
+<span class="fc" id="L92">        logger.info(&quot;Returning incomming client, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L93">        return incomingClient;</span>
     }
+
+    public IncomingClient updateClient(String userToken, String sessionToken, Map&lt;String, String&gt; headers, PeerState peerState) throws InterruptedException, JsonProcessingException, ApprovalExisiting {
+<span class="fc" id="L97">        logger.info(&quot;Updating client, to session={}, userToken={}&quot;, sessionToken, userToken);</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        if (userToken == null) {</span>
+<span class="nc" id="L99">            throw new NoSuchElementException(&quot;User token not found&quot;);</span>
+        }
+
+<span class="fc" id="L102">        IBaseClient client = this.clientManager.createUpdateClient(userToken, peerState);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (client.getSessionType() == EPGPSessionType.WAITING_FOR_PEER_ACCEPTED) {</span>
+<span class="fc" id="L104">            throw new ApprovalExisiting(&quot;Approving session exists&quot;);</span>
+        }
+<span class="fc" id="L106">        logger.debug(&quot;Created update client, sessionToken={}, userToken={}&quot;, sessionToken, client.getUserToken());</span>
+<span class="fc" id="L107">        IncomingClient incomingClient = null;</span>
+<span class="fc" id="L108">        logger.info(&quot;Received update client userToken={} status={}&quot;, userToken, client.getSessionType().getSessionPGPStatus());</span>
+<span class="fc" id="L109">        if (</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                client.getSessionType() == EPGPSessionType.CHECK_RESPONDER</span>
+        ) {
+<span class="fc" id="L112">            logger.info(&quot;Signed session, when updating peer, checking responder, sessionToken={}, userToken={}&quot;, sessionToken, userToken);</span>
+<span class="fc" id="L113">            ISignedClient signedClient = null;</span>
+            try {
+<span class="fc" id="L115">                signedClient = this.checkClientIsVerified(client, headers);</span>
+<span class="fc" id="L116">                logger.info(&quot;Received signed client from update client userToken={} status={}&quot;, signedClient.getUsername(), signedClient.getSessionType());</span>
+
+<span class="nc" id="L118">            } catch (InterruptedException | JsonProcessingException exception) {</span>
+<span class="nc" id="L119">                this.logger.error(exception.getMessage());</span>
+<span class="nc" id="L120">                throw new RuntimeException(&quot;Error when processing signed client&quot;);</span>
+<span class="fc" id="L121">            }</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">            if (signedClient.getSessionType() == EPGPSessionType.VERIFIED) {</span>
+<span class="fc" id="L123">                logger.info(&quot;Updating client responder verified successfully, sessionToken={}, userToken={}&quot;, sessionToken, userToken);</span>
+<span class="fc" id="L124">                client.setUsername(signedClient.getUsername());</span>
+<span class="fc" id="L125">                logger.debug(&quot;Sending update peer request, sessionToken={}, userToken={}&quot;, sessionToken, userToken);</span>
+<span class="fc" id="L126">                client.setSessionType(EPGPSessionType.WAITING_FOR_PEER_ACCEPTED);</span>
+<span class="fc" id="L127">                this.kafkaService.sendMessage(client, EKafkaMessageTypes.UPDATE_RETURN_CLIENT);</span>
+<span class="fc" id="L128">                incomingClient = this.kafkaService.waitForMessage(client, 5);</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                if (incomingClient == null) {</span>
+<span class="fc" id="L130">                    logger.error(&quot;Cannot found client to update in passed session, sessionToken={}, userToken={}&quot;, sessionToken, userToken);</span>
+<span class="fc" id="L131">                    throw new NoSuchElementException(&quot;Cannot find client to update in passed session&quot;);</span>
+                }
+<span class="fc" id="L133">                logger.info(&quot;USER JOINING ID UPDATING {}&quot;, incomingClient.getUserId());</span>
+<span class="fc" id="L134">                List&lt;Partner&gt; partners = incomingClient.getPartners();</span>
+<span class="fc" id="L135">                logger.debug(&quot;Creating checker for update client, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L136">                IChecker checker = new Checker(incomingClient, partners);</span>
+<span class="fc" id="L137">                logger.debug(&quot;Checker update client created, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L138">                logger.debug(&quot;Sending update client, check partners request to Security, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L139">                this.authService.checkPartners(checker);</span>
+<span class="fc" id="L140">                checker = this.authService.waitForPartnersConfirmed(checker, 5);</span>
+<span class="fc" id="L141">                logger.debug(&quot;Received check updating client partners response sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L142">                incomingClient.setPartners(checker.getPartners());</span>
+<span class="fc" id="L143">                this.sendSessionToApproval(incomingClient);</span>
+<span class="fc" id="L144">                logger.debug(&quot;Client was sent for approval, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+            }
+        }
+<span class="fc" id="L147">        logger.info(&quot;Returning update client&quot;);</span>
+<span class="fc" id="L148">        return incomingClient;</span>
+    }
+
+    public IncomingClient createSignClient(Map&lt;String, String&gt; headers) throws InterruptedException, JsonProcessingException, SecurityException {
+<span class="fc" id="L152">        logger.info(&quot;Creating new signed client&quot;);</span>
+<span class="fc" id="L153">        ClientWithoutSession client = this.clientManager.setupNewClient();</span>
+<span class="fc" id="L154">        logger.debug(&quot;Signed new client created&quot;);</span>
+<span class="fc" id="L155">        ISignedClient signedClient = null;</span>
+        try {
+<span class="fc" id="L157">            logger.debug(&quot;Checking signed client&quot;);</span>
+
+<span class="fc" id="L159">            signedClient = this.checkClientIsVerified(client, headers);</span>
+<span class="nc" id="L160">        } catch (InterruptedException | JsonProcessingException exception) {</span>
+<span class="nc" id="L161">            this.logger.error(exception.getMessage());</span>
+<span class="nc" id="L162">            throw new RuntimeException(&quot;Error when processing signed client&quot;);</span>
+<span class="fc" id="L163">        }</span>
+
+<span class="pc bpc" id="L165" title="1 of 4 branches missed.">        if (signedClient == null || signedClient.getSessionType() == EPGPSessionType.UNSIGNED) {</span>
+<span class="fc" id="L166">            logger.error(&quot;Throw error while creating signed session: Client unauthorized&quot;);</span>
+<span class="fc" id="L167">            throw new SecurityException(&quot;Client unauthorized&quot;);</span>
+        }
+<span class="fc" id="L169">        logger.debug(&quot;Signed client verified successfully&quot;);</span>
+<span class="fc" id="L170">        client.setUsername(signedClient.getUsername());</span>
+<span class="fc" id="L171">        client.setSessionType(EPGPSessionType.CHECK_RESPONDER);</span>
+<span class="fc" id="L172">        this.kafkaService.sendMessage(client, EKafkaMessageTypes.NEW_CLIENT);</span>
+<span class="fc" id="L173">        logger.debug(&quot;Sent new client kafka message, waiting for response&quot;);</span>
+<span class="fc" id="L174">        return this.kafkaService.waitForMessage(client, 5);</span>
+    }
+
+    public IncomingClient updateStatusAndGetPartners(String userToken, String sessionToken, Map&lt;String, String&gt; headers, PeerState peerState) throws JsonProcessingException, InterruptedException, ApprovalExisiting {
+<span class="fc" id="L178">        logger.info(&quot;Updating initiator status&quot;);</span>
+
+<span class="fc" id="L180">        IBaseClient client = this.clientManager.createUpdateClient(userToken, peerState);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        if (client.getSessionType() == EPGPSessionType.WAITING_FOR_PEER_ACCEPTED) {</span>
+<span class="fc" id="L182">            throw new ApprovalExisiting(&quot;Approving session exists&quot;);</span>
+        }
+<span class="fc" id="L184">        this.kafkaService.sendMessage(client, EKafkaMessageTypes.UPDATE_RETURN_CLIENT);</span>
+
+<span class="fc" id="L186">        IncomingClient incomingClient = this.kafkaService.waitForMessage(client, 5);</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        if (incomingClient == null) {</span>
+<span class="fc" id="L188">            logger.error(&quot;Cannot found client to update in passed session, sessionToken={}, userToken={}&quot;, sessionToken, userToken);</span>
+<span class="fc" id="L189">            throw new NoSuchElementException(&quot;Cannot found client to update&quot;);</span>
+        }
+<span class="fc" id="L191">        logger.info(&quot;USER ID UPDATING {}&quot;, incomingClient.getUserId());</span>
+<span class="fc" id="L192">        List&lt;Partner&gt; partners = incomingClient.getPartners();</span>
+<span class="fc" id="L193">        logger.debug(&quot;Creating checker for update client, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L194">        IChecker checker = new Checker(incomingClient, partners);</span>
+<span class="fc" id="L195">        logger.debug(&quot;Checker update client created, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L196">        logger.debug(&quot;Sending update client, check partners request to Security, sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L197">        this.authService.checkPartners(checker);</span>
+<span class="fc" id="L198">        checker = this.authService.waitForPartnersConfirmed(checker, 5);</span>
+<span class="fc" id="L199">        logger.debug(&quot;Received check updating client partners response sessionToken={}, userToken={}&quot;, incomingClient.getSessionToken(), incomingClient.getUserToken());</span>
+<span class="fc" id="L200">        incomingClient.setPartners(checker.getPartners());</span>
+<span class="fc" id="L201">        this.sendSessionToApproval(incomingClient);</span>
+<span class="fc" id="L202">        incomingClient.setSessionType(EPGPSessionType.WAITING_FOR_PEER_ACCEPTED);</span>
+<span class="fc" id="L203">        return incomingClient;</span>
+
+    }
+
+    private ISignedClient checkClientIsVerified(IBaseClient client, Map&lt;String, String&gt; headers) throws InterruptedException, JsonProcessingException {
+<span class="pc bpc" id="L208" title="1 of 4 branches missed.">        if (headers.get(&quot;username&quot;) == null || headers.get(&quot;username&quot;).isEmpty()) {</span>
+<span class="fc" id="L209">            logger.error(&quot;Throw error while creating signed session: Username not found&quot;);</span>
+<span class="fc" id="L210">            throw new UserUnauthorizationException(&quot;Username not found&quot;, client);</span>
+        }
+<span class="pc bpc" id="L212" title="2 of 4 branches missed.">        if (headers.get(&quot;authorization&quot;) == null || headers.get(&quot;authorization&quot;).isEmpty()) {</span>
+<span class="nc" id="L213">            logger.error(&quot;Throw error while creating signed session: Authorization token not found&quot;);</span>
+<span class="nc" id="L214">            throw new UserUnauthorizationException(&quot;User Authorization token not found&quot;, client);</span>
+        }
+<span class="fc" id="L216">        ISignedClient signedClient = new SignedCheckingClient(client, headers.get(&quot;authorization&quot;), headers.get(&quot;username&quot;));</span>
+<span class="fc" id="L217">        this.authService.checkClient(signedClient);</span>
+<span class="fc" id="L218">        logger.info(&quot;Send client to verification, userToken={}, username={}&quot;, signedClient.getUserToken(), signedClient.getUsername());</span>
+<span class="fc" id="L219">        return this.authService.waitForConfirmed(signedClient, 5);</span>
+    }
+
+    private void sendSessionToApproval(IncomingClient client) throws JsonProcessingException {
+<span class="fc" id="L223">        logger.info(&quot;Sending client to approval service, sessionToken={}, userToken={}&quot;, client.getSessionToken(), client.getUserToken());</span>
+<span class="fc" id="L224">        IApprovingSession approvingSession = new ApprovingSession(client);</span>
+<span class="fc" id="L225">        this.approvingKafkaService.sendPeerToApprovingWS(approvingSession);</span>
+<span class="fc" id="L226">    }</span>
 }
-</pre>
-<div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span>
-</div>
-</body>
-</html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

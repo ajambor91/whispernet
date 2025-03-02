@@ -4,39 +4,39 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.clients.models.Client;
 import net.whisper.wssession.core.enums.EKafkaTopic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 @Component
 public class ClientsKafkaProducer {
     private final KafkaTemplate&lt;String, String&gt; kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final Logger logger;
+
     @Autowired
-<span class="fc" id="L21">    public ClientsKafkaProducer(ObjectMapper objectMapper, KafkaTemplate&lt;String, String&gt; kafkaTemplate) {</span>
-<span class="fc" id="L22">        this.kafkaTemplate = kafkaTemplate;</span>
-<span class="fc" id="L23">        this.objectMapper = objectMapper;</span>
-<span class="fc" id="L24">        this.logger = LoggerFactory.getLogger(ClientsKafkaProducer.class);</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L23">    public ClientsKafkaProducer(ObjectMapper objectMapper, KafkaTemplate&lt;String, String&gt; kafkaTemplate) {</span>
+<span class="fc" id="L24">        this.kafkaTemplate = kafkaTemplate;</span>
+<span class="fc" id="L25">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L26">        this.logger = LoggerFactory.getLogger(ClientsKafkaProducer.class);</span>
+<span class="fc" id="L27">    }</span>
 
     public void returnNewUser(Client userClient) {
-<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (userClient == null) {</span>
-<span class="fc" id="L29">            throw new IllegalArgumentException(&quot;Client cannot be null&quot;);</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (userClient == null) {</span>
+<span class="fc" id="L31">            throw new IllegalArgumentException(&quot;Client cannot be null&quot;);</span>
         }
         try {
-<span class="fc" id="L32">            String message = this.objectMapper.writeValueAsString(userClient);</span>
-<span class="fc" id="L33">            this.sendKafkaMsg(message, EKafkaTopic.RETURN_CLIENT_TOPIC.getTopicName());</span>
-<span class="fc" id="L34">            logger.info(&quot;Send kafka client message, userToken={}&quot;, userClient.getUserToken());</span>
-<span class="fc" id="L35">        } catch (JsonProcessingException e) {</span>
-<span class="fc" id="L36">            logger.error(&quot;Json process message error userToken={}, message={}&quot;, userClient.getUserToken(), e.getMessage());</span>
-<span class="fc" id="L37">        }</span>
-
-
+<span class="fc" id="L34">            String message = this.objectMapper.writeValueAsString(userClient);</span>
+<span class="fc" id="L35">            this.sendKafkaMsg(message, EKafkaTopic.RETURN_CLIENT_TOPIC.getTopicName());</span>
+<span class="fc" id="L36">            logger.info(&quot;Send kafka client message, userToken={}&quot;, userClient.getUserToken());</span>
+<span class="fc" id="L37">        } catch (JsonProcessingException e) {</span>
+<span class="fc" id="L38">            logger.error(&quot;Json process message error userToken={}, message={}&quot;, userClient.getUserToken(), e.getMessage());</span>
+<span class="fc" id="L39">        }</span>
 <span class="fc" id="L40">    }</span>
 
     private void sendKafkaMsg(String parsedObject, String topic) {

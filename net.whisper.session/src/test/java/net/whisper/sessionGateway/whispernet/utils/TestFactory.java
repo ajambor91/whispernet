@@ -1,16 +1,16 @@
 package net.whisper.sessionGateway.whispernet.utils;
 
 import jakarta.servlet.http.Cookie;
+import net.whisper.sessionGateway.dto.requests.PeerState;
 import net.whisper.sessionGateway.enums.EClientConnectionStatus;
 import net.whisper.sessionGateway.enums.EPGPSessionType;
 import net.whisper.sessionGateway.enums.EPeerRole;
-import net.whisper.sessionGateway.models.Client;
-import net.whisper.sessionGateway.models.ClientWithoutSession;
-import net.whisper.sessionGateway.models.IncomingClient;
-import net.whisper.sessionGateway.models.Partner;
+import net.whisper.sessionGateway.interfaces.IChecker;
+import net.whisper.sessionGateway.models.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TestFactory {
     public static final String TEST_SESSION_TOKEN = "7c944fc9-ad51-4392-bde2-f4b6126ea62e";
@@ -69,6 +69,7 @@ public class TestFactory {
         client.setClientConnectionStatus(EClientConnectionStatus.CREATED);
         client.setUserId(TEST_USER_ID_JOINER);
         client.setSecretKey("SECRET");
+        client.setSessionType(EPGPSessionType.UNSIGNED);
         client.setSessionToken(TEST_SESSION_TOKEN_JOINER);
         client.setPeerRole(EPeerRole.JOINER);
         client.setUserToken(TEST_USER_TOKEN_JOINER);
@@ -81,6 +82,7 @@ public class TestFactory {
     public static Partner createTestPartner() {
         Partner partner = new Partner();
         partner.setUsername("Janek");
+        partner.setPublicKey("KEY");
         return partner;
     }
 
@@ -91,5 +93,68 @@ public class TestFactory {
         httpOnlyCookie.setPath("/");
         httpOnlyCookie.setMaxAge(86400);
         return httpOnlyCookie;
+    }
+
+    public static PeerState createPeerState() {
+        PeerState peerState = new PeerState();
+        peerState.setPeerRole(EPeerRole.INITIATOR.getPeerRoleName());
+        peerState.setSecretKey("SECRET");
+        peerState.setSessionToken(TEST_SESSION_TOKEN);
+        peerState.setSigned(false);
+        peerState.setSessionAuthType(EPGPSessionType.CHECK_RESPONDER.getSessionPGPStatus());
+        return peerState;
+    }
+
+    public static PeerState createJoinPeerState() {
+        PeerState peerState = new PeerState();
+        peerState.setPeerRole(EPeerRole.JOINER.getPeerRoleName());
+        peerState.setSecretKey("SECRET");
+        peerState.setSessionToken(TEST_SESSION_TOKEN_JOINER);
+        peerState.setSigned(false);
+        peerState.setSessionAuthType(EPGPSessionType.CHECK_RESPONDER.getSessionPGPStatus());
+        return peerState;
+    }
+
+    public static Map<String, String> createTestJoinHeaders() {
+        Map<String, String> map = Map.of("username", "Joiner", "authorization", "AuthKey");
+        return map;
+    }
+
+    public static SignedClient createJoinSignedInitiator() {
+        SignedClient signedClient = new SignedClient();
+        signedClient.setJwt("SECRET");
+        signedClient.setUsername("Initiator");
+        signedClient.setUserId(TEST_USER_ID);
+        signedClient.setUserToken(TEST_USER_TOKEN);
+        return signedClient;
+    }
+
+    public static SignedClient createJoinSignedClient() {
+        SignedClient signedClient = new SignedClient();
+        signedClient.setJwt("SECRET");
+        signedClient.setUsername("Joiner");
+        signedClient.setUserId(TEST_USER_ID_JOINER);
+        signedClient.setUserToken(TEST_USER_TOKEN_JOINER);
+        return signedClient;
+    }
+
+    public static Map<String, String> createTestInitiatorHeaders() {
+        Map<String, String> map = Map.of("username", "Joiner", "authorization", "AuthKey");
+        return map;
+    }
+
+    public static IChecker createUpdateChecker() {
+        List<Partner> partners = new ArrayList<>();
+        partners.add(TestFactory.createTestPartner());
+        IChecker checker = new Checker(TestFactory.createJoinerClient(), partners);
+        return checker;
+    }
+
+
+    private static Partner createPartner() {
+        Partner partner = new Partner();
+        partner.setUsername("Initiatior");
+        partner.setPublicKey("A0FF");
+        return partner;
     }
 }

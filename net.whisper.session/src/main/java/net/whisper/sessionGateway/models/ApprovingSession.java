@@ -1,13 +1,8 @@
 package net.whisper.sessionGateway.models;
 
 import lombok.Getter;
-import net.whisper.sessionGateway.interfaces.IBaseClient;
-import net.whisper.sessionGateway.interfaces.IPartner;
-import net.whisper.sessionGateway.interfaces.IApprovingSession;
 import net.whisper.sessionGateway.interfaces.IApprovingPeer;
-
-import java.util.ArrayList;
-import java.util.List;
+import net.whisper.sessionGateway.interfaces.IApprovingSession;
 
 @Getter
 public class ApprovingSession implements IApprovingSession, IApprovingPeer {

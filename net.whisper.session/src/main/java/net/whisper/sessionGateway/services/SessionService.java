@@ -30,6 +30,7 @@ public class SessionService {
     private final AuthService authService;
     private final KafkaService kafkaService;
     private final ApprovingKafkaService approvingKafkaService;
+
     @Autowired
     private SessionService(KafkaService kafkaService, ClientManager clientManager, AuthService authService, ApprovingKafkaService approvingKafkaService) {
         this.kafkaService = kafkaService;
@@ -116,6 +117,7 @@ public class SessionService {
 
             } catch (InterruptedException | JsonProcessingException exception) {
                 this.logger.error(exception.getMessage());
+                throw new RuntimeException("Error when processing signed client");
             }
             if (signedClient.getSessionType() == EPGPSessionType.VERIFIED) {
                 logger.info("Updating client responder verified successfully, sessionToken={}, userToken={}", sessionToken, userToken);
@@ -126,7 +128,7 @@ public class SessionService {
                 incomingClient = this.kafkaService.waitForMessage(client, 5);
                 if (incomingClient == null) {
                     logger.error("Cannot found client to update in passed session, sessionToken={}, userToken={}", sessionToken, userToken);
-                    throw new SecurityException("Cannot found client to update in passed session");
+                    throw new NoSuchElementException("Cannot find client to update in passed session");
                 }
                 logger.info("USER JOINING ID UPDATING {}", incomingClient.getUserId());
                 List<Partner> partners = incomingClient.getPartners();
@@ -139,7 +141,8 @@ public class SessionService {
                 logger.debug("Received check updating client partners response sessionToken={}, userToken={}", incomingClient.getSessionToken(), incomingClient.getUserToken());
                 incomingClient.setPartners(checker.getPartners());
                 this.sendSessionToApproval(incomingClient);
-                logger.debug("Client was sent for approval, sessionToken={}, userToken={}", incomingClient.getSessionToken(), incomingClient.getUserToken());            }
+                logger.debug("Client was sent for approval, sessionToken={}, userToken={}", incomingClient.getSessionToken(), incomingClient.getUserToken());
+            }
         }
         logger.info("Returning update client");
         return incomingClient;
@@ -156,6 +159,7 @@ public class SessionService {
             signedClient = this.checkClientIsVerified(client, headers);
         } catch (InterruptedException | JsonProcessingException exception) {
             this.logger.error(exception.getMessage());
+            throw new RuntimeException("Error when processing signed client");
         }
 
         if (signedClient == null || signedClient.getSessionType() == EPGPSessionType.UNSIGNED) {
@@ -182,7 +186,7 @@ public class SessionService {
         IncomingClient incomingClient = this.kafkaService.waitForMessage(client, 5);
         if (incomingClient == null) {
             logger.error("Cannot found client to update in passed session, sessionToken={}, userToken={}", sessionToken, userToken);
-            throw new SecurityException("Cannot found client to update in passed session");
+            throw new NoSuchElementException("Cannot found client to update");
         }
         logger.info("USER ID UPDATING {}", incomingClient.getUserId());
         List<Partner> partners = incomingClient.getPartners();
@@ -207,7 +211,7 @@ public class SessionService {
         }
         if (headers.get("authorization") == null || headers.get("authorization").isEmpty()) {
             logger.error("Throw error while creating signed session: Authorization token not found");
-            throw new UserUnauthorizationException("UAuthorization token not found", client);
+            throw new UserUnauthorizationException("User Authorization token not found", client);
         }
         ISignedClient signedClient = new SignedCheckingClient(client, headers.get("authorization"), headers.get("username"));
         this.authService.checkClient(signedClient);

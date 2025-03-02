@@ -3,15 +3,17 @@
 
 import net.whisper.wssession.core.coordinatos.ClientSessionCoordinator;
 import net.whisper.wssession.core.enums.EKafkaMessageTypes;
-import net.whisper.wssession.session.managers.SessionManager;
+import net.whisper.wssession.core.enums.EPGPSessionType;
 import net.whisper.wssession.session.kafka.SessionKafkaProducer;
+import net.whisper.wssession.session.managers.SessionManager;
+import net.whisper.wssession.session.models.ApprovingSession;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class SessionService {
@@ -19,55 +21,94 @@ public class SessionService {
     private final SessionKafkaProducer sessionKafkaProducer;
     private final ClientSessionCoordinator clientSessionCoordinator;
     private final Logger logger;
+
     @Autowired
     public SessionService(@Lazy ClientSessionCoordinator clientSessionCoordinator,
                           SessionManager sessionManager,
-<span class="fc" id="L25">                          SessionKafkaProducer sessionKafkaProducer) {</span>
-<span class="fc" id="L26">        this.sessionManager = sessionManager;</span>
-<span class="fc" id="L27">        this.clientSessionCoordinator = clientSessionCoordinator;</span>
-<span class="fc" id="L28">        this.sessionKafkaProducer = sessionKafkaProducer;</span>
-<span class="fc" id="L29">        this.logger = LoggerFactory.getLogger(SessionService.class);</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L28">                          SessionKafkaProducer sessionKafkaProducer) {</span>
+<span class="fc" id="L29">        this.sessionManager = sessionManager;</span>
+<span class="fc" id="L30">        this.clientSessionCoordinator = clientSessionCoordinator;</span>
+<span class="fc" id="L31">        this.sessionKafkaProducer = sessionKafkaProducer;</span>
+<span class="fc" id="L32">        this.logger = LoggerFactory.getLogger(SessionService.class);</span>
+<span class="fc" id="L33">    }</span>
 
     public void processNewClient(PeerClient peerClient) {
-<span class="fc bfc" id="L33" title="All 2 branches covered.">            if(peerClient == null) {</span>
-<span class="fc" id="L34">                throw new IllegalArgumentException(&quot;PeerClient for new client processing cannot be null&quot;);</span>
-            }
-<span class="fc" id="L36">            PeerSession peerSession = this.sessionManager.createSession(peerClient);</span>
-<span class="fc" id="L37">            this.sessionKafkaProducer.sendSession(peerSession, EKafkaMessageTypes.NEW_SESSION);</span>
-<span class="fc" id="L38">            this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);</span>
-
-
-<span class="fc" id="L41">    }</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (peerClient == null) {</span>
+<span class="fc" id="L37">            throw new IllegalArgumentException(&quot;PeerClient for new client processing cannot be null&quot;);</span>
+        }
+<span class="fc" id="L39">        logger.debug(&quot;Passing new peerClient to sessionManager, userToken={}&quot;, peerClient.getUserToken());</span>
+<span class="fc" id="L40">        PeerSession peerSession = this.sessionManager.createSession(peerClient);</span>
+<span class="fc" id="L41">        logger.debug(&quot;Peer new was initialized new session successfully, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), peerSession.getSessionToken());</span>
+<span class="fc" id="L42">        this.conditionallySendRunSignalWebSocket(peerClient, peerSession, EKafkaMessageTypes.NEW_SESSION);</span>
+<span class="fc" id="L43">        this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);</span>
+<span class="fc" id="L44">    }</span>
 
     public void processJoinClient(String sessionToken, PeerClient peerClient) {
-<span class="fc bfc" id="L44" title="All 2 branches covered.">            if (sessionToken == null) {</span>
-<span class="fc" id="L45">                throw new IllegalArgumentException(&quot;sessionToken for joining client processing cannot be null&quot;);</span>
-            }
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (sessionToken == null) {</span>
+<span class="fc" id="L48">            throw new IllegalArgumentException(&quot;sessionToken for joining client processing cannot be null&quot;);</span>
+        }
 
-<span class="fc bfc" id="L48" title="All 2 branches covered.">            if (peerClient == null) {</span>
-<span class="fc" id="L49">                throw new IllegalArgumentException(&quot;PeerClient for joining client processing cannot be null&quot;);</span>
-            }
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (peerClient == null) {</span>
+<span class="fc" id="L52">            throw new IllegalArgumentException(&quot;PeerClient for joining client processing cannot be null&quot;);</span>
+        }
+<span class="fc" id="L54">        logger.debug(&quot;Passing joining peerClient to sessionManager, userToken={}&quot;, peerClient.getUserToken());</span>
+<span class="fc" id="L55">        PeerSession peerSession = this.sessionManager.addPeerToExistingSession(sessionToken, peerClient);</span>
+<span class="fc" id="L56">        logger.debug(&quot;Peer joining was added to session successfully, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), sessionToken);</span>
+<span class="fc" id="L57">        this.conditionallySendRunSignalWebSocket(peerClient, peerSession, EKafkaMessageTypes.ADD_CLIENT_TO_SESSION);</span>
+<span class="fc" id="L58">        this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);</span>
+<span class="fc" id="L59">    }</span>
 
-<span class="fc" id="L52">            PeerSession peerSession = this.sessionManager.addPeerToExistingSession(sessionToken, peerClient);</span>
-<span class="fc" id="L53">            this.sessionKafkaProducer.sendSession(peerSession, EKafkaMessageTypes.ADD_CLIENT_TO_SESSION);</span>
-<span class="fc" id="L54">            this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);</span>
-<span class="fc" id="L55">    }</span>
+    public void processUpdateClient(String sessionToken, PeerClient peerClient, boolean requestReturn) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (sessionToken == null) {</span>
+<span class="nc" id="L63">            throw new IllegalArgumentException(&quot;sessionToken for update client processing cannot be null&quot;);</span>
+        }
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (peerClient == null) {</span>
+<span class="nc" id="L67">            throw new IllegalArgumentException(&quot;PeerClient for update client processing cannot be null&quot;);</span>
+        }
+<span class="nc" id="L69">        logger.debug(&quot;Passing updating peerClient to sessionManager, userToken={}&quot;, peerClient.getUserToken());</span>
+<span class="nc" id="L70">        PeerSession peerSession = this.sessionManager.updatePeerSession(sessionToken, peerClient);</span>
+<span class="nc" id="L71">        logger.debug(&quot;Peer update was updated successfully, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), sessionToken);</span>
+<span class="nc" id="L72">        this.conditionallySendRunSignalWebSocket(peerClient, peerSession, EKafkaMessageTypes.ADD_CLIENT_TO_SESSION);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (requestReturn) {</span>
+<span class="nc" id="L74">            logger.debug(&quot;Peer update is returning to Session, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), sessionToken);</span>
+<span class="nc" id="L75">            this.clientSessionCoordinator.returnDataToUser(peerSession, peerClient);</span>
+        }
+<span class="nc" id="L77">    }</span>
 
     public void updateSession(PeerSession peerSession) {
-<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (peerSession == null) {</span>
-<span class="fc" id="L59">            throw new IllegalArgumentException(&quot;PeerSession cannot be null when updating session&quot;);</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (peerSession == null) {</span>
+<span class="fc" id="L81">            throw new IllegalArgumentException(&quot;PeerSession cannot be null when updating session&quot;);</span>
         }
-<span class="fc" id="L61">        this.sessionManager.updateSession(peerSession);</span>
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L83">        this.sessionManager.updateSession(peerSession);</span>
+<span class="fc" id="L84">    }</span>
+
+    public void acceptSession(ApprovingSession approvingSession) {
+<span class="nc" id="L87">        PeerSession peerSession = this.sessionManager.acceptSession(approvingSession);</span>
+<span class="nc" id="L88">        this.sessionKafkaProducer.sendSession(peerSession, EKafkaMessageTypes.NEW_SESSION);</span>
+<span class="nc" id="L89">    }</span>
+
+    public void removeSession(ApprovingSession approvingSession) {
+<span class="nc" id="L92">        this.sessionManager.removeSession(approvingSession);</span>
+<span class="nc" id="L93">    }</span>
 
     public void removeClientFromSession(PeerSession peerSession) {
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (peerSession == null) {</span>
-<span class="fc" id="L66">            throw new IllegalArgumentException(&quot;PeerSession cannot be null when removing peer&quot;);</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (peerSession == null) {</span>
+<span class="fc" id="L97">            throw new IllegalArgumentException(&quot;PeerSession cannot be null when removing peer&quot;);</span>
 
         }
-<span class="fc" id="L69">        this.sessionManager.removeClientFromSession(peerSession);</span>
-<span class="fc" id="L70">    }</span>
+<span class="fc" id="L100">        this.sessionManager.removeClientFromSession(peerSession);</span>
+<span class="fc" id="L101">    }</span>
+
+
+
+    private void conditionallySendRunSignalWebSocket(PeerClient peerClient, PeerSession peerSession, EKafkaMessageTypes kafkaMessageTypes) {
+<span class="pc bpc" id="L106" title="1 of 4 branches missed.">        if (peerSession.getPgpSessionType() == EPGPSessionType.UNSIGNED || peerClient.getSessionType() == EPGPSessionType.SIGNED) {</span>
+<span class="fc" id="L107">            logger.debug(&quot;Peer sending to Signal Server, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), peerSession.getSessionToken());</span>
+<span class="fc" id="L108">            this.sessionKafkaProducer.sendSession(peerSession, kafkaMessageTypes);</span>
+
+        }
+<span class="fc" id="L111">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -17,19 +17,19 @@ import com.fasterxml.jackson.annotation.JsonValue;
 <span class="fc" id="L17">        this.sessionStatus = sessionStatus;</span>
 <span class="fc" id="L18">    }</span>
 
-    @JsonValue
-    public String getSessionStatus() {
-<span class="fc" id="L22">        return sessionStatus;</span>
-    }
-
     @JsonCreator
     public static ESessionStatus fromString(String value) {
-<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        for (ESessionStatus status : values()) {</span>
-<span class="pc bpc" id="L28" title="1 of 2 branches missed.">            if (status.sessionStatus.equalsIgnoreCase(value)) {</span>
-<span class="fc" id="L29">                return status;</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        for (ESessionStatus status : values()) {</span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">            if (status.sessionStatus.equalsIgnoreCase(value)) {</span>
+<span class="fc" id="L24">                return status;</span>
             }
         }
-<span class="nc" id="L32">        throw new IllegalArgumentException(&quot;Invalid status&quot; + value);</span>
+<span class="nc" id="L27">        throw new IllegalArgumentException(&quot;Invalid status&quot; + value);</span>
+    }
+
+    @JsonValue
+    public String getSessionStatus() {
+<span class="fc" id="L32">        return sessionStatus;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

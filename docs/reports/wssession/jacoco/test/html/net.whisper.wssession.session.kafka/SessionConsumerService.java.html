@@ -2,15 +2,15 @@
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whisper.wssession.session.enums.EKafkaMessageSessionTypes;
+import net.whisper.wssession.session.models.ApprovingSession;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.services.SessionService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
-import org.slf4j.Logger;
 
 
 @Service
@@ -19,39 +19,61 @@ public class SessionConsumerService {
     private final ObjectMapper objectMapper;
     private final SessionService sessionService;
     private final Logger logger;
+
     @Autowired
-<span class="fc" id="L23">    public SessionConsumerService(SessionService sessionService, ObjectMapper objectMapper) {</span>
-<span class="fc" id="L24">        this.sessionService = sessionService;</span>
-<span class="fc" id="L25">        this.objectMapper = objectMapper;</span>
-<span class="fc" id="L26">        this.logger = LoggerFactory.getLogger(SessionConsumerService.class);</span>
-<span class="fc" id="L27">    }</span>
+<span class="fc" id="L24">    public SessionConsumerService(SessionService sessionService, ObjectMapper objectMapper) {</span>
+<span class="fc" id="L25">        this.sessionService = sessionService;</span>
+<span class="fc" id="L26">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L27">        this.logger = LoggerFactory.getLogger(SessionConsumerService.class);</span>
+<span class="fc" id="L28">    }</span>
+
     @KafkaListener(topics = {&quot;request-session-signal-topic&quot;}, groupId = &quot;whispernet-wsession-session-group&quot;)
     public void handleTokenEvent(ConsumerRecord&lt;String, String&gt; record) {
-
         try {
-<span class="fc" id="L32">            String type = this.getHeaderValue(record, &quot;type&quot;);</span>
-<span class="fc" id="L33">            String message = record.value();</span>
-<span class="fc" id="L34">            PeerSession peerSession = this.objectMapper.readValue(message, PeerSession.class);</span>
-<span class="fc bfc" id="L35" title="All 2 branches covered.">            if (EKafkaMessageSessionTypes.DISCONNECT_USER.getMessageType().equals(type)) {</span>
-<span class="nc" id="L36">                this.sessionService.updateSession(peerSession);</span>
-<span class="fc bfc" id="L37" title="All 2 branches covered.">            } else if (EKafkaMessageSessionTypes.REMOVE_USER.getMessageType().equals(type)) {</span>
-<span class="nc" id="L38">                this.sessionService.removeClientFromSession(peerSession);</span>
+<span class="fc" id="L33">            String type = this.getHeaderValue(record, &quot;type&quot;);</span>
+<span class="fc" id="L34">            String message = record.value();</span>
+<span class="fc" id="L35">            PeerSession peerSession = this.objectMapper.readValue(message, PeerSession.class);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">            if (EKafkaMessageSessionTypes.DISCONNECT_USER.getMessageType().equals(type)) {</span>
+<span class="nc" id="L37">                this.sessionService.updateSession(peerSession);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            } else if (EKafkaMessageSessionTypes.REMOVE_USER.getMessageType().equals(type)) {</span>
+<span class="nc" id="L39">                this.sessionService.removeClientFromSession(peerSession);</span>
             } else {
-<span class="fc" id="L40">                this.logger.warn(&quot;Message header not known - SessionService:handleTokenEvent&quot;);</span>
+<span class="fc" id="L41">                this.logger.warn(&quot;Message header not known - SessionConsumerService:handleTokenEvent&quot;);</span>
             }
 
-<span class="fc" id="L43">        } catch (Exception e) {</span>
-<span class="fc" id="L44">            this.logger.error(&quot;Processing message error - SessionService:handleTokenEvent&quot;);</span>
+<span class="fc" id="L44">        } catch (Exception e) {</span>
+<span class="fc" id="L45">            this.logger.error(&quot;Processing message error - SessionConsumerService:handleTokenEvent&quot;);</span>
 
-<span class="fc" id="L46">        }</span>
-<span class="fc" id="L47">    }</span>
+<span class="fc" id="L47">        }</span>
+<span class="fc" id="L48">    }</span>
+
+    @KafkaListener(topics = {&quot;request-session-approving-topic&quot;}, groupId = &quot;whispernet-wsession-session-approving-group&quot;)
+    public void handleApprovingEvent(ConsumerRecord&lt;String, String&gt; record) {
+        try {
+<span class="nc" id="L53">            String type = this.getHeaderValue(record, &quot;type&quot;);</span>
+<span class="nc" id="L54">            String message = record.value();</span>
+<span class="nc" id="L55">            ApprovingSession session = this.objectMapper.readValue(message, ApprovingSession.class);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (EKafkaMessageSessionTypes.ACCEPT_SESSION.getMessageType().equals(type)) {</span>
+<span class="nc" id="L57">                this.sessionService.acceptSession(session);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            } else if (EKafkaMessageSessionTypes.REMOVE_SESSION.getMessageType().equals(type)) {</span>
+<span class="nc" id="L59">                this.sessionService.removeSession(session);</span>
+            } else {
+<span class="nc" id="L61">                this.logger.warn(&quot;Message header from approving service not known - SessionConsumerService:handleTokenEvent&quot;);</span>
+            }
+
+<span class="nc" id="L64">        } catch (Exception e) {</span>
+<span class="nc" id="L65">            this.logger.error(&quot;Processing message error - SessionConsumerService:handleTokenEvent&quot;);</span>
+
+<span class="nc" id="L67">        }</span>
+<span class="nc" id="L68">    }</span>
 
     private String getHeaderValue(ConsumerRecord&lt;String, String&gt; record, String headerKey) {
-<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (record.headers() != null) {</span>
-<span class="pc bpc" id="L51" title="1 of 2 branches missed.">            return record.headers().lastHeader(headerKey) != null</span>
-<span class="fc" id="L52">                    ? new String(record.headers().lastHeader(headerKey).value())</span>
-<span class="nc" id="L53">                    : null;</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (record.headers() != null) {</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            return record.headers().lastHeader(headerKey) != null</span>
+<span class="fc" id="L73">                    ? new String(record.headers().lastHeader(headerKey).value())</span>
+<span class="nc" id="L74">                    : null;</span>
         }
-<span class="fc" id="L55">        return null;</span>
-    }}
+<span class="fc" id="L76">        return null;</span>
+    }
+}
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

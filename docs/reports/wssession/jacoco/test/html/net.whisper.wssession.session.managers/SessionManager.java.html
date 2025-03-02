@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SessionManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">wssession</a> &gt; <a href="index.source.html" class="el_package">net.whisper.wssession.session.managers</a> &gt; <span class="el_source">SessionManager.java</span></div><h1>SessionManager.java</h1><pre class="source lang-java linenums">package net.whisper.wssession.session.managers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whisper.wssession.core.enums.EPGPSessionType;
 import net.whisper.wssession.session.enums.ESessionStatus;
+import net.whisper.wssession.session.models.ApprovingSession;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
 import net.whisper.wssession.session.repositories.SessionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,110 +18,174 @@ import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 @Service
 public class SessionManager {
 
     private final SessionRepository sessionRepository;
     private final Logger logger;
-    @Autowired
-<span class="fc" id="L23">    public SessionManager(SessionRepository sessionRepository) {</span>
-<span class="fc" id="L24">        this.logger = LoggerFactory.getLogger(SessionManager.class);</span>
-<span class="fc" id="L25">        this.sessionRepository = sessionRepository;</span>
-<span class="fc" id="L26">    }</span>
 
+    @Autowired
+<span class="fc" id="L28">    public SessionManager(SessionRepository sessionRepository) {</span>
+<span class="fc" id="L29">        this.logger = LoggerFactory.getLogger(SessionManager.class);</span>
+<span class="fc" id="L30">        this.sessionRepository = sessionRepository;</span>
+<span class="fc" id="L31">    }</span>
 
     public PeerSession createSession(PeerClient peerClient) {
-<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        if (peerClient == null) {</span>
-<span class="nc" id="L31">            throw new IllegalArgumentException(&quot;PeerClient in createSession cannot be null&quot;);</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if (peerClient == null) {</span>
+<span class="nc" id="L35">            throw new IllegalArgumentException(&quot;PeerClient in createSession cannot be null&quot;);</span>
         }
-<span class="fc" id="L33">        return this.setupPeerSession(peerClient);</span>
+<span class="fc" id="L37">        return this.setupPeerSession(peerClient);</span>
     }
 
     public PeerSession addPeerToExistingSession(String sessionToken, PeerClient peerClient) {
-<span class="fc" id="L37">        PeerSession peerSession = this.sessionRepository.getSession(sessionToken);</span>
+<span class="fc" id="L41">        PeerSession peerSession = this.sessionRepository.getSession(sessionToken);</span>
         try {
-<span class="fc" id="L39">            peerSession.addPeerClient(peerClient);</span>
-<span class="fc" id="L40">            this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);</span>
-<span class="fc" id="L41">            logger.info(&quot;Peer added to session, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), peerSession.getSessionToken());</span>
-<span class="fc" id="L42">            return peerSession;</span>
-<span class="fc" id="L43">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L44">            logger.error(e.getMessage());</span>
-<span class="fc" id="L45">            return peerSession;</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">            if (peerClient.getSessionType() == EPGPSessionType.SIGNED) {</span>
+<span class="nc" id="L44">                peerSession.setPgpSessionType(EPGPSessionType.SIGNED);</span>
+            }
+
+<span class="fc" id="L47">            peerClient.setSessionType(peerSession.getPgpSessionType());</span>
+<span class="fc" id="L48">            peerSession.addPeerClient(peerClient);</span>
+            try {
+<span class="fc" id="L50">                logger.info(&quot;Existing session {}&quot;, new ObjectMapper().writeValueAsString(peerSession));</span>
+
+<span class="nc" id="L52">            } catch (JsonProcessingException e) {</span>
+<span class="nc" id="L53">                logger.info(&quot;Cannot parse existing session&quot;);</span>
+<span class="fc" id="L54">            }</span>
+<span class="fc" id="L55">            this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);</span>
+<span class="fc" id="L56">            logger.info(&quot;Peer added to session, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), peerSession.getSessionToken());</span>
+<span class="fc" id="L57">            return peerSession;</span>
+<span class="fc" id="L58">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L59">            logger.error(e.getMessage());</span>
+<span class="fc" id="L60">            return peerSession;</span>
+        }
+    }
+
+    public PeerSession updatePeerSession(String sessionToken, PeerClient peerClient) {
+<span class="nc" id="L65">        logger.info(&quot;Updating peer, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), sessionToken);</span>
+<span class="nc" id="L66">        PeerSession peerSession = this.sessionRepository.getSession(sessionToken);</span>
+<span class="nc" id="L67">        logger.debug(&quot;Fetch session from Redis, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), peerSession.getSessionToken());</span>
+
+<span class="nc" id="L69">        Iterator&lt;PeerClient&gt; peerClientIterator = peerSession.getPeerClients().iterator();</span>
+<span class="nc" id="L70">        PeerClient foundPeer = null;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        while (peerClientIterator.hasNext()) {</span>
+<span class="nc" id="L72">            PeerClient peer = peerClientIterator.next();</span>
+<span class="nc bnc" id="L73" title="All 4 branches missed.">            if (peer.getUserId().equals(peerClient.getUserId()) || peer.getUserToken().equals(peerClient.getUserToken())) {</span>
+<span class="nc" id="L74">                foundPeer = peer;</span>
+<span class="nc" id="L75">                logger.debug(&quot;Found peer to update, userToken={}, foundPeer={}&quot;, peerClient.getUserToken(), foundPeer.getUserToken());</span>
+<span class="nc" id="L76">                break;</span>
+            }
+<span class="nc" id="L78">        }</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (foundPeer == null) {</span>
+<span class="nc" id="L80">            logger.debug(&quot;Peer not found userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), sessionToken);</span>
+<span class="nc" id="L81">            throw new NoSuchElementException(&quot;No peer found&quot;);</span>
+        }
+<span class="nc bnc" id="L83" title="All 4 branches missed.">        if (peerSession.getPgpSessionType() == EPGPSessionType.CHECK_RESPONDER &amp;&amp; peerClient.getSessionType() == EPGPSessionType.VERIFIED) {</span>
+<span class="nc" id="L84">            peerSession.setPgpSessionType(EPGPSessionType.WAITING_FOR_PEER_ACCEPTED);</span>
         }
 
+<span class="nc" id="L87">        peerClient.updatePeer(foundPeer);</span>
+<span class="nc" id="L88">        foundPeer.updatePeer(peerClient);</span>
+<span class="nc" id="L89">        this.sessionRepository.saveSession(sessionToken, peerSession);</span>
+<span class="nc" id="L90">        return peerSession;</span>
     }
 
     private PeerSession setupPeerSession(PeerClient peerClient) {
-<span class="fc" id="L51">        String sessionToken = UUID.randomUUID().toString();</span>
-<span class="fc" id="L52">        String secretKey = this.createAESSecret();</span>
-<span class="fc" id="L53">        PeerSession peerSession = new PeerSession(sessionToken, secretKey);</span>
-<span class="fc" id="L54">        logger.info(&quot;New session created, sessionToken={}&quot;, peerSession.getSessionToken());</span>
-<span class="fc" id="L55">        peerSession.addPeerClient(peerClient);</span>
-<span class="fc" id="L56">        this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);</span>
-<span class="fc" id="L57">        logger.info(&quot;Peer added to session, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), peerSession.getSessionToken());</span>
-<span class="fc" id="L58">        return peerSession;</span>
+<span class="fc" id="L94">        String sessionToken = UUID.randomUUID().toString();</span>
+<span class="fc" id="L95">        String secretKey = this.createAESSecret();</span>
+<span class="fc" id="L96">        PeerSession peerSession = new PeerSession(sessionToken, secretKey, peerClient.getSessionType());</span>
+<span class="fc" id="L97">        logger.info(&quot;New session created, sessionToken={}&quot;, peerSession.getSessionToken());</span>
+<span class="fc" id="L98">        peerSession.addPeerClient(peerClient);</span>
+        try {
+<span class="fc" id="L100">            logger.info(&quot;New session {}&quot;, new ObjectMapper().writeValueAsString(peerSession));</span>
+
+<span class="nc" id="L102">        } catch (JsonProcessingException e) {</span>
+<span class="nc" id="L103">            logger.info(&quot;Cannot parse new session&quot;);</span>
+<span class="fc" id="L104">        }</span>
+<span class="fc" id="L105">        this.sessionRepository.saveSession(peerSession.getSessionToken(), peerSession);</span>
+<span class="fc" id="L106">        logger.info(&quot;Peer added to session, userToken={}, sessionToken={}&quot;, peerClient.getUserToken(), peerSession.getSessionToken());</span>
+<span class="fc" id="L107">        return peerSession;</span>
 
     }
 
-    public void removeClientFromSession(PeerSession peerSession) {
-<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (peerSession == null) {</span>
-<span class="fc" id="L64">            throw new IllegalArgumentException(&quot;PeerSession in remove session is null&quot;);</span>
+    public void removeSession(ApprovingSession approvingSession) {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (approvingSession == null) {</span>
+<span class="nc" id="L113">            throw new IllegalArgumentException(&quot;ApprovingSession in remove session is null&quot;);</span>
+        }
+<span class="nc" id="L115">        this.sessionRepository.deleteSession(approvingSession.getSessionToken());</span>
+<span class="nc" id="L116">    }</span>
+
+    public PeerSession acceptSession(ApprovingSession approvingSession) {
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (approvingSession == null) {</span>
+<span class="nc" id="L120">            throw new IllegalArgumentException(&quot;ApprovingSession in accepting session is null&quot;);</span>
         }
 
-<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (peerSession.getPeerClients().isEmpty()) {</span>
-<span class="fc" id="L68">            throw new NoSuchElementException(&quot;Peers to remove list is empty&quot;);</span>
+<span class="nc" id="L123">        PeerSession peerSession = this.sessionRepository.getSession(approvingSession.getSessionToken());</span>
+
+<span class="nc" id="L125">        peerSession.setPgpSessionType(EPGPSessionType.SIGNED);</span>
+<span class="nc" id="L126">        peerSession.getPeerClients().forEach(peer -&gt; peer.setSessionType(EPGPSessionType.PEER_ACCEPTED));</span>
+<span class="nc" id="L127">        this.sessionRepository.saveSession(approvingSession.getSessionToken(), peerSession);</span>
+<span class="nc" id="L128">        return peerSession;</span>
+    }
+
+
+    public void removeClientFromSession(PeerSession peerSession) {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (peerSession == null) {</span>
+<span class="fc" id="L134">            throw new IllegalArgumentException(&quot;PeerSession in remove session is null&quot;);</span>
         }
-<span class="fc" id="L70">        PeerSession existingSession = this.sessionRepository.getSession(peerSession.getSessionToken());</span>
-<span class="fc" id="L71">        List&lt;PeerClient&gt; existingPeers = existingSession.getPeerClients();</span>
-<span class="fc" id="L72">        List&lt;PeerClient&gt; newPeers = peerSession.getPeerClients();</span>
-<span class="fc" id="L73">        Iterator&lt;PeerClient&gt; iterator = newPeers.iterator();</span>
-<span class="fc bfc" id="L74" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
-<span class="fc" id="L75">            PeerClient peer = iterator.next();</span>
-<span class="fc" id="L76">            PeerClient foundPeer = existingPeers</span>
-<span class="fc" id="L77">                    .stream()</span>
-<span class="fc" id="L78">                    .filter(existingPeer -&gt; existingPeer.getUserId().equals(peer.getUserId()))</span>
-<span class="fc" id="L79">                    .findFirst()</span>
-<span class="fc" id="L80">                    .orElseThrow(() -&gt; new NoSuchElementException(&quot;Peer to remove doesn't exist&quot;));</span>
-<span class="fc" id="L81">            existingPeers.remove(foundPeer);</span>
-<span class="fc" id="L82">        }</span>
-<span class="fc" id="L83">        existingSession.setSessionStatus(ESessionStatus.INTERRUPTED);</span>
-<span class="fc" id="L84">        this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);</span>
-<span class="fc" id="L85">        logger.info(&quot;Peer has successfullly removed from session, sessionToken={}&quot;, peerSession.getSessionToken());</span>
-<span class="fc" id="L86">    }</span>
+
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        if (peerSession.getPeerClients().isEmpty()) {</span>
+<span class="fc" id="L138">            throw new NoSuchElementException(&quot;Peers to remove list is empty&quot;);</span>
+        }
+<span class="fc" id="L140">        PeerSession existingSession = this.sessionRepository.getSession(peerSession.getSessionToken());</span>
+<span class="fc" id="L141">        List&lt;PeerClient&gt; existingPeers = existingSession.getPeerClients();</span>
+<span class="fc" id="L142">        List&lt;PeerClient&gt; newPeers = peerSession.getPeerClients();</span>
+<span class="fc" id="L143">        Iterator&lt;PeerClient&gt; iterator = newPeers.iterator();</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L145">            PeerClient peer = iterator.next();</span>
+<span class="fc" id="L146">            PeerClient foundPeer = existingPeers</span>
+<span class="fc" id="L147">                    .stream()</span>
+<span class="fc" id="L148">                    .filter(existingPeer -&gt; existingPeer.getUserId().equals(peer.getUserId()))</span>
+<span class="fc" id="L149">                    .findFirst()</span>
+<span class="fc" id="L150">                    .orElseThrow(() -&gt; new NoSuchElementException(&quot;Peer to remove doesn't exist&quot;));</span>
+<span class="fc" id="L151">            existingPeers.remove(foundPeer);</span>
+<span class="fc" id="L152">        }</span>
+<span class="fc" id="L153">        existingSession.setSessionStatus(ESessionStatus.INTERRUPTED);</span>
+<span class="fc" id="L154">        this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);</span>
+<span class="fc" id="L155">        logger.info(&quot;Peer was successfully removed from session, sessionToken={}&quot;, peerSession.getSessionToken());</span>
+<span class="fc" id="L156">    }</span>
 
     public void updateSession(PeerSession peerSession) {
-<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (peerSession == null) {</span>
-<span class="fc" id="L90">            throw new IllegalArgumentException(&quot;PeerSession cannot be null when updating session&quot;);</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (peerSession == null) {</span>
+<span class="fc" id="L160">            throw new IllegalArgumentException(&quot;PeerSession cannot be null when updating session&quot;);</span>
         }
-<span class="fc" id="L92">        PeerSession existingSession = this.sessionRepository.getSession(peerSession.getSessionToken());</span>
-<span class="fc" id="L93">        List&lt;PeerClient&gt; peers = existingSession.getPeerClients();</span>
-<span class="fc" id="L94">        peerSession.getPeerClients().forEach(peer -&gt; {</span>
-<span class="fc" id="L95">            PeerClient foundPeer = peers.stream()</span>
-<span class="fc" id="L96">                    .filter(existingPeer -&gt; existingPeer.getUserId().equals(peer.getUserId()))</span>
-<span class="fc" id="L97">                    .findFirst()</span>
-<span class="pc" id="L98">                    .orElseThrow(() -&gt; new NoSuchElementException(&quot;Peer not found&quot;));</span>
-<span class="fc" id="L99">                foundPeer.setClientConnectionStatus(peer.getClientConnectionStatus());</span>
-<span class="fc" id="L100">        });</span>
-<span class="fc" id="L101">        existingSession.setSessionStatus(peerSession.getSessionStatus());</span>
-<span class="fc" id="L102">        this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);</span>
-<span class="fc" id="L103">        logger.info(&quot;Session has successfullly updated, sessionToken={}&quot;, peerSession.getSessionToken());</span>
-<span class="fc" id="L104">    }</span>
+<span class="fc" id="L162">        PeerSession existingSession = this.sessionRepository.getSession(peerSession.getSessionToken());</span>
+<span class="fc" id="L163">        List&lt;PeerClient&gt; peers = existingSession.getPeerClients();</span>
+<span class="fc" id="L164">        peerSession.getPeerClients().forEach(peer -&gt; {</span>
+<span class="fc" id="L165">            PeerClient foundPeer = peers.stream()</span>
+<span class="fc" id="L166">                    .filter(existingPeer -&gt; existingPeer.getUserId().equals(peer.getUserId()))</span>
+<span class="fc" id="L167">                    .findFirst()</span>
+<span class="pc" id="L168">                    .orElseThrow(() -&gt; new NoSuchElementException(&quot;Peer not found&quot;));</span>
+<span class="fc" id="L169">            foundPeer.setClientConnectionStatus(peer.getClientConnectionStatus());</span>
+<span class="fc" id="L170">        });</span>
+<span class="fc" id="L171">        existingSession.setSessionStatus(peerSession.getSessionStatus());</span>
+<span class="fc" id="L172">        this.sessionRepository.saveSession(existingSession.getSessionToken(), existingSession);</span>
+<span class="fc" id="L173">        logger.info(&quot;Session was successfully updated, sessionToken={}&quot;, peerSession.getSessionToken());</span>
+<span class="fc" id="L174">    }</span>
 
-    private String createAESSecret(){
-<span class="fc" id="L107">        String AESToken = null;</span>
+    private String createAESSecret() {
+<span class="fc" id="L177">        String AESToken = null;</span>
         try {
-<span class="fc" id="L109">            KeyGenerator keyGenerator = KeyGenerator.getInstance(&quot;AES&quot;);</span>
-<span class="fc" id="L110">            keyGenerator.init(256);</span>
-<span class="fc" id="L111">            SecretKey secretKey = keyGenerator.generateKey();</span>
-<span class="fc" id="L112">            AESToken = Base64.getEncoder().encodeToString(secretKey.getEncoded());</span>
-<span class="fc" id="L113">            logger.info(&quot;AES Token created&quot;);</span>
-<span class="fc" id="L114">            return AESToken;</span>
+<span class="fc" id="L179">            KeyGenerator keyGenerator = KeyGenerator.getInstance(&quot;AES&quot;);</span>
+<span class="fc" id="L180">            keyGenerator.init(256);</span>
+<span class="fc" id="L181">            SecretKey secretKey = keyGenerator.generateKey();</span>
+<span class="fc" id="L182">            AESToken = Base64.getEncoder().encodeToString(secretKey.getEncoded());</span>
+<span class="fc" id="L183">            logger.info(&quot;AES Token created&quot;);</span>
+<span class="fc" id="L184">            return AESToken;</span>
 
-<span class="nc" id="L116">        } catch (NoSuchAlgorithmException e) {</span>
-<span class="nc" id="L117">            logger.error(&quot;Cannot create AES Token, message={}&quot;, e.getMessage());</span>
-<span class="nc" id="L118">            throw new RuntimeException(&quot;Cannot create AES Token&quot;);</span>
+<span class="nc" id="L186">        } catch (NoSuchAlgorithmException e) {</span>
+<span class="nc" id="L187">            logger.error(&quot;Cannot create AES Token, message={}&quot;, e.getMessage());</span>
+<span class="nc" id="L188">            throw new RuntimeException(&quot;Cannot create AES Token&quot;);</span>
         }
     }
 }

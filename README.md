@@ -221,6 +221,7 @@ Open your web browser and type http://localhost:3000. Example credentials are us
 - wssession 
 - session
 - websocket
+- approving
 - security
 - frontend
 - gateway
@@ -233,7 +234,7 @@ Currently, tests have been implemented for the **Session-Service** microservice,
 
 | Service              | Test Coverage  | Notes                                                      |
 |----------------------|----------------|------------------------------------------------------------|
-| **Session-Service**  | 88%            | Mostly integration or hybrid tests completed using Jacoco. |
+| **Session-Service**  | 84%            | Mostly integration or hybrid tests completed using Jacoco. |
 | **WSSession**        | 91%            | Mostly integration or hybrid tests completed using Jacoco. |
 | **Security**         | Not yet testet | Planned for future coverage.                               |
 | **Signal-Server**    | Not yet tested | Planned for future coverage.                               |
@@ -269,23 +270,20 @@ Here are the planned improvements and features for WhisperNet:
 2. **Enhanced Test Coverage**:
     - Increase test coverage beyond 81% with additional unit, integration, and end-to-end tests.
 
-3. **PGP Key-Based User Verification**:
-    - Allow users to requiring sign session from their conversation partner 
-
-4. **Improved Monitoring and Performance Metrics**:
+3. **Improved Monitoring and Performance Metrics**:
     - Add advanced metrics and alerts in Grafana for real-time system health tracking.
     - Integrate Prometheus for detailed performance monitoring and analysis.
 
-5. **Mobile Application**:
+4. **Mobile Application**:
     - Build a mobile-friendly version of the application using React Native.
 
-6. **Desktop Application**:
+5. **Desktop Application**:
     - Develop a desktop version of the application using Electron for a native-like experience.
     - 
-7. **Group Chat Support** (Optional):
+6. **Group Chat Support** (Optional):
     - Extend the application to support multi-user group chats with dynamic room creation.
     - 
-8. **zkSNARK Integration** (Optional):
+7. **zkSNARK Integration** (Optional):
     - Explore the possibility of using zkSNARKs for advanced cryptographic features, such as zero-knowledge proofs.
 
 ## Contributing ##

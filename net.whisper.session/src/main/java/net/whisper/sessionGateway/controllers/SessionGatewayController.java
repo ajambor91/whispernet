@@ -78,7 +78,13 @@ public class SessionGatewayController {
                     .body(responseBody);
         } catch (UserUnauthorizationException exception) {
             logger.error("Client unauthorized when tried join to signed session, sessionToken={}", sessionToken, exception);
-            ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(exception.getClient(), sessionToken, exception.getMessage());
+            ErrorResponseDTO errorResponseDTO;
+            if (exception.getClient() != null) {
+                errorResponseDTO = new ErrorResponseDTO(exception.getClient(), sessionToken, exception.getMessage());
+
+            } else {
+                errorResponseDTO = new ErrorResponseDTO(sessionToken, exception.getMessage());
+            }
             logger.debug("Join session response after unauthorized error created successful: responseBody={}", errorResponseDTO);
             Cookie httpOnlyCookie = cookiesService.getCookie(exception.getClient(), 86400);
             response.addCookie(httpOnlyCookie);
@@ -103,13 +109,18 @@ public class SessionGatewayController {
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(responseBody);
-        }
-        catch (ApprovalExisiting exisiting) {
+        } catch (ApprovalExisiting exisiting) {
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(exisiting.getMessage());
             return ResponseEntity.badRequest().body(errorResponseDTO);
         } catch (UserUnauthorizationException exception) {
             logger.error("Client unauthorized when tried join to signed session, sessionToken={}", sessionToken, exception);
-            ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(exception.getClient(), sessionToken, exception.getMessage());
+            ErrorResponseDTO errorResponseDTO;
+            if (exception.getClient() != null) {
+                errorResponseDTO = new ErrorResponseDTO(exception.getClient(), sessionToken, exception.getMessage());
+
+            } else {
+                errorResponseDTO = new ErrorResponseDTO(sessionToken, exception.getMessage());
+            }
             logger.debug("Update session response after unauthorized error created successful: responseBody={}", errorResponseDTO);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponseDTO.toMap());
         } catch (Exception e) {
@@ -148,7 +159,7 @@ public class SessionGatewayController {
             logger.error("Handle error while creating signed session", e.getMessage());
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponseDTO);
-        } catch (SecurityException e) {
+        } catch (UserUnauthorizationException e) {
             logger.error("Handle error while creating signed session", e.getMessage());
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponseDTO);
@@ -169,6 +180,7 @@ public class SessionGatewayController {
             return ResponseEntity.badRequest().body(errorResponseDTO);
         } catch (JsonProcessingException | InterruptedException e) {
             ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponseDTO);        }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponseDTO);
+        }
     }
 }

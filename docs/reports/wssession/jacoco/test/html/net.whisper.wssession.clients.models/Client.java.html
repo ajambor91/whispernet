@@ -3,23 +3,34 @@
 import lombok.Getter;
 import lombok.Setter;
 import net.whisper.wssession.clients.interfaces.IClient;
+import net.whisper.wssession.core.enums.EPGPSessionType;
 import net.whisper.wssession.session.models.PeerClient;
 import net.whisper.wssession.session.models.PeerSession;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
 @Setter
 public class Client extends BaseClient implements IClient {
-    String sessionToken;
-    String secretKey;
-<span class="fc" id="L15">    public Client() {</span>
+    private String sessionToken;
+    private String secretKey;
+    private String username;
+    private List&lt;Partner&gt; partners;
 
-<span class="fc" id="L17">    }</span>
+<span class="fc" id="L22">    public Client() {</span>
+
+<span class="fc" id="L24">    }</span>
 
     public Client(PeerClient peerClient, PeerSession peerSession) {
-<span class="fc" id="L20">        super(peerClient);</span>
-<span class="fc" id="L21">        this.sessionToken = peerSession.getSessionToken();</span>
-<span class="fc" id="L22">        this.secretKey = peerSession.getSecretKey();</span>
-<span class="fc" id="L23">    }</span>
+<span class="fc" id="L27">        super(peerClient);</span>
+<span class="fc" id="L28">        this.sessionToken = peerSession.getSessionToken();</span>
+<span class="fc" id="L29">        this.secretKey = peerSession.getSecretKey();</span>
+<span class="fc" id="L30">        this.setSessionType(peerSession.getPgpSessionType());</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">        this.partners = peerClient.getSessionType() == EPGPSessionType.UNSIGNED ?</span>
+<span class="nc" id="L32">                new ArrayList&lt;&gt;() :</span>
+<span class="fc" id="L33">                peerSession.getPartnersPeers(this).stream().map(partner -&gt; new Partner(partner.getUsername())).toList();</span>
+<span class="fc" id="L34">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

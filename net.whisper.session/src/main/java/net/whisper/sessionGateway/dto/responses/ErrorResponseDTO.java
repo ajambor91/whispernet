@@ -19,6 +19,12 @@ public class ErrorResponseDTO extends ResponseDTO {
         this.message = message;
     }
 
+    public ErrorResponseDTO(String sessionToken, String message) {
+        super(sessionToken);
+        this.message = message;
+    }
+
+
     public ErrorResponseDTO(IBaseClient incomingClient, String sessionToken, String message) {
         super(incomingClient, sessionToken);
         this.message = message;

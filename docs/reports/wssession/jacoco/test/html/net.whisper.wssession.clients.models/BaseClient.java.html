@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.whisper.wssession.clients.enums.EClientConnectionStatus;
 import net.whisper.wssession.clients.enums.EPeerRole;
+import net.whisper.wssession.core.enums.EPGPSessionType;
 import net.whisper.wssession.core.interfaces.IBaseClient;
 
 
@@ -14,16 +15,19 @@ public abstract class BaseClient implements IBaseClient {
     private String userId;
     private EClientConnectionStatus clientConnectionStatus;
     private EPeerRole peerRole;
+    private EPGPSessionType sessionType;
+    private String username;
 
-<span class="fc" id="L18">    public BaseClient() {</span>
+<span class="fc" id="L21">    public BaseClient() {</span>
 
-<span class="fc" id="L20">    }</span>
+<span class="fc" id="L23">    }</span>
 
-<span class="fc" id="L22">    public BaseClient(IBaseClient client) {</span>
-<span class="fc" id="L23">        this.userToken = client.getUserToken();</span>
-<span class="fc" id="L24">        this.userId = client.getUserId();</span>
-<span class="fc" id="L25">        this.clientConnectionStatus = client.getClientConnectionStatus();</span>
-<span class="fc" id="L26">        this.peerRole = client.getPeerRole();</span>
-<span class="fc" id="L27">    }</span>
+<span class="fc" id="L25">    public BaseClient(IBaseClient client) {</span>
+<span class="fc" id="L26">        this.userToken = client.getUserToken();</span>
+<span class="fc" id="L27">        this.userId = client.getUserId();</span>
+<span class="fc" id="L28">        this.clientConnectionStatus = client.getClientConnectionStatus();</span>
+<span class="fc" id="L29">        this.peerRole = client.getPeerRole();</span>
+<span class="fc" id="L30">        this.username = client.getUsername();</span>
+<span class="fc" id="L31">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

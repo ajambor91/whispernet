@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResponseDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">whispernet</a> &gt; <a href="index.source.html" class="el_package">net.whisper.sessionGateway.dto.responses</a> &gt; <span class="el_source">ResponseDTO.java</span></div><h1>ResponseDTO.java</h1><pre class="source lang-java linenums">package net.whisper.sessionGateway.dto.responses;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whisper.sessionGateway.interfaces.IBaseClient;
+import net.whisper.sessionGateway.models.IncomingClient;
+import net.whisper.sessionGateway.models.Partner;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+public class ResponseDTO {
+    private String userToken;
+    private String userId;
+    private String sessionToken;
+    private String peerRole;
+    private String secretKey;
+    private String sessionAuthType;
+    private List&lt;PartnerDTO&gt; partnersDTO;
+
+<span class="fc" id="L24">    public ResponseDTO() {</span>
+<span class="fc" id="L25">    }</span>
+
+<span class="fc" id="L27">    public ResponseDTO(String sessionToken) {</span>
+<span class="fc" id="L28">        this.sessionToken = sessionToken;</span>
+<span class="fc" id="L29">    }</span>
+
+<span class="fc" id="L31">    public ResponseDTO(IBaseClient client, String sessionToken) {</span>
+<span class="fc" id="L32">        this.sessionToken = sessionToken;</span>
+
+<span class="fc" id="L34">        this.peerRole = client.getPeerRole().getPeerRoleName();</span>
+<span class="fc" id="L35">        this.sessionAuthType = client.getSessionType().getSessionPGPStatus();</span>
+<span class="fc" id="L36">        this.userId = client.getUserId();</span>
+<span class="fc" id="L37">        this.userToken = client.getUserToken();</span>
+<span class="fc" id="L38">        this.partnersDTO = this.setPartners(null);</span>
+<span class="fc" id="L39">    }</span>
+
+    public ResponseDTO(IncomingClient client) {
+<span class="fc" id="L42">        this(client, client.getSessionToken());</span>
+<span class="fc" id="L43">        this.secretKey = client.getSecretKey();</span>
+<span class="fc" id="L44">        this.partnersDTO = this.setPartners(client.getPartners());</span>
+<span class="fc" id="L45">    }</span>
+
+    private List&lt;PartnerDTO&gt; setPartners(List&lt;Partner&gt; partners) {
+<span class="pc bpc" id="L48" title="1 of 4 branches missed.">        if (partners == null || partners.isEmpty()) {</span>
+<span class="fc" id="L49">            return new ArrayList&lt;&gt;();</span>
+        }
+<span class="fc" id="L51">        return partners.stream().map(PartnerDTO::new).toList();</span>
+    }
+
+    public Map&lt;String, Object&gt; toMap() {
+<span class="fc" id="L55">        Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (this.sessionToken != null) {</span>
+<span class="fc" id="L57">            map.put(&quot;sessionToken&quot;, this.sessionToken);</span>
+        }
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (this.peerRole != null) {</span>
+<span class="fc" id="L60">            map.put(&quot;peerRole&quot;, this.peerRole);</span>
+        }
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (this.sessionAuthType != null) {</span>
+<span class="fc" id="L63">            map.put(&quot;sessionAuthType&quot;, this.sessionAuthType);</span>
+        }
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (this.secretKey != null) {</span>
+<span class="fc" id="L66">            map.put(&quot;secretKey&quot;, this.secretKey);</span>
+        }
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (this.userToken != null) {</span>
+<span class="fc" id="L69">            map.put(&quot;userToken&quot;, this.userToken);</span>
+        }
+
+<span class="fc bfc" id="L72" title="All 4 branches covered.">        if (this.partnersDTO != null &amp;&amp; !partnersDTO.isEmpty()) {</span>
+<span class="fc" id="L73">            Object[] partnersMap = this.partnersDTO.stream().map(partner -&gt; Map.of(</span>
+                    &quot;publicKey&quot;, partner.publicKey,
+                    &quot;username&quot;, partner.username
+<span class="fc" id="L76">            )).toArray();</span>
+<span class="fc" id="L77">            map.put(&quot;partners&quot;, partnersMap);</span>
+        }
+<span class="fc" id="L79">        return map;</span>
+    }
+
+    @Override
+    public String toString() {
+        try {
+<span class="nc" id="L85">            return new ObjectMapper().writeValueAsString(this);</span>
+<span class="nc" id="L86">        } catch (JsonProcessingException e) {</span>
+<span class="nc" id="L87">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    private class PartnerDTO {
+        private final String publicKey;
+        private final String username;
+
+<span class="fc" id="L95">        private PartnerDTO(Partner partner) {</span>
+<span class="fc" id="L96">            this.publicKey = partner.getPublicKey();</span>
+<span class="fc" id="L97">            this.username = partner.getUsername();</span>
+<span class="fc" id="L98">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

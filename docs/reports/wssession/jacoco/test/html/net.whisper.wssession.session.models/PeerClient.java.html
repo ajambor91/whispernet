@@ -15,5 +15,16 @@ public class PeerClient extends BaseClient {
     public PeerClient(IBaseClient userClient) {
 <span class="fc" id="L16">        super(userClient);</span>
 <span class="fc" id="L17">    }</span>
+
+    public void updatePeer(PeerClient peerClient) {
+<span class="nc bnc" id="L20" title="All 4 branches missed.">        if (this.getUserId() == null &amp;&amp; peerClient.getUserId() != null) {</span>
+<span class="nc" id="L21">            this.setUserId(peerClient.getUserId());</span>
+        }
+<span class="nc bnc" id="L23" title="All 4 branches missed.">        if (this.getUsername() == null &amp;&amp; peerClient.getUsername() != null) {</span>
+<span class="nc" id="L24">            this.setUsername(peerClient.getUsername());</span>
+        }
+<span class="nc" id="L26">        this.setClientConnectionStatus(peerClient.getClientConnectionStatus());</span>
+<span class="nc" id="L27">        this.setSessionType(peerClient.getSessionType());</span>
+<span class="nc" id="L28">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

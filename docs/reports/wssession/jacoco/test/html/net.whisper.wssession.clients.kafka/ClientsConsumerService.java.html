@@ -8,11 +8,11 @@ import net.whisper.wssession.clients.models.ClientWithoutSession;
 import net.whisper.wssession.clients.services.ClientsService;
 import net.whisper.wssession.core.interfaces.IBaseClient;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class ClientsConsumerService {
@@ -30,49 +30,60 @@ public class ClientsConsumerService {
 
     @KafkaListener(topics = {&quot;request-client-topic&quot;}, groupId = &quot;whispernet-wsession-clients-group&quot;)
     public void handleTokenEvent(ConsumerRecord&lt;String, String&gt; record) {
+<span class="fc" id="L33">        String message = record.value();</span>
+<span class="fc" id="L34">        logger.info(&quot;Received kafka message with client, message={}&quot;, message);</span>
         try {
-<span class="fc" id="L34">            String message = record.value();</span>
-<span class="fc" id="L35">            String type = this.getHeaderValue(record, &quot;type&quot;);</span>
-<span class="fc bfc" id="L36" title="All 2 branches covered.">            if (type == null) {</span>
-<span class="fc" id="L37">                logger.error(&quot;Type is null&quot;);</span>
-<span class="fc" id="L38">                return;</span>
+<span class="fc" id="L36">            String type = this.getHeaderValue(record, &quot;type&quot;);</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">            if (type == null) {</span>
+<span class="fc" id="L38">                logger.error(&quot;Type is null&quot;);</span>
+<span class="fc" id="L39">                return;</span>
             }
-<span class="fc bfc" id="L40" title="All 2 branches covered.">            if (message == null) {</span>
-<span class="fc" id="L41">                logger.error(&quot;Message is null&quot;);</span>
-<span class="fc" id="L42">                return;</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">            if (message == null) {</span>
+<span class="fc" id="L42">                logger.error(&quot;Message is null&quot;);</span>
+<span class="fc" id="L43">                return;</span>
             }
-<span class="fc" id="L44">            IBaseClient kafkaMessage = mapMessage(type, message);</span>
-<span class="fc" id="L45">            System.out.println(message);</span>
-<span class="fc bfc" id="L46" title="All 2 branches covered.">            if (kafkaMessage instanceof ClientWithoutSession) {</span>
-<span class="fc" id="L47">                logger.info(&quot;Received kafka message for new client, userToken={}&quot;, ((ClientWithoutSession) kafkaMessage).getUserToken());</span>
-<span class="fc" id="L48">                clientsService.processNewClient((ClientWithoutSession) kafkaMessage);</span>
-<span class="pc bpc" id="L49" title="1 of 2 branches missed.">            } else if (kafkaMessage instanceof Client) {</span>
-<span class="fc" id="L50">                clientsService.processJoiningClient((Client) kafkaMessage);</span>
-<span class="fc" id="L51">                logger.info(&quot;Received kafka message for joining client, userToken={}, sessionToken={}&quot;, ((Client) kafkaMessage).getUserToken(), ((Client) kafkaMessage).getSessionToken());</span>
+<span class="fc" id="L45">            IBaseClient kafkaMessage = mapMessage(type, message);</span>
+<span class="fc" id="L46">            System.out.println(message);</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            if (EKafkaMessageClientTypes.NEW_CLIENT.getMessageType().equals(type)) {</span>
+<span class="fc" id="L48">                logger.info(&quot;Received kafka message for new client, userToken={}&quot;, kafkaMessage.getUserToken());</span>
+<span class="fc" id="L49">                clientsService.processNewClient((ClientWithoutSession) kafkaMessage);</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">            } else if (EKafkaMessageClientTypes.ADD_CLIENT.getMessageType().equals(type)) {</span>
+<span class="fc" id="L51">                logger.info(&quot;Received kafka message for joining client, userToken={}, sessionToken={}&quot;, kafkaMessage.getUserToken(), ((Client) kafkaMessage).getSessionToken());</span>
+<span class="fc" id="L52">                clientsService.processJoiningClient((Client) kafkaMessage);</span>
+<span class="nc" id="L53">            } else if (</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">                    EKafkaMessageClientTypes.UPDATE_CLIENT.getMessageType().equals(type) ||</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">                            EKafkaMessageClientTypes.UPDATE_RETURN_CLIENT.getMessageType().equals(type)</span>
+            ) {
+<span class="nc" id="L57">                logger.info(&quot;Received kafka message for update client, userToken={}, sessionToken={}&quot;, kafkaMessage.getUserToken(), ((Client) kafkaMessage).getSessionToken());</span>
+<span class="nc" id="L58">                clientsService.updatePeer((Client) kafkaMessage, EKafkaMessageClientTypes.UPDATE_RETURN_CLIENT.getMessageType().equals(type));</span>
             }
-<span class="fc" id="L53">            logger.error(&quot;Error: Received an empty kafka message&quot;);</span>
-<span class="fc" id="L54">        } catch (Exception e) {</span>
-<span class="fc" id="L55">            logger.error(&quot;Error processing message={}&quot;, e.getMessage());</span>
-<span class="fc" id="L56">        }</span>
-<span class="fc" id="L57">    }</span>
+<span class="fc" id="L60">            logger.error(&quot;Error: Received an empty kafka message&quot;);</span>
+<span class="fc" id="L61">        } catch (Exception e) {</span>
+<span class="fc" id="L62">            logger.error(&quot;Error processing message={}&quot;, e.getMessage());</span>
+<span class="fc" id="L63">        }</span>
+<span class="fc" id="L64">    }</span>
 
     private String getHeaderValue(ConsumerRecord&lt;String, String&gt; record, String headerKey) {
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (record.headers() != null) {</span>
-<span class="pc bpc" id="L61" title="1 of 2 branches missed.">            return record.headers().lastHeader(headerKey) != null</span>
-<span class="fc" id="L62">                    ? new String(record.headers().lastHeader(headerKey).value())</span>
-<span class="nc" id="L63">                    : null;</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (record.headers() != null) {</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">            return record.headers().lastHeader(headerKey) != null</span>
+<span class="fc" id="L69">                    ? new String(record.headers().lastHeader(headerKey).value())</span>
+<span class="nc" id="L70">                    : null;</span>
         }
-<span class="fc" id="L65">        return null;</span>
+<span class="fc" id="L72">        return null;</span>
     }
 
     private IBaseClient mapMessage(String type, String message) throws JsonProcessingException {
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (EKafkaMessageClientTypes.NEW_CLIENT.getMessageType().equals(type)) {</span>
-
-<span class="fc" id="L71">            return objectMapper.readValue(message, ClientWithoutSession.class);</span>
-<span class="fc bfc" id="L72" title="All 2 branches covered.">        } else if (EKafkaMessageClientTypes.ADD_CLIENT.getMessageType().equals(type)) {</span>
-<span class="fc" id="L73">            return objectMapper.readValue(message, Client.class);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (EKafkaMessageClientTypes.NEW_CLIENT.getMessageType().equals(type)) {</span>
+<span class="fc" id="L77">            logger.info(&quot;Client sessionType= {}&quot;, message);</span>
+<span class="fc" id="L78">            return objectMapper.readValue(message, ClientWithoutSession.class);</span>
+<span class="fc" id="L79">        } else if (</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">                EKafkaMessageClientTypes.ADD_CLIENT.getMessageType().equals(type) ||</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">                        EKafkaMessageClientTypes.UPDATE_CLIENT.getMessageType().equals(type) ||</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">                        EKafkaMessageClientTypes.UPDATE_RETURN_CLIENT.getMessageType().equals(type)</span>
+        ) {
+<span class="fc" id="L84">            return objectMapper.readValue(message, Client.class);</span>
         } else {
-<span class="fc" id="L75">            throw new RuntimeException(&quot;Unknown message type: &quot; + type);</span>
+<span class="fc" id="L86">            throw new RuntimeException(&quot;Unknown message type: &quot; + type);</span>
         }
     }
 }

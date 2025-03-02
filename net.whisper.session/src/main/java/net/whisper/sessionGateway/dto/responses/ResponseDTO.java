@@ -20,11 +20,17 @@ public class ResponseDTO {
     private String secretKey;
     private String sessionAuthType;
     private List<PartnerDTO> partnersDTO;
+
     public ResponseDTO() {
+    }
+
+    public ResponseDTO(String sessionToken) {
+        this.sessionToken = sessionToken;
     }
 
     public ResponseDTO(IBaseClient client, String sessionToken) {
         this.sessionToken = sessionToken;
+
         this.peerRole = client.getPeerRole().getPeerRoleName();
         this.sessionAuthType = client.getSessionType().getSessionPGPStatus();
         this.userId = client.getUserId();

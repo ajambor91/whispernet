@@ -2,9 +2,9 @@ package net.whisper.sessionGateway.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.whisper.sessionGateway.interfaces.IApprovingPeer;
 import net.whisper.sessionGateway.interfaces.IBaseClient;
 import net.whisper.sessionGateway.interfaces.IPartner;
-import net.whisper.sessionGateway.interfaces.IApprovingPeer;
 
 @Getter
 @Setter

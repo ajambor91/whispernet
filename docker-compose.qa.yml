@@ -17,7 +17,7 @@ services:
     hostname: grafana.whisper.net
     container_name: grafana
     volumes:
-      - './grafana/data-grafana-qa:/var/lib/grafana'
+      - grafana:/var/lib/grafana
     ports:
       - "3000:3000"
     depends_on:
@@ -266,4 +266,6 @@ volumes:
   kafka-log:
     driver: local
   nginx-log:
+    driver: local
+  grafana:
     driver: local

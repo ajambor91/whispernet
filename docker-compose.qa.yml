@@ -181,7 +181,7 @@ services:
     networks:
       - whispernet-security
     volumes:
-      - './app-db/app-data:/var/lib/mysql'
+      - app-db:/var/lib/mysql'
   cms-db:
     build:
       context: './cms-db'
@@ -268,4 +268,6 @@ volumes:
   nginx-log:
     driver: local
   grafana:
+    driver: local
+  app-db:
     driver: local

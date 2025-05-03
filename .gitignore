@@ -65,6 +65,7 @@ data-grafana-qa/
 grafana.db
 grafana.local.ini
 test_data/*
+test_data/
 vendor/
 var/
 composer.lock
@@ -91,6 +92,8 @@ localhost.crt
 localhost.key
 config.prod.ts
 application.properties.prod
+application.properties
+application.properties.local
 redis.prod.conf
 grafana.prod.ini
 init.prod.sql

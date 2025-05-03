@@ -31,16 +31,16 @@ WhisperNet is a decentralized communication platform designed to provide private
 - **Backend**:
     - Java 22 
     - Spring Boot 3.3.4 microservices:
-        - **Session**: Handles user creation and management.
-        - **WSSession**: Creates and manages WebRTC sessions.
+        - **UserSession**: Handles user creation and management.
+        - **Session**: Creates and manages WebRTC sessions.
         - **Security**: User register, login and verifying
     - Node.js microservice:
-        - **WebSocket Service**: Pairs users for communication.
-        - **Approving Service**: Responsible for sending notifications to users when their connection request is accepted after PGP key verification.
-    - Kafka: Handles asynchronous communication between microservices.
-    - Redis: Stores session data for quick access.
-    - Security Redis: Stores JWT token and currently signed-in users, also stores initialized login user data 
-    - Security DB: MariaDB which stores user data as username and PGP Public Key
+        - **WebSocketSignalServer**: Pairs users for communication.
+        - **WebSocketApprovingServer**: Responsible for sending notifications to users when their connection request is accepted after PGP key verification.
+    - Broker (Kafka): Handles asynchronous communication between microservices.
+    - SessionCache (Redis): Stores session data for quick access.
+    - SecurityCache (Redis): Stores JWT token and currently signed-in users, also stores initialized login user data 
+    - SecurityDatabase (MariaDB):  which stores user data as username and PGP Public Key
 - **Frontend**:
     - React: A modern, responsive UI for the chat platform.
     - WebAssembly: C++ with emscripten
@@ -49,7 +49,6 @@ WhisperNet is a decentralized communication platform designed to provide private
     - Gateway: Nginx server as gateway to all docker application 
     - Grafana + Loki + Promtail: For real-time monitoring and logging.
     - Docker: Containerized deployment of all services.
-    - TURN Server: Coturn server for WebRTC signaling (currently in testing).
     - Isolated networks for app - whispernet, security - whisperner-security, cms - whispernet-cms and frontend - whispernet-ui
 
 - **CMS**
@@ -63,28 +62,28 @@ WhisperNet is a decentralized communication platform designed to provide private
 
 #### Main application
 ```plaintext
-Frontend (React) --> Security --> Security Redis
+Frontend (React) --> Security --> SecurityCache
     |                   |
     |                   v
-    |                Security DB
+    |                SecurityDatabase
     |
     v
-Session(Spring Boot) ----> Approving Server (Node.js) < -- > Frontend
+UserSession(Spring Boot) ----> WebSocketApprovingServer (Node.js) < -- > Frontend
     |
-    |         Security --> Security DB
+    |         Security --> SecurityDatabase
     |         ^     |
     |         |     v 
-    |         |     Security Redis 
+    |         |     SecurityCache
     |         |     
-    +------ Kafka --> WSSession (Spring Boot) <-- Kafka --> Signal-Server (Node.js) <--> Frontend 
+    +------ Kafka --> Session (Spring Boot) <-- Kafka --> WebSocketSignalServer (Node.js) <--> Frontend 
     |                  |
-    |                  +--> Redis
+    |                  +--> SessionCache
     v
 Frontend (React)
     ^
     |
     v
-Signal-Server (Node.js)
+WebSocketSignalServer (Node.js)
 ```
 
 #### CMS
@@ -132,7 +131,7 @@ Backend (Symfony) --> Database (mariadb)
 
 - Docker and Docker Compose
 - Node.js and npm
-- Java 17+ for Spring Boot (included in docker)
+- Java 22+ for Spring Boot (included in docker)
 - Redis (included in Docker)
 - PHP 8.2 and composer (included in docker)
 
@@ -147,21 +146,31 @@ Backend (Symfony) --> Database (mariadb)
    cd whispernet
    ```
 2. **Generate ssl server.crt and server.key files and replace server_dummy files in nginx directory**
-3. **Genereate JWT token and replace login.jwt.secret in net.whisper.security/cfg/application.properties**
-4. **For CMS move to /cms/project_root/whispernet-cms and copy .env.local and remove .local suffix then run composer install, CMS is not requried to run main application**
-5. **Run containers stack**
+3. **Create your own databases configuration files based on example configs for Grafana, SecurityCache, SecurityDatabase, CMSDatabase, SessionCache**
+4. **Create you own application.properties files based on application.properties.example.X for Spring Boot services**
+5. **Genereate JWT token and replace login.jwt.secret in net.whisper.security/cfg/application.properties**
+6. **For CMS move to /cms/project_root/whispernet-cms and create your env.>environment< based on .env.example.X then run composer install, CMS is not requried to run main application**
+7. **Run containers stack**
     ```bash
     docker-compose build
     docker-compose up -d
    ```
-6. **Run frontend app**
+8. **Run frontend app**
     ```bash
     cd ui
     npm install or yarn install *
     cd ui/wb
     npm run dev
-    
-7. **Run CMS frontend**
+9. **To create clear CMS Database structure run:**
+```bash
+    docker exec cms php bin/doctrine schema update --force  
+```
+10. **After that, you should create your Admin user by running:**
+
+```bash
+   php bin/console app:make-admin email@domain.example examplePassword
+```
+11. **Run CMS frontend**
     ```bash
    cd ui
    npm install or yarn install *
@@ -174,12 +183,6 @@ Open http://localhost:3200 in web browser for main application.
 Open http://localhost:3100 in web browser for cms frontend.
 Open http://localhost:8099/cms/dashboard for administrator panel
 
-cms-db directory contains example data for cms and example user with credentials test@teest.test, altough you can create your own user running from dir in cms service or (if you have php installed) in cms project root on your host machine
-
-```bash
-   php bin/console app:make-admin email@domain.example examplePassword
-```
-MariaDB instance in cms-db service has two example users - root and exampleUser, both has password 3x@mplePassword. All services has example configs and SSL keys.
 
 ### Local test environment
 1. **Clone the Repository**:
@@ -188,7 +191,7 @@ MariaDB instance in cms-db service has two example users - root and exampleUser,
    cd whispernet
    ```
 2. **Generate ssl server.crt and server.key files and replace server_dummy files in nginx directory**
-3. **Genereate JWT token and replace login.jwt.secret in net.whisper.security/cfg/application.properties.local**
+3. **Generate JWT token and replace login.jwt.secret in net.whisper.security/cfg/application.properties.local**
 4. **Copy nginx.example.conf from nginx-host directory, or create similar configuration for nginx or apache**
 5. **Generate your SSL certificates and replace whispernet_dummy and chat-whispernet_dummy with the new ones. Then, remove the _dummy suffix from the file names.**
 6. **Run containers stack**
@@ -200,13 +203,11 @@ Open your web browser with https://whispernet.local for main page or https://cha
 ***SSL is required for the app because user tokens, needed to connect sessions, are stored in secure cookies only***
 
 ### QA Environment
-You can also use QA Environment. You should reneme all Dockerfile.example.qa in their respective dirs and create configs by duplicating existing *.example.* files and renaming them (e.g., redis.example.qa.conf → redis.qa.conf), and make all steps from Local test environment like generating SSL or JWT. Adjust the values as needed. QA Environments is similar to Local Test
-Then run:
+
 ```bash
 docker-compose -f ./docker-compose.qa.yml build
 docker-compose -f ./docker-compose.qa.yml up -d
 ```
-In this version you have to set loki data source in grafana as http://loki:3100, in CMS you should create your admin in CMS container: php bin/console app:make-admin login@domain.example password, and next create your content in dashboard.
 
 ### Production Envrionment
 This environment has similar requirment as QA environments, you should replace all Dockerfile.prod and all config files, but containers and configs are production-ready optimized. In this stack you have to type your domain in cms frontend .env files and type it into nginx-host configuration.
@@ -217,7 +218,7 @@ docker-compose -f ./docker-compose.prod.yml up -d
 
 ### Monitoring - Grafana
 
-Open your web browser and type http://localhost:3000. Example credentials are user: admin, password: examplePassword; apps to explore are:
+Open your web browser and type http://localhost:3000:
 - wssession 
 - session
 - websocket
@@ -257,9 +258,8 @@ You can find the HTML report in the `target/site/jacoco` directory or access it 
 *   **Production (release/0.1.1):** The current production version resides on the `release/0.1.1` branch.
 
 ## In progress
-1. **Finishing PGP signing sessions flow**
-2. **Security service testing**
-3. **Rejoining to session**
+ 1. **Refactor and testing Spring Boot Services**
+ 2. **Security service testing**
 ## Future Enhancements
 
 Here are the planned improvements and features for WhisperNet:

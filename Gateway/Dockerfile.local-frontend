@@ -1,0 +1,10 @@
+FROM nginx:alpine
+
+COPY ./server.crt /etc/nginx/certs/server.crt
+COPY ./server.key /etc/nginx/certs/server.key
+COPY ./nginx.local-frontend.conf /etc/nginx/nginx.conf
+COPY ./error-pages /var/www/html/whispernet/errors
+
+EXPOSE 8099:80
+EXPOSE 8098:443
+CMD ["nginx", "-g", "daemon off;"]

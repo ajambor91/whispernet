@@ -1,23 +1,22 @@
-version: '3'
 services:
   loki:
     build:
-      context: './loki'
+      context: './MonitoringLoki'
       dockerfile: 'Dockerfile.local'
     container_name: loki
     volumes:
-      - './loki/data:/data'
+      - loki:/data
     hostname: loki.whisper.net
     networks:
       - whispernet
   grafana:
     build:
-      context: './grafana'
+      context: './MonitoringGrafana'
       dockerfile: './Dockerfile.local'
     hostname: grafana.whisper.net
     container_name: grafana
     volumes:
-      - './grafana/data-grafana-local:/var/lib/grafana'
+      - grafana:/var/lib/grafana
     ports:
       - "3000:3000"
     depends_on:
@@ -26,9 +25,9 @@ services:
       - whispernet
   promtail:
     build:
-      context: 'promtail'
+      context: 'MonitoringPromtail'
       dockerfile: 'Dockerfile.local'
-    hostname: promtail.whisper.net
+    hostname: promtail
     container_name: promtail
     volumes:
       - kafka-log:/var/log/external/kafka:ro
@@ -37,44 +36,107 @@ services:
       - whispernet
     depends_on:
       - loki
-  session:
+  user-session:
     build:
-      context: 'net.whisper.session'
+      context: 'UserSession'
       dockerfile: 'Dockerfile.local'
     networks:
       - whispernet
-    hostname: session.whisper.net
-    container_name: session
+    hostname: user-session
+    container_name: user-session
     depends_on:
       - broker
       - gateway
       - loki
-  wssession:
+  session:
     build:
-      context: 'net.whisper.wssession'
+      context: 'Session'
       dockerfile: './Dockerfile.local'
     networks:
       - whispernet
-    hostname: wssession.whisper.net
-    container_name: wssession
+    hostname: session
+    container_name: Session
     depends_on:
       - broker
-      - session
+      - user-session
       - loki
+  session-cache:
+    build:
+      context: './SessionCache'
+      dockerfile: './Dockerfile.local'
+    restart: always
+    volumes:
+      - session-cache:/data
+    networks:
+      - whispernet
   security:
     build:
-      context: 'net.whisper.security'
+      context: 'Security'
       dockerfile: './Dockerfile.local'
     networks:
       - whispernet-security
-    hostname: security.whisper.net
+    hostname: security
     container_name: security
     depends_on:
       - broker
       - loki
+      - security-cache
+      - security-db
+  security-cache:
+    build:
+      context: './SecurityCache'
+      dockerfile: './Dockerfile.local'
+    restart: always
+    command: redis-server --loglevel warning
+    volumes:
+      - security-cache:/data
+    networks:
+      - whispernet-security
+    ports:
+      - '6379:6379'
+  security-db:
+    build:
+      context: './SecurityDatabase'
+      dockerfile: './Dockerfile.local'
+    hostname: security-db
+    container_name: security-db
+    networks:
+      - whispernet-security
+    volumes:
+      - security-db:/var/lib/mysql
+    ports:
+      - 3307:3306
+  ws-signal-server:
+    depends_on:
+      - broker
+      - session
+    build:
+      context: './WebSocketSignalServer'
+      dockerfile: './Dockerfile.local'
+    networks:
+      - whispernet
+  ws-approving-server:
+    depends_on:
+      - broker
+      - session
+    build:
+      context: './WebSocketApprovingServer'
+      dockerfile: './Dockerfile.dev'
+    container_name: ws-approving
+    hostname: ws-approving
+    networks:
+      - whispernet
+  frontend:
+    build:
+      context: './ui'
+      dockerfile: './web/Dockerfile.local'
+    networks:
+      - whispernet-ui
+    hostname: frontend
+    container_name: frontend
   gateway:
     build:
-      context: './nginx'
+      context: './Gateway'
       dockerfile: './Dockerfile.local-frontend'
     ports:
       - '8099:80'
@@ -87,17 +149,6 @@ services:
     container_name: gateway
     volumes:
       - nginx-log:/var/log/nginx
-  gateway-cms:
-    build:
-      context: './nginx-cms'
-      dockerfile: './Dockerfile.local-frontend'
-    ports:
-      - '9099:80'
-      - '9098:443'
-    networks:
-      - whispernet-cms
-    hostname: gateway-cms.whisper.net
-    container_name: gateway-cms
   zookeeper:
     image: zookeeper:latest
     container_name: zookeeper
@@ -108,7 +159,7 @@ services:
     depends_on:
       - zookeeper
     build:
-      context: './broker'
+      context: './Broker'
       dockerfile: './Dockerfile.local'
     container_name: broker
     networks:
@@ -117,101 +168,35 @@ services:
     hostname: broker.whisper.net
     volumes:
       - kafka-log:/var/log/kafka:z
-  cache-security:
+  gateway-cms:
     build:
-      context: './redis-security'
-      dockerfile: './Dockerfile.local'
-    restart: always
-    command: redis-server --loglevel warning
-    volumes:
-      - redis-security:/data
-    networks:
-      - whispernet-security
+      context: './CmsGateway'
+      dockerfile: './Dockerfile.local-frontend'
     ports:
-      - '6379:6379'
-  cache:
+      - '9099:80'
+      - '9098:443'
+    networks:
+      - whispernet-cms
+    hostname: gateway-cms
+    container_name: gateway-cms
+  cms:
     build:
-      context: './redis'
+      context: './Cms'
       dockerfile: './Dockerfile.local'
-    restart: always
-    volumes:
-      - cache:/data
+    hostname: cms
+    container_name: cms
     networks:
-      - whispernet
-  wsserver:
-    depends_on:
-      - broker
-      - wssession
-    build:
-      context: './signal-server'
-      dockerfile: './Dockerfile.local'
-    networks:
-      - whispernet
-  approving:
-    depends_on:
-      - broker
-      - session
-    build:
-      context: './responder-approving'
-      dockerfile: './Dockerfile.dev'
-    container_name: approving
-    hostname: approving
-    networks:
-      - whispernet
-  coturn:
-    build:
-      context: './coturn'
-      dockerfile: './Dockerfile.local'
-    hostname: coturn
-    depends_on:
-      - wsserver
-    networks:
-      whispernet:
-        ipv4_address: 172.18.0.10
-    container_name: coturn
-    ports:
-      - "3478:3478/udp"
-      - "3478:3478/tcp"
-      - "5349:5349/udp"
-      - "5349:5349/tcp"
+      - whispernet-cms
   cms-db:
     build:
-      context: './cms-db'
+      context: './CmsDatabase'
       dockerfile: './Dockerfile.local'
-    hostname: cms-db.whisper.net
+    hostname: cms-db
     container_name: cms-db
     networks:
       - whispernet-cms
     volumes:
-      - './cms-db/cms-data:/var/lib/mysql'
-  app-db:
-    build:
-      context: './app-db'
-      dockerfile: './Dockerfile.local'
-    hostname: app-db.whisper.net
-    container_name: app-db
-    networks:
-      - whispernet-security
-    volumes:
-      - './app-db/app-data:/var/lib/mysql'
-    ports:
-      - 3307:3306
-  cms:
-    build:
-      context: './cms'
-      dockerfile: './Dockerfile.local'
-    hostname: cms.whisper.net
-    container_name: cms
-    networks:
-      - whispernet-cms
-  frontend:
-    build:
-      context: './ui'
-      dockerfile: './web/Dockerfile.local'
-    networks:
-      - whispernet-ui
-    hostname: frontend.whisper.net
-    container_name: frontend
+      - cms-db:/var/lib/mysql
   cms-ui:
     build:
       context: './ui'
@@ -242,13 +227,21 @@ networks:
       config:
         - subnet: 175.19.0.0/16
 volumes:
-  redis-security:
+  security-cache:
     driver: local
-  cache:
+  security-db:
+    driver: local
+  session-cache:
     driver: local
   kafka:
     driver: local
   kafka-log:
     driver: local
   nginx-log:
+    driver: local
+  cms-db:
+    driver: local
+  grafana:
+    driver: local
+  loki:
     driver: local

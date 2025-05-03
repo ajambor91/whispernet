@@ -1,0 +1,11 @@
+FROM php:8.2-fpm-alpine
+
+RUN apk add --no-cache bash git unzip curl && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
+    curl -sS https://get.symfony.com/cli/installer | bash && \
+    mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+RUN docker-php-ext-install pdo pdo_mysql
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+WORKDIR /var/www/html/whispernet-cms

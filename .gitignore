@@ -42,12 +42,18 @@ electron/*.build
 electron/dist/
 
 *.iml
+.env.local
+.env.local-frontend
 .env.prod
 .env.qa
 .env
 Dockerfile
 Dockerfile.qa
 Dockerfile.prod
+Dockerfile.local
+Dockerfile.local-frontend
+Dockerfile.dev
+init.sql
 .vs/
 x64/
 wasm/

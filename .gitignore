@@ -53,6 +53,7 @@ Dockerfile.prod
 Dockerfile.local
 Dockerfile.local-frontend
 Dockerfile.dev
+redis.conf
 init.sql
 .vs/
 x64/
@@ -62,7 +63,8 @@ data_grafana_qa/
 data-grafana-local/
 data-grafana-qa/
 grafana.db
-
+grafana.local.ini
+test_data/*
 vendor/
 var/
 composer.lock

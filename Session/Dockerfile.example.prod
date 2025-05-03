@@ -11,10 +11,10 @@ RUN microdnf install findutils dos2unix \
 FROM openjdk:22-jdk AS run
 WORKDIR /app
 COPY cfg/application.properties.prod /usr/app/application.properties
-COPY --from=build /app/build/libs/wssession.jar /app/wssession.jar
+COPY --from=build /app/build/libs/session.jar /app/session.jar
 RUN groupadd -r appGroup \
 && useradd yourUser -M -g yourGroup \
 && chmod 700 /app -R \
 && chown yourUser:yourGroup /app -R
 USER yourUser
-ENTRYPOINT ["java", "-jar", "wssession.jar",  "--spring.config.additional-location=/usr/app/application.properties"]
+ENTRYPOINT ["java", "-jar", "session.jar",  "--spring.config.additional-location=/usr/app/application.properties"]

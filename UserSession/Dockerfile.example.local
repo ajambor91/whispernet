@@ -7,4 +7,4 @@ RUN dos2unix ./gradlew
 RUN chmod +x ./gradlew
 RUN ./gradlew build --no-daemon
 
-ENTRYPOINT ["java", "-jar", "build/libs/whispernet.jar", "--spring.config.additional-location=/usr/app/application.properties"]
+ENTRYPOINT ["java", "-jar", "build/libs/usersession.jar", "--spring.config.additional-location=/usr/app/application.properties"]

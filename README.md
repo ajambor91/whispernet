@@ -171,12 +171,12 @@ Backend (Symfony) --> Database (mariadb)
    php bin/console app:make-admin email@domain.example examplePassword
 ```
 11. **Run CMS frontend**
-    ```bash
+```bash
    cd ui
    npm install or yarn install *
    cd ui/cms
    npm run dev
-
+````
 * *You only need to run one install command in the main ui directory
 
 Open http://localhost:3200 in web browser for main application.
@@ -266,23 +266,17 @@ Here are the planned improvements and features for WhisperNet:
 
 1. **Fully Functional TURN Server**:
     - Deploy a fully operational TURN server (Coturn) to support WebRTC in restrictive network environments.
-
 2. **Enhanced Test Coverage**:
     - Increase test coverage beyond 81% with additional unit, integration, and end-to-end tests.
-
 3. **Improved Monitoring and Performance Metrics**:
     - Add advanced metrics and alerts in Grafana for real-time system health tracking.
     - Integrate Prometheus for detailed performance monitoring and analysis.
-
 4. **Mobile Application**:
     - Build a mobile-friendly version of the application using React Native.
-
 5. **Desktop Application**:
     - Develop a desktop version of the application using Electron for a native-like experience.
-    - 
 6. **Group Chat Support** (Optional):
     - Extend the application to support multi-user group chats with dynamic room creation.
-    - 
 7. **zkSNARK Integration** (Optional):
     - Explore the possibility of using zkSNARKs for advanced cryptographic features, such as zero-knowledge proofs.
 

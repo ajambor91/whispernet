@@ -58,7 +58,7 @@ services:
     container_name: session
     depends_on:
       - broker
-      - session
+      - user-session
       - loki
   session-cache:
     build:

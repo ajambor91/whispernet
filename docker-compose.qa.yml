@@ -260,4 +260,4 @@ volumes:
   cms-db:
     driver: local
   loki:
-    driver: loki
+    driver: local

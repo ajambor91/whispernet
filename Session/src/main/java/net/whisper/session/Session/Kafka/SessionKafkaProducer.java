@@ -37,7 +37,7 @@ public class SessionKafkaProducer {
         try {
             String message = this.objectMapper.writeValueAsString(peerSession);
             this.sendKafkaMsg(message, EKafkaTopic.WEBSOCKET_SESSION_TOPIC.getTopicName(), type);
-            logger.info("SessionKafkaProducer:sendSession - Kafka message with Session to webscoket was send, sessionToken={}", peerSession.getSessionToken());
+            logger.info("SessionKafkaProducer:sendSession - Kafka message with Session to webscoket was send, sessionToken={}, topic={}", peerSession.getSessionToken(), EKafkaTopic.WEBSOCKET_SESSION_TOPIC.getTopicName());
         } catch (JsonProcessingException e) {
             logger.error("SessionKafkaProducer:sendSession - JSON process Session message failed, sessionToken={}, message={}", peerSession.getSessionToken(), e.getMessage());
         }

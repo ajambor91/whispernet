@@ -22,9 +22,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(properties = {
-        "spring.Kafka.bootstrap-servers=localhost:9095",
-        "spring.Kafka.consumer.auto-offset-reset=earliest",
-        "spring.Kafka.listener.missing-topics-fatal=false"
+        "spring.kafka.bootstrap-servers=localhost:9095",
+        "spring.kafka.consumer.auto-offset-reset=earliest",
+        "spring.kafka.listener.missing-topics-fatal=false"
 })
 public class SessionKafkaProducerTest {
     private final SessionKafkaProducer sessionKafkaProducer;
@@ -55,8 +55,9 @@ public class SessionKafkaProducerTest {
         this.sessionKafkaProducer.sendSession(this.peerSession, EKafkaMessageTypes.NEW_SESSION);
         verify(this.kafkaTemplate).send(any(Message.class));
         verify(this.logger).info(
-                eq("SessionKafkaProducer:sendSession - Kafka message with Session to webscoket was send, sessionToken={}"),
-                eq(this.peerSession.getSessionToken())
+                eq("SessionKafkaProducer:sendSession - Kafka message with Session to webscoket was send, sessionToken={}, topic={}"),
+                eq(this.peerSession.getSessionToken()),
+                eq("request-websocket-session-topic")
         );
     }
 

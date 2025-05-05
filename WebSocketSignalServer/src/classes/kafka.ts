@@ -35,6 +35,8 @@ class KafkaWS {
 
     private async initialize(): Promise<void> {
         try {
+            logInfo({event:"Initializing Kafka Service"})
+
             await Promise.all([this._consumer.connect(), this._producer.connect()]);
             this._isInitialized = true;
             this._initListening();
@@ -76,6 +78,7 @@ class KafkaWS {
     private async _run(): Promise<void> {
         await this._consumer.run({
             eachMessage: async ({ topic, partition, message }: EachMessagePayload) => {
+                logInfo({event:"Received new Kafka Message", message: message})
                 if (message.headers) {
                     let headers: IHeaders = {};
 

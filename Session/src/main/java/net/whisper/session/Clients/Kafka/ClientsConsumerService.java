@@ -58,7 +58,7 @@ public class ClientsConsumerService {
                 logger.info("Received Kafka message for update client, userToken={}, sessionToken={}", kafkaMessage.getUserToken(), ((Client) kafkaMessage).getSessionToken());
                 clientsService.updatePeer((Client) kafkaMessage, EKafkaMessageClientTypes.UPDATE_RETURN_CLIENT.getMessageType().equals(type));
             }
-            logger.error("Error: Received an empty Kafka message");
+            logger.error("Error: Received an empty kafka message");
         } catch (Exception e) {
             logger.error("Error processing message={}", e.getMessage());
         }

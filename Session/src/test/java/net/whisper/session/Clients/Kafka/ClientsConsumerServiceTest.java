@@ -23,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(properties = {
-        "spring.Kafka.bootstrap-servers=localhost:9095",
-        "spring.Kafka.consumer.auto-offset-reset=earliest",
-        "spring.Kafka.listener.missing-topics-fatal=false"
+        "spring.kafka.bootstrap-servers=localhost:9095",
+        "spring.kafka.consumer.auto-offset-reset=earliest",
+        "spring.kafka.listener.missing-topics-fatal=false"
 })
 public class ClientsConsumerServiceTest {
 
@@ -49,7 +49,7 @@ public class ClientsConsumerServiceTest {
     }
 
     @Test
-    @DisplayName("Should handle token from Kafka for new client- handleTokenEvent")
+    @DisplayName("Should handle token from kafka for new client- handleTokenEvent")
     public void handleTokenEventNewClient() throws JsonProcessingException {
         String newClient = this.objectMapper.writeValueAsString(this.clientWithoutSession);
         ConsumerRecord<String, String> consumerRecord = this.createRecordHeaders(newClient, EKafkaMessageClientTypes.NEW_CLIENT.getMessageType());
@@ -58,7 +58,7 @@ public class ClientsConsumerServiceTest {
     }
 
     @Test
-    @DisplayName("Should handle token from Kafka for adding client - handleTokenEvent")
+    @DisplayName("Should handle token from kafka for adding client - handleTokenEvent")
     public void handleTokenEventAddClient() throws JsonProcessingException {
         String joiningClient = this.objectMapper.writeValueAsString(this.client);
         ConsumerRecord<String, String> consumerRecord = this.createRecordHeaders(joiningClient, EKafkaMessageClientTypes.ADD_CLIENT.getMessageType());
@@ -67,7 +67,7 @@ public class ClientsConsumerServiceTest {
     }
 
     @Test
-    @DisplayName("Should log error for Kafka for invalid message- handleTokenEvent")
+    @DisplayName("Should log error for kafka for invalid message- handleTokenEvent")
     public void handleTokenEventInvalidMessageNewClient() {
         String newClient = "INVALID_MESSAGE";
         Logger logger = mock(Logger.class);
@@ -89,7 +89,7 @@ public class ClientsConsumerServiceTest {
         ConsumerRecord<String, String> consumerRecord = this.createRecordHeaders(newClient, EKafkaMessageClientTypes.ADD_CLIENT.getMessageType());
         this.clientsConsumerService.handleTokenEvent(consumerRecord);
         verify(logger).error(
-                eq("Error: Received an empty Kafka message")
+                eq("Error: Received an empty kafka message")
         );
     }
 

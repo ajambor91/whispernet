@@ -22,7 +22,15 @@ class Peer extends EventEmitter implements IPeer {
     private readonly _peerRole: PeerRole;
     private _status: EClientStatus = EClientStatus.NotConnected;
     private _rtcState!: ConnectionStateModel;
-    private iceServers = [{urls: 'stun:stun.l.google.com:19302'}];
+    private iceServers: RTCConfiguration =  {
+        iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:global.stun.twilio.com:3478" },
+        ],
+        iceTransportPolicy: "relay",
+        bundlePolicy: "balanced",
+        rtcpMuxPolicy: "require"
+    };
 
     constructor(peerState: IPeerState) {
         super();
@@ -145,7 +153,7 @@ class Peer extends EventEmitter implements IPeer {
     }
 
     private async _sendOffer(): Promise<void> {
-        this._rtcState.peerConnection = new RTCPeerConnection({iceServers: this.iceServers});
+        this._rtcState.peerConnection = new RTCPeerConnection(this.iceServers);
 
         this._rtcState.dataChannel = this._rtcState.peerConnection.createDataChannel("chat");
 
@@ -187,7 +195,7 @@ class Peer extends EventEmitter implements IPeer {
     private async _handleOffer(data: IIncomingMessage): Promise<void> {
         try {
             if (!this._rtcState.peerConnection) {
-                this._rtcState.peerConnection = new RTCPeerConnection({iceServers: this.iceServers});
+                this._rtcState.peerConnection = new RTCPeerConnection(this.iceServers);
                 this._rtcState.peerConnection.onicecandidate = (event) => this._handleIceCandidate(event);
             }
             this._setOwnStatus(EClientStatus.WebRTCInitialization);

@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import {IncomingMessage} from 'http';
-import {WebSocketConnectionController} from "../controllers/web-socker-connection.controller";
+import {WebSocketConnectionController} from "../controllers/web-socket-connection.controller";
 import {logError, logInfo} from "../error-logger/error-looger";
 
 export const wsConnection = (): void => {

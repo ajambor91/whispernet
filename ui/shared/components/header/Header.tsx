@@ -6,10 +6,11 @@ import logo from "../../pics/whispernet_logo_256.png"
 
 const Header: React.FC = () => {
     return (
-        <header className={styles.header}>
-            <img src={logo} alt="WhisperNet Logo" className={styles["logo"]}/>
+        <header className={styles['header']}>
+            <img src={logo} alt="WhisperNet Logo" className={styles["header__logo"]}/>
             <PrimaryHeader>WhisperNet</PrimaryHeader>
             <SecondaryHeader>A Fully Anonymous Chat Over WebRTC</SecondaryHeader>
+            <p className={styles['header__monit']}>NOTE: Your company or internet provider might be blocking P2P connections. In this case, you won't be able to connect with your friend.</p>
         </header>
     )
 }

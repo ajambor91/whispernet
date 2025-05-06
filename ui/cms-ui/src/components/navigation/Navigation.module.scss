@@ -264,12 +264,12 @@ $background-color: #14133b;
     z-index: -1;
     transform: translateY(0);
   }
-  99% {
+  60% {
     z-index: -1;
   }
   100% {
     z-index: 1;
-    transform: translateY(55px);
+    transform: translateY(135px);
 
   }
 }
@@ -277,9 +277,9 @@ $background-color: #14133b;
 @keyframes slideInLang {
   0% {
     z-index: 1;
-    transform: translateY(55px);
+    transform: translateY(135px);
   }
-  1% {
+  40% {
     z-index: -1;
   }
   100% {

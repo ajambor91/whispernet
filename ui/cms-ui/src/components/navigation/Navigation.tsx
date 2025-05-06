@@ -61,7 +61,7 @@ const Navigation: React.FC = () => {
                     <h1 className={styles['navigation-container__header']}><Link href="/"
                                                                                  onClick={(e) => goTo(e, "/")}>WhisperNet</Link>
                     </h1>
-                    <h2 className={styles['navigation-container__version']}>0.1.1 BETA
+                    <h2 className={styles['navigation-container__version']}>0.2.0 BETA
                     </h2>
                 </div>
 

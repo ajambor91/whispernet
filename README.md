@@ -42,6 +42,7 @@ Your company or internet provider might be blocking P2P connections. In this cas
 For the demo you can run the application on two computers in your local network, or two browser tabs at your computer.
 I am currently exploring options for the best way to work around this problem.
 ## Application site
+**Current version:** `0.2.0 BETA`  
 **Main site:** `https://whispernet.site`  
 **Chat site:** `https://chat.whispernet.site`
 ## Tech Stack
@@ -275,7 +276,7 @@ You can find the HTML report in the `target/site/jacoco` directory or access it 
 
 ### Notes
 *   **Demo (main branch):**  A demo of peer identity verification using PGP keys is available on the `main` branch.  You can force a session to walk through the verification process and connect to the Approving Server.
-*   **Production (release/0.1.1):** The current production version resides on the `release/0.1.1` branch.
+*   **Production (release/0.2.0):** The current production version resides on the `release/0.2.0` branch.
 
 ## In progress
  1. **Refactor and testing Spring Boot Services**

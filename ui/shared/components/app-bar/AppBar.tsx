@@ -24,7 +24,7 @@ const AppBar: React.FC<IAppBarProps> = ({isLogin, username}) => {
                         WhisperNet
                     </PrimaryHeader>
                     <TertiaryHeader style={{fontSize: '15px', marginTop: "-25px", textAlign: 'left'}}>
-                        0.1.1 BETA
+                        0.2.0 BETA
                     </TertiaryHeader>
                 </div>
                 <div className={styles["authorization-container"]}>
